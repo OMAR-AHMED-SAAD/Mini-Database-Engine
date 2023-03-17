@@ -189,7 +189,7 @@ public class Table {
 		try {
 			t.InsertInTable(htblColNameValue);
 			t.InsertInTable(htblColNameValue1);
-			t.InsertInTable(htblColNameValue);
+			//t.InsertInTable(htblColNameValue);
 			//t.InsertInTable(htblColNameValue2);
 			//t.InsertInTable(htblColNameValue3);
 			//t.InsertInTable(htblColNameValue4);
