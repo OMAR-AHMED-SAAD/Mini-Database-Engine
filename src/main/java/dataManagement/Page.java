@@ -9,8 +9,10 @@ import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Vector;
 
-@SuppressWarnings("serial")
+import exceptions.DBAppException;
+
 public class Page implements Serializable {
+	private static final long serialVersionUID = 1L;
 	private String TblName;
 	private int PageId;
 	private Object CurrMin;
@@ -18,7 +20,7 @@ public class Page implements Serializable {
 	private int CurrRowCount;
 	private int MaxRowCount;
 	private String FilePath;
-	private Vector<Hashtable<String, Object>> VecPage = new Vector<Hashtable<String, Object>>();
+	Vector<Hashtable<String, Object>> VecPage = new Vector<Hashtable<String, Object>>();
 
 	public Page(int id, String TblName) {
 		PageId = id;
@@ -79,7 +81,8 @@ public class Page implements Serializable {
 		return 0;
 	}
 
-	public Hashtable<String, Object> InsertToPage(String ClustKey, Hashtable<String, Object> ColNameValue) {
+	public Hashtable<String, Object> InsertToPage(String ClustKey, Hashtable<String, Object> ColNameValue)
+			throws DBAppException {
 		Hashtable<String, Object> Result = null;
 		if (CurrRowCount == 0) {
 			VecPage.add(ColNameValue);
@@ -93,7 +96,7 @@ public class Page implements Serializable {
 					CurrRowCount++;
 					break;
 				} else if (ComparisonValue == 0)
-					return ColNameValue;
+					throw new DBAppException("Can not accept duplicate primary keys");
 				else if (ComparisonValue > 0 && i == (PageSize - 1)) {
 					VecPage.insertElementAt(ColNameValue, i + 1);
 					CurrRowCount++;

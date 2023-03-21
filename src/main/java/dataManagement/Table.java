@@ -7,8 +7,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Vector;
 
 import exceptions.DBAppException;
 
@@ -17,13 +17,16 @@ public class Table {
 	private String TblName;
 	private String ClustKey;
 	private Hashtable<Integer, String> PageFilePath = new Hashtable<Integer, String>();
-	ArrayList<Object> PageMaxClustKey = new ArrayList<Object>();
-	private int PageCount;
+	private Hashtable<Integer, Object> MaxPage = new Hashtable<Integer, Object>();
+	private Hashtable<Integer, Object> MinPage = new Hashtable<Integer, Object>();
+	private Hashtable<Integer, Boolean> IsPgFull = new Hashtable<Integer, Boolean>();
+	private Vector<Integer> TablePages = new Vector<Integer>();
+	private int PageIdInc;
 
 	public Table(String name, String ClustKey) {
 		this.TblName = name;
 		this.ClustKey = ClustKey;
-		PageCount = 0;
+		PageIdInc = 0;
 
 	}
 
@@ -60,66 +63,76 @@ public class Table {
 	}
 
 	public void InsertInTable(Hashtable<String, Object> ColNameValue) throws DBAppException {
-		if (PageCount == 0)
-			CreateAddNewRow(ColNameValue);
-		else if (PageCount > 0) {
-			int Min = 0;
-			int Max = PageCount - 1;
-			while (Min != Max) {
-				int Mid = (Max + Min) / 2;
-				int ComparisonValue = this.compare(ColNameValue.get(ClustKey), PageMaxClustKey.get(Mid));
-				if (ComparisonValue == 0)
+		Object CK = ColNameValue.get(this.ClustKey);
+		if (TablePages.size() == 0)
+			CreateAddNewPage(ColNameValue);
+		else if (TablePages.size() > 0) {
+			for (int i = 0; i < TablePages.size(); i++) {
+				int Pid = TablePages.get(i);
+				Object PageMinVal = MinPage.get(Pid);
+				Object PageMaxVal = MaxPage.get(Pid);
+				Boolean IsPgF = IsPgFull.get(Pid);
+				Boolean IsLastPg = (i == (TablePages.size() - 1));
+				Page InstPg;
+				Hashtable<String, Object> PgInstRes;
+				if (compare(CK, PageMinVal) < 0 || (compare(CK, PageMinVal) > 0 && compare(CK, PageMaxVal) < 0)) {
+					InstPg = LoadPage(this.PageFilePath.get(Pid));
+					PgInstRes = InstPg.InsertToPage(this.ClustKey, ColNameValue);
+					UpTblData(InstPg);
+					OverflowSolver(PgInstRes);
+					break;
+				} else if (compare(CK, PageMaxVal) > 0 && IsPgF && IsLastPg) {
+					CreateAddNewPage(ColNameValue);
+					break;
+				} else if (compare(CK, PageMaxVal) > 0 && IsPgF && !IsLastPg) {
+					continue;
+				} else if (compare(CK, PageMaxVal) > 0 && !IsPgF && IsLastPg) {
+					InstPg = LoadPage(this.PageFilePath.get(Pid));
+					PgInstRes = InstPg.InsertToPage(this.ClustKey, ColNameValue);
+					UpTblData(InstPg);
+					OverflowSolver(PgInstRes);
+					break;
+				} else if (compare(CK, PageMaxVal) > 0 && !IsPgF && !IsLastPg) {
+					int NxtPid = TablePages.get(i);
+					Object NxtPageMinVal = MinPage.get(NxtPid);
+					if (compare(CK, NxtPageMinVal) < 0) {
+						InstPg = LoadPage(this.PageFilePath.get(Pid));
+						PgInstRes = InstPg.InsertToPage(this.ClustKey, ColNameValue);
+						UpTblData(InstPg);
+						OverflowSolver(PgInstRes);
+						break;
+					} else
+						continue;
+				} else 
 					throw new DBAppException("Can not accept duplicate primary keys");
-				else if (ComparisonValue < 0)
-					Max = Mid;
-				else
-					Min = Mid + 1;
 			}
-			int ComparisonValue = this.compare(ColNameValue.get(ClustKey), PageMaxClustKey.get(Min));
-			Page InsertionPage = this.LoadPage(PageFilePath.get(Min));
-			if (Min == (PageCount - 1) && ComparisonValue > 0 && InsertionPage.IsFull()) {
-				CreateAddNewRow(ColNameValue);
-				InsertionPage.UnLoadPage();
-				}
-			else {
-				Hashtable<String, Object> PageInsertResult = InsertionPage.InsertToPage(ClustKey, ColNameValue);
-				InsertionPage.UnLoadPage();
-				if (PageInsertResult == null)
-					return;
-				ComparisonValue = this.compare(ColNameValue.get(ClustKey), PageInsertResult.get(ClustKey));
-				if (ComparisonValue == 0)
-					throw new DBAppException("Can not accept duplicate primary keys");
-				else
-					OverflowSolver(PageInsertResult, Min + 1);
-			}
-
 		}
 	}
 
-	private void CreateAddNewRow(Hashtable<String, Object> ColNameValue) {
-
-		Page NewPage = new Page(PageCount, this.TblName);
-		this.PageFilePath.put(NewPage.getPageId(), NewPage.getFilePath());
-		NewPage.InsertToPage(ClustKey, ColNameValue);
-		this.PageMaxClustKey.add(NewPage.getCurrMax());
-		PageCount++;
-		NewPage.UnLoadPage();
+	private void CreateAddNewPage(Hashtable<String, Object> ColNameValue) throws DBAppException {
+		Page CreatedPage = new Page(PageIdInc, this.TblName);
+		TablePages.add(CreatedPage.getPageId());
+		this.PageFilePath.put(CreatedPage.getPageId(), CreatedPage.getFilePath());
+		CreatedPage.InsertToPage(ClustKey, ColNameValue);
+		UpTblData(CreatedPage);
+		PageIdInc++;
 
 	}
 
-	private void OverflowSolver(Hashtable<String, Object> PageInsertResult, int CurrPagePtr) throws DBAppException {
+	private void UpTblData(Page Pg) {
+		MaxPage.put(Pg.getPageId(), Pg.getCurrMax());
+		MinPage.put(Pg.getPageId(), Pg.getCurrMin());
+		IsPgFull.put(Pg.getPageId(), Pg.IsFull());
+		Pg.UnLoadPage();
+	}
 
-		if (PageInsertResult == null)
+	private void OverflowSolver(Hashtable<String, Object> PgInstRes) throws DBAppException {
+
+		if (PgInstRes == null)
 			return;
-		if (CurrPagePtr == PageCount) {
-			CreateAddNewRow(PageInsertResult);
-			return;
-		} else {
-			Page InsertionPage = this.LoadPage(PageFilePath.get(CurrPagePtr));
-			PageInsertResult = InsertionPage.InsertToPage(ClustKey, PageInsertResult);
-			InsertionPage.UnLoadPage();
-			OverflowSolver(PageInsertResult, CurrPagePtr + 1);
-		}
+		else
+			InsertInTable(PgInstRes);
+
 	}
 
 	public int compare(Object One, Object Two) {
@@ -160,7 +173,7 @@ public class Table {
 		max.put("gpa", "1000");
 
 		Table t = new Table("Student", "id");
-	//	Table t2 = new Table("Doctor", "id");
+		// Table t2 = new Table("Doctor", "id");
 
 		Hashtable<String, Object> htblColNameValue = new Hashtable<String, Object>();
 		htblColNameValue.put("id", new Integer(1));
@@ -186,23 +199,49 @@ public class Table {
 		htblColNameValue4.put("id", new Integer(5));
 		htblColNameValue4.put("name", new String("Ahmed Noor"));
 		htblColNameValue4.put("gpa", new Double(0.95));
-		try {
-			t.InsertInTable(htblColNameValue);
-			t.InsertInTable(htblColNameValue1);
-			//t.InsertInTable(htblColNameValue);
-			//t.InsertInTable(htblColNameValue2);
-			//t.InsertInTable(htblColNameValue3);
-			//t.InsertInTable(htblColNameValue4);
-		} catch (DBAppException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 //		try {
-		// t.AddMetaData(NameType, min, max);
+//			 t.InsertInTable(htblColNameValue);
+//		//	 t.InsertInTable(htblColNameValue);
+//			 t.InsertInTable(htblColNameValue1);
+//		 t.InsertInTable(htblColNameValue2);
+//		 t.InsertInTable(htblColNameValue3);
+//			 t.InsertInTable(htblColNameValue4);
+//		} catch (DBAppException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//	}
+//		try {
+//		 t.AddMetaData(NameType, min, max);
 //			 t2.AddMetaData(NameType, min, max);
 //		} catch (IOException e) {
 //			System.out.println(e.getMessage());
 //		}
+
+		try {
+			Page p = t.LoadPage("src/main/DBFiles/StudentPage0.class");
+			for (Hashtable<String, Object> x : p.VecPage)
+				System.out.println(x.get("id"));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			Page p = t.LoadPage("src/main/DBFiles/StudentPage1.class");
+			for (Hashtable<String, Object> x : p.VecPage)
+				System.out.println(x.get("id"));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			Page p = t.LoadPage("src/main/DBFiles/StudentPage2.class");
+			for (Hashtable<String, Object> x : p.VecPage)
+				System.out.println(x.get("id"));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 }
