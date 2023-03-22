@@ -7,11 +7,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.PrintWriter;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Hashtable;
 import java.util.Vector;
 import java.util.Date;
-import java.text.SimpleDateFormat;
 
 import exceptions.DBAppException;
 
@@ -108,7 +108,7 @@ public class Table {
 						break;
 					} else
 						continue;
-				} else 
+				} else
 					throw new DBAppException("Can not accept duplicate primary keys");
 			}
 		}
@@ -152,33 +152,44 @@ public class Table {
 
 	}
 
-	public Object ParsingCk(String CkVal){
-		
-		switch(CkType){
-			case "java.lang.Integer":
-				return new Integer(Integer.parseInt(CkVal));
-			case "java.lang.String":
-				return new String(CkVal);
-			case "java.util.Date":
-				Date date =new SimpleDateFormat("YYYY-MM-DD").parse(CkVal);
-				return date;
-			case "java.lang.Double":
-				return new Double(Double.parseDouble(CkVal));
-			/*default:
-				return new String(CkVal);*/
+	public Object ParsingCk(String CkVal) throws ParseException {
 
+		switch (CkType) {
+		case "java.lang.Integer":
+			return new Integer(Integer.parseInt(CkVal));
+		case "java.lang.String":
+			return new String(CkVal);
+		case "java.util.Date":
+			Date date = new SimpleDateFormat("yyyy-MM-dd").parse(CkVal);
+			return date;
+		case "java.lang.Double":
+			return new Double(Double.parseDouble(CkVal));
+		default:
+			return new String(CkVal);
 		}
 	}
-	
-	public Page SearchByCk(String CkVal) {
-		
-		
-		
+
+	public Page SearchByCk(String CkVal) throws ParseException {
+		Object CkValO = ParsingCk(CkVal);
+		Boolean IsPgFound=false;
+		int PgId;
+		int Min=0;
+		int Max=TablePages.size()-1;
+		while(Min<Max) {
+			int Mid=(Min+Max)/2;
+			Object MinVal=MinPage.get(TablePages.get(Mid));
+			Object MaxVal=MaxPage.get(TablePages.get(Mid));
+			if(compare( CkValO, MinVal)>=0||compare(CkValO, MaxVal)<=0) {
+				PgId=Mid;
+				IsPgFound=true;
+				break;
+			}
+			
+		}
 		return null;
 	}
 
-
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, ParseException {
 
 		Hashtable<String, String> NameType = new Hashtable<String, String>();
 		NameType.put("id", "java.lang.Integer");
@@ -195,7 +206,7 @@ public class Table {
 		max.put("name", "ZZZZZZZZZZZZ");
 		max.put("gpa", "1000");
 
-		Table t = new Table("Student", "id");
+		Table t = new Table("Student", "id", "java.util.Date");
 		// Table t2 = new Table("Doctor", "id");
 
 		Hashtable<String, Object> htblColNameValue = new Hashtable<String, Object>();
@@ -222,17 +233,17 @@ public class Table {
 		htblColNameValue4.put("id", new Integer(5));
 		htblColNameValue4.put("name", new String("Ahmed Noor"));
 		htblColNameValue4.put("gpa", new Double(0.95));
-		try {
-			t.InsertInTable(htblColNameValue4);
-			t.InsertInTable(htblColNameValue1);
-			t.InsertInTable(htblColNameValue2);
-			t.InsertInTable(htblColNameValue3);
-			t.InsertInTable(htblColNameValue);
-		//	 t.InsertInTable(htblColNameValue);
-		} catch (DBAppException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-	}
+//		try {
+//			t.InsertInTable(htblColNameValue4);
+//			t.InsertInTable(htblColNameValue1);
+//			t.InsertInTable(htblColNameValue2);
+//			t.InsertInTable(htblColNameValue3);
+//			t.InsertInTable(htblColNameValue);
+//		//	 t.InsertInTable(htblColNameValue);
+//		} catch (DBAppException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//	}
 //		try {
 //		 t.AddMetaData(NameType, min, max);
 //			 t2.AddMetaData(NameType, min, max);
@@ -240,30 +251,32 @@ public class Table {
 //			System.out.println(e.getMessage());
 //		}
 
-		try {
-			Page p = t.LoadPage("src/main/DBFiles/StudentPage0.class");
-			for (Hashtable<String, Object> x : p.getVecPage())
-				System.out.println(x.get("id"));
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		try {
-			Page p = t.LoadPage("src/main/DBFiles/StudentPage1.class");
-			for (Hashtable<String, Object> x : p.getVecPage())
-				System.out.println(x.get("id"));
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		try {
-			Page p = t.LoadPage("src/main/DBFiles/StudentPage2.class");
-			for (Hashtable<String, Object> x : p.getVecPage())
-				System.out.println(x.get("id"));
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			Page p = t.LoadPage("src/main/DBFiles/StudentPage0.class");
+//			for (Hashtable<String, Object> x : p.getVecPage())
+//				System.out.println(x.get("id"));
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		try {
+//			Page p = t.LoadPage("src/main/DBFiles/StudentPage1.class");
+//			for (Hashtable<String, Object> x : p.getVecPage())
+//				System.out.println(x.get("id"));
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		try {
+//			Page p = t.LoadPage("src/main/DBFiles/StudentPage2.class");
+//			for (Hashtable<String, Object> x : p.getVecPage())
+//				System.out.println(x.get("id"));
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+
+		System.out.println(t.ParsingCk("2002-11-5"));
 
 	}
 
