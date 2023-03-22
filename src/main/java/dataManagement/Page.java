@@ -116,6 +116,10 @@ public class Page implements Serializable {
 	public boolean IsFull() {
 		return (CurrRowCount == MaxRowCount);
 	}
+	
+	public boolean IsRowFound(String CKName, Object CkValO) {
+		
+	}
 
 	public Vector<Hashtable<String, Object>> getVecPage() {
 		return VecPage;

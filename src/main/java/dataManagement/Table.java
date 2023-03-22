@@ -18,7 +18,7 @@ import exceptions.DBAppException;
 public class Table {
 
 	private String TblName;
-	private String ClustKey;
+	private String CKName;
 	private String CkType;
 	private Hashtable<Integer, String> PageFilePath = new Hashtable<Integer, String>();
 	private Hashtable<Integer, Object> MaxPage = new Hashtable<Integer, Object>();
@@ -29,7 +29,7 @@ public class Table {
 
 	public Table(String name, String ClustKey, String CkType) {
 		this.TblName = name;
-		this.ClustKey = ClustKey;
+		this.CKName = ClustKey;
 		this.CkType = CkType;
 		PageIdInc = 0;
 
@@ -61,14 +61,14 @@ public class Table {
 			pw.println("TableName" + "," + "Column Name" + "," + "Column Type" + "," + "ClusteringKey" + ","
 					+ "IndexName" + "," + "IndexType" + "," + "min" + "," + "max");
 		ColNameType.forEach(
-				(key, value) -> pw.println(this.TblName + "," + key + "," + value + "," + key.equals(this.ClustKey)
+				(key, value) -> pw.println(this.TblName + "," + key + "," + value + "," + key.equals(this.CKName)
 						+ "," + "null" + "," + "null" + "," + ColNameMin.get(key) + "," + ColNameMax.get(key)));
 		pw.flush();
 		pw.close();
 	}
 
 	public void InsertInTable(Hashtable<String, Object> ColNameValue) throws DBAppException {
-		Object CK = ColNameValue.get(this.ClustKey);
+		Object CK = ColNameValue.get(this.CKName);
 		if (TablePages.size() == 0)
 			CreateAddNewPage(ColNameValue);
 		else if (TablePages.size() > 0) {
@@ -82,7 +82,7 @@ public class Table {
 				Hashtable<String, Object> PgInstRes;
 				if (compare(CK, PageMinVal) < 0 || (compare(CK, PageMinVal) > 0 && compare(CK, PageMaxVal) < 0)) {
 					InstPg = LoadPage(this.PageFilePath.get(Pid));
-					PgInstRes = InstPg.InsertToPage(this.ClustKey, ColNameValue);
+					PgInstRes = InstPg.InsertToPage(this.CKName, ColNameValue);
 					UpTblData(InstPg);
 					OverflowSolver(PgInstRes);
 					break;
@@ -93,7 +93,7 @@ public class Table {
 					continue;
 				} else if (compare(CK, PageMaxVal) > 0 && !IsPgF && IsLastPg) {
 					InstPg = LoadPage(this.PageFilePath.get(Pid));
-					PgInstRes = InstPg.InsertToPage(this.ClustKey, ColNameValue);
+					PgInstRes = InstPg.InsertToPage(this.CKName, ColNameValue);
 					UpTblData(InstPg);
 					OverflowSolver(PgInstRes);
 					break;
@@ -102,7 +102,7 @@ public class Table {
 					Object NxtPageMinVal = MinPage.get(NxtPid);
 					if (compare(CK, NxtPageMinVal) < 0) {
 						InstPg = LoadPage(this.PageFilePath.get(Pid));
-						PgInstRes = InstPg.InsertToPage(this.ClustKey, ColNameValue);
+						PgInstRes = InstPg.InsertToPage(this.CKName, ColNameValue);
 						UpTblData(InstPg);
 						OverflowSolver(PgInstRes);
 						break;
@@ -118,7 +118,7 @@ public class Table {
 		Page CreatedPage = new Page(PageIdInc, this.TblName);
 		TablePages.add(CreatedPage.getPageId());
 		this.PageFilePath.put(CreatedPage.getPageId(), CreatedPage.getFilePath());
-		CreatedPage.InsertToPage(ClustKey, ColNameValue);
+		CreatedPage.InsertToPage(CKName, ColNameValue);
 		UpTblData(CreatedPage);
 		PageIdInc++;
 
@@ -171,22 +171,32 @@ public class Table {
 
 	public Page SearchByCk(String CkVal) throws ParseException {
 		Object CkValO = ParsingCk(CkVal);
-		Boolean IsPgFound=false;
-		int PgId;
-		int Min=0;
-		int Max=TablePages.size()-1;
-		while(Min<Max) {
-			int Mid=(Min+Max)/2;
-			Object MinVal=MinPage.get(TablePages.get(Mid));
-			Object MaxVal=MaxPage.get(TablePages.get(Mid));
-			if(compare( CkValO, MinVal)>=0||compare(CkValO, MaxVal)<=0) {
-				PgId=Mid;
-				IsPgFound=true;
+		Boolean IsPgFound = false;
+		int PgId = 0;
+		int Min = 0;
+		int Max = TablePages.size() - 1;
+		while (Min < Max) {
+			int Mid = (Min + Max) / 2;
+			Object MinVal = MinPage.get(TablePages.get(Mid));
+			Object MaxVal = MaxPage.get(TablePages.get(Mid));
+			if (compare(CkValO, MinVal) >= 0 && compare(CkValO, MaxVal) <= 0) {
+				PgId = Mid;
+				IsPgFound = true;
 				break;
-			}
-			
+			} else if (compare(CkValO, MinVal) < 0)
+				Max = Mid - 1;
+			else if (compare(CkValO, MaxVal) > 0)
+				Min = Mid + 1;
 		}
-		return null;
+		if (!IsPgFound)
+			return null;
+		else {
+			Page Pg = LoadPage(PageFilePath.get(PgId));
+			if (Pg.IsRowFound(CKName,CkValO))
+				return Pg;
+			else
+				return null;
+		}
 	}
 
 	public static void main(String[] args) throws IOException, ParseException {
