@@ -147,13 +147,6 @@ public class Table {
 
 	}
 
-	public String getName() {
-		return TblName;
-	}
-
-	public String getClusteringKey() {
-		return ClustKey;
-	}
 
 	public static void main(String[] args) throws IOException {
 
@@ -199,17 +192,17 @@ public class Table {
 		htblColNameValue4.put("id", new Integer(5));
 		htblColNameValue4.put("name", new String("Ahmed Noor"));
 		htblColNameValue4.put("gpa", new Double(0.95));
-//		try {
-//			 t.InsertInTable(htblColNameValue);
-//		//	 t.InsertInTable(htblColNameValue);
-//			 t.InsertInTable(htblColNameValue1);
-//		 t.InsertInTable(htblColNameValue2);
-//		 t.InsertInTable(htblColNameValue3);
-//			 t.InsertInTable(htblColNameValue4);
-//		} catch (DBAppException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//	}
+		try {
+			t.InsertInTable(htblColNameValue4);
+			t.InsertInTable(htblColNameValue1);
+			t.InsertInTable(htblColNameValue2);
+			t.InsertInTable(htblColNameValue3);
+			t.InsertInTable(htblColNameValue);
+		//	 t.InsertInTable(htblColNameValue);
+		} catch (DBAppException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+	}
 //		try {
 //		 t.AddMetaData(NameType, min, max);
 //			 t2.AddMetaData(NameType, min, max);
@@ -219,7 +212,7 @@ public class Table {
 
 		try {
 			Page p = t.LoadPage("src/main/DBFiles/StudentPage0.class");
-			for (Hashtable<String, Object> x : p.VecPage)
+			for (Hashtable<String, Object> x : p.getVecPage())
 				System.out.println(x.get("id"));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -227,7 +220,7 @@ public class Table {
 		}
 		try {
 			Page p = t.LoadPage("src/main/DBFiles/StudentPage1.class");
-			for (Hashtable<String, Object> x : p.VecPage)
+			for (Hashtable<String, Object> x : p.getVecPage())
 				System.out.println(x.get("id"));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -235,7 +228,7 @@ public class Table {
 		}
 		try {
 			Page p = t.LoadPage("src/main/DBFiles/StudentPage2.class");
-			for (Hashtable<String, Object> x : p.VecPage)
+			for (Hashtable<String, Object> x : p.getVecPage())
 				System.out.println(x.get("id"));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

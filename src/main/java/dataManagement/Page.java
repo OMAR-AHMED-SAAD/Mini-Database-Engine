@@ -20,12 +20,12 @@ public class Page implements Serializable {
 	private int CurrRowCount;
 	private int MaxRowCount;
 	private String FilePath;
-	Vector<Hashtable<String, Object>> VecPage = new Vector<Hashtable<String, Object>>();
+	private Vector<Hashtable<String, Object>> VecPage = new Vector<Hashtable<String, Object>>();
 
 	public Page(int id, String TblName) {
 		PageId = id;
 		this.TblName = TblName;
-		FilePath = "src/main/DBFiles/" + this.TblName + "Page" + this.PageId + ".class";
+		FilePath = "src/main/DBFiles/" + this.TblName + "Page" + this.PageId + ".bin";
 		CurrRowCount = 0;
 		Properties Prop = new Properties();
 		try {
@@ -115,5 +115,9 @@ public class Page implements Serializable {
 
 	public boolean IsFull() {
 		return (CurrRowCount == MaxRowCount);
+	}
+
+	public Vector<Hashtable<String, Object>> getVecPage() {
+		return VecPage;
 	}
 }

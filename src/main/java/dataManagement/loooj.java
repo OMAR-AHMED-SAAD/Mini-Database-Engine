@@ -50,7 +50,7 @@ public class loooj {
 //		System.out.println(compare(a,b));
 		
 		Page p=LoadPage("src/main/DBFiles/StudentPage0.class");
-		for(Hashtable<String, Object> x: p.VecPage) {
+		for(Hashtable<String, Object> x: p.getVecPage()) {
 			System.out.println(x.get("id"));
 		}
 		
