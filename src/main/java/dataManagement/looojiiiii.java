@@ -3,8 +3,8 @@ package dataManagement;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.util.Hashtable;
-
-public class loooj {
+import java.util.Vector;
+public class looojiiiii {
 	public static int compare(Object One, Object Two) {
 		if (One instanceof Integer && Two instanceof Integer)
 			return ((Integer) One).compareTo((Integer) Two);
@@ -31,28 +31,34 @@ public class loooj {
 //			e.printStackTrace();
 //		}
 
-//		Vector<Integer> vec=new Vector<Integer>();
-//		vec.add(1);
-//		vec.add(2);
-//		vec.add(4);
+		Vector<Integer> vec=new Vector<Integer>();
+		vec.add(1);
+		vec.add(2);
+		vec.add(4);
+		int j=0;
+		for(int i: vec) {
+			if(i==2)
+				vec.remove(j);
+			j++;
+		}
 //		
 //		for(int i=0;i<3;i++) {
 //			if(((Integer)vec.elementAt(i))>3)
 //				vec.insertElementAt(3, i);
 //		}
-//		for(int i=0;i<vec.size();i++) {
-//			System.out.println(vec.elementAt(i));
-//				
-//		}
-//		
+		for(int i=0;i<vec.size();i++) {
+			System.out.println(vec.elementAt(i));
+				
+		}
+		
 //		Object a=new String("3");
 //		Object b=new String("4");
 //		System.out.println(compare(a,b));
 		
-		Page p=LoadPage("src/main/DBFiles/StudentPage0.class");
-		for(Hashtable<String, Object> x: p.getVecPage()) {
-			System.out.println(x.get("id"));
-		}
+//		Page p=LoadPage("src/main/DBFiles/StudentPage0.class");
+//		for(Hashtable<String, Object> x: p.getVecPage()) {
+//			System.out.println(x.get("id"));
+//		}
 	
 	}
 

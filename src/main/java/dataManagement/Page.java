@@ -5,7 +5,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Enumeration;
 import java.util.Hashtable;
+
 import java.util.Properties;
 import java.util.Vector;
 
@@ -116,9 +118,49 @@ public class Page implements Serializable {
 	public boolean IsFull() {
 		return (CurrRowCount == MaxRowCount);
 	}
-	
-	public boolean IsRowFound(String CKName, Object CkValO) {
-		
+	public boolean IsEmpty() {
+		return (CurrRowCount == 0);
+	}
+	public int IsRowFound(String CKName, Object CkValO) {
+		int Min = 0;
+		int Max = VecPage.size() - 1;
+		while (Min < Max) {
+			int Mid = (Min + Max) / 2;
+			Hashtable<String, Object> CurrRow = VecPage.get(Mid);
+			int comparisonVal = compare(CkValO, CurrRow.get(CKName));
+			if (comparisonVal == 0)
+				return Mid;
+			else if (comparisonVal < 0)
+				Max = Mid - 1;
+			else
+				Min = Mid + 1;
+		}
+		return -1;
+	}
+
+	public void UpdtRow(int index, Hashtable<String, Object> ColNameVal) {
+		ColNameVal.forEach((key, value) -> VecPage.get(index).put(key, value));
+	}
+
+	public void DelRows(Hashtable<String, Object> ColNameVal,String CKName) {
+		int Index = 0;
+		for (Hashtable<String, Object> Tuple : VecPage) {
+			boolean flag = true;
+			Enumeration<String> ColNameValKeys = ColNameVal.keys();
+			while (ColNameValKeys.hasMoreElements()) {
+				String Key = ColNameValKeys.nextElement();
+				int CompVal = compare(Tuple.get(Key), ColNameVal.get(Key));
+				if (CompVal != 0)
+					flag = false;
+			}
+			if (flag) {
+				VecPage.remove(Index);
+				CurrRowCount--;
+				}
+			Index++;
+		}
+		CurrMax = VecPage.elementAt(CurrRowCount - 1).get(CKName);
+		CurrMin = VecPage.elementAt(0).get(CKName);
 	}
 
 	public Vector<Hashtable<String, Object>> getVecPage() {

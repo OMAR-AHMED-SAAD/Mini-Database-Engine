@@ -8,18 +8,14 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Hashtable;
 import java.util.Vector;
-import java.util.Date;
-
 import exceptions.DBAppException;
 
 public class Table {
 
 	private String TblName;
 	private String CKName;
-	private String CkType;
 	private Hashtable<Integer, String> PageFilePath = new Hashtable<Integer, String>();
 	private Hashtable<Integer, Object> MaxPage = new Hashtable<Integer, Object>();
 	private Hashtable<Integer, Object> MinPage = new Hashtable<Integer, Object>();
@@ -27,15 +23,15 @@ public class Table {
 	private Vector<Integer> TablePages = new Vector<Integer>();
 	private int PageIdInc;
 
-	public Table(String name, String ClustKey, String CkType) {
+	public Table(String name, String ClustKey) {
 		this.TblName = name;
 		this.CKName = ClustKey;
-		this.CkType = CkType;
+
 		PageIdInc = 0;
 
 	}
 
-	public Page LoadPage(String FilePath) {
+	private Page LoadPage(String FilePath) {
 		Page RestoredPage = null;
 		try {
 			ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(FilePath));
@@ -61,8 +57,8 @@ public class Table {
 			pw.println("TableName" + "," + "Column Name" + "," + "Column Type" + "," + "ClusteringKey" + ","
 					+ "IndexName" + "," + "IndexType" + "," + "min" + "," + "max");
 		ColNameType.forEach(
-				(key, value) -> pw.println(this.TblName + "," + key + "," + value + "," + key.equals(this.CKName)
-						+ "," + "null" + "," + "null" + "," + ColNameMin.get(key) + "," + ColNameMax.get(key)));
+				(key, value) -> pw.println(this.TblName + "," + key + "," + value + "," + key.equals(this.CKName) + ","
+						+ "null" + "," + "null" + "," + ColNameMin.get(key) + "," + ColNameMax.get(key)));
 		pw.flush();
 		pw.close();
 	}
@@ -140,7 +136,7 @@ public class Table {
 
 	}
 
-	public int compare(Object One, Object Two) {
+	private int compare(Object One, Object Two) {
 		if (One instanceof java.lang.Integer && Two instanceof java.lang.Integer)
 			return ((java.lang.Integer) One).compareTo((java.lang.Integer) Two);
 		else if (One instanceof java.lang.String && Two instanceof java.lang.String)
@@ -152,25 +148,24 @@ public class Table {
 
 	}
 
-	public Object ParsingCk(String CkVal) throws ParseException {
+//	private Object ParsingCk(String CkVal) throws ParseException {
+//
+//		switch (CkType) {
+//		case "java.lang.Integer":
+//			return new Integer(Integer.parseInt(CkVal));
+//		case "java.lang.String":
+//			return new String(CkVal);
+//		case "java.util.Date":
+//			Date date = new SimpleDateFormat("yyyy-MM-dd").parse(CkVal);
+//			return date;
+//		case "java.lang.Double":
+//			return new Double(Double.parseDouble(CkVal));
+//		default:
+//			return new String(CkVal);
+//		}
+//	}
 
-		switch (CkType) {
-		case "java.lang.Integer":
-			return new Integer(Integer.parseInt(CkVal));
-		case "java.lang.String":
-			return new String(CkVal);
-		case "java.util.Date":
-			Date date = new SimpleDateFormat("yyyy-MM-dd").parse(CkVal);
-			return date;
-		case "java.lang.Double":
-			return new Double(Double.parseDouble(CkVal));
-		default:
-			return new String(CkVal);
-		}
-	}
-
-	public Page SearchByCk(String CkVal) throws ParseException {
-		Object CkValO = ParsingCk(CkVal);
+	private RowAddress SearchByCk(Object CkValObj) {
 		Boolean IsPgFound = false;
 		int PgId = 0;
 		int Min = 0;
@@ -179,23 +174,52 @@ public class Table {
 			int Mid = (Min + Max) / 2;
 			Object MinVal = MinPage.get(TablePages.get(Mid));
 			Object MaxVal = MaxPage.get(TablePages.get(Mid));
-			if (compare(CkValO, MinVal) >= 0 && compare(CkValO, MaxVal) <= 0) {
+			if (compare(CkValObj, MinVal) >= 0 && compare(CkValObj, MaxVal) <= 0) {
 				PgId = Mid;
 				IsPgFound = true;
 				break;
-			} else if (compare(CkValO, MinVal) < 0)
+			} else if (compare(CkValObj, MinVal) < 0)
 				Max = Mid - 1;
-			else if (compare(CkValO, MaxVal) > 0)
+			else if (compare(CkValObj, MaxVal) > 0)
 				Min = Mid + 1;
 		}
 		if (!IsPgFound)
 			return null;
 		else {
 			Page Pg = LoadPage(PageFilePath.get(PgId));
-			if (Pg.IsRowFound(CKName,CkValO))
-				return Pg;
-			else
+			int RowId = Pg.IsRowFound(CKName, CkValObj);
+			Pg.UnLoadPage();
+			if (RowId == -1)
 				return null;
+			else
+				return new RowAddress(PgId, RowId);
+		}
+	}
+
+	public void UpdtTbl(Object CKVal, Hashtable<String, Object> ColNameVal) throws DBAppException {
+		RowAddress RowAdrs = SearchByCk(CKVal);
+		if (RowAdrs == null)
+			throw new DBAppException("Tuple not found");
+		Page UpdatePg = LoadPage(PageFilePath.get(RowAdrs.getPageId()));
+		UpdatePg.UpdtRow(RowAdrs.getRowIndex(), ColNameVal);
+		UpdatePg.UnLoadPage();
+	}
+
+	public void DelFromTbl(Hashtable<String, Object> ColNameVal) {
+		int index = 0;
+		for (int PgId : TablePages) {
+			Page DelPg = LoadPage(PageFilePath.get(PgId));
+			DelPg.DelRows(ColNameVal, CKName);
+			if (DelPg.IsEmpty()) {
+				TablePages.remove(index);
+				MaxPage.remove(PgId);
+				MinPage.remove(PgId);
+				IsPgFull.remove(PgId);
+				new File(PageFilePath.get(PgId)).delete();
+				PageFilePath.remove(PgId);
+			} else
+				UpTblData(DelPg);
+			index++;
 		}
 	}
 
@@ -216,7 +240,7 @@ public class Table {
 		max.put("name", "ZZZZZZZZZZZZ");
 		max.put("gpa", "1000");
 
-		Table t = new Table("Student", "id", "java.util.Date");
+		// Table t = new Table("Student", "id");
 		// Table t2 = new Table("Doctor", "id");
 
 		Hashtable<String, Object> htblColNameValue = new Hashtable<String, Object>();
@@ -286,7 +310,7 @@ public class Table {
 //			e.printStackTrace();
 //		}
 
-		System.out.println(t.ParsingCk("2002-11-5"));
+		// System.out.println(t.ParsingCk("2002-11-5"));
 
 	}
 
