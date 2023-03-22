@@ -7,8 +7,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.Hashtable;
 import java.util.Vector;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 import exceptions.DBAppException;
 
@@ -16,6 +19,7 @@ public class Table {
 
 	private String TblName;
 	private String ClustKey;
+	private String CkType;
 	private Hashtable<Integer, String> PageFilePath = new Hashtable<Integer, String>();
 	private Hashtable<Integer, Object> MaxPage = new Hashtable<Integer, Object>();
 	private Hashtable<Integer, Object> MinPage = new Hashtable<Integer, Object>();
@@ -23,9 +27,10 @@ public class Table {
 	private Vector<Integer> TablePages = new Vector<Integer>();
 	private int PageIdInc;
 
-	public Table(String name, String ClustKey) {
+	public Table(String name, String ClustKey, String CkType) {
 		this.TblName = name;
 		this.ClustKey = ClustKey;
+		this.CkType = CkType;
 		PageIdInc = 0;
 
 	}
@@ -145,6 +150,31 @@ public class Table {
 		else
 			return ((java.lang.Double) One).compareTo((java.lang.Double) Two);
 
+	}
+
+	public Object ParsingCk(String CkVal){
+		
+		switch(CkType){
+			case "java.lang.Integer":
+				return new Integer(Integer.parseInt(CkVal));
+			case "java.lang.String":
+				return new String(CkVal);
+			case "java.util.Date":
+				Date date =new SimpleDateFormat("YYYY-MM-DD").parse(CkVal);
+				return date;
+			case "java.lang.Double":
+				return new Double(Double.parseDouble(CkVal));
+			/*default:
+				return new String(CkVal);*/
+
+		}
+	}
+	
+	public Page SearchByCk(String CkVal) {
+		
+		
+		
+		return null;
 	}
 
 

@@ -53,13 +53,7 @@ public class loooj {
 		for(Hashtable<String, Object> x: p.getVecPage()) {
 			System.out.println(x.get("id"));
 		}
-		
-		
-		
-		
-		
-		
-
+	
 	}
 
 	public static Page LoadPage(String FilePath) {
