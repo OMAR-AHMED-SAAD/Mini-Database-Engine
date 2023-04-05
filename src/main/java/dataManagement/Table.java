@@ -10,9 +10,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+import java.util.Date;
 import exceptions.DBAppException;
 
 public class Table implements Serializable {
@@ -47,14 +50,14 @@ public class Table implements Serializable {
 			if (content[0].equals(TblName)) {
 				String ColName = content[1];
 				String ColType = content[2];
-				String IsPrimaryKey=content[3];
+				String IsPrimaryKey = content[3];
 				String ColMin = content[6];
 				String ColMax = content[7];
 				ColNameType.put(ColName, ColType);
 				ColNameMin.put(ColName, ColMin);
 				ColNameMax.put(ColName, ColMax);
-				if(IsPrimaryKey.equals("True")) 
-					CKName=ColName;
+				if (IsPrimaryKey.equals("True"))
+					CKName = ColName;
 			}
 			Line = bufferedreader.readLine();
 		}
@@ -92,60 +95,81 @@ public class Table implements Serializable {
 		pw.flush();
 		pw.close();
 	}
-	
-	public void ValidateInsert(Hashtable<String, Object> ColNameValue) throws DBAppException {
-		if(ColNameValue.get(CKName)==null)
+
+	public void ValidateInsert(Hashtable<String, Object> ColNameValue) throws DBAppException, ParseException {
+		if (ColNameValue.get(CKName) == null)
 			throw new DBAppException("Cannot insert without primary key");
 		Enumeration<String> ColNameValKeys = ColNameValue.keys();
 		ValidateColumnsE(ColNameValKeys);
 		while (ColNameValKeys.hasMoreElements()) {
 			String Key = ColNameValKeys.nextElement();
-			ValidateType(ColNameValue.get(Key),ColNameType.get(Key));
+			ValidateType(ColNameValue.get(Key), ColNameType.get(Key));
+			ValidateMinMax(Key,ColNameValue.get(Key));
 		}
-		
+
 	}
-	
+
 	private void ValidateColumnsE(Enumeration<String> ColNameKeys) throws DBAppException {
 		while (ColNameKeys.hasMoreElements()) {
 			String Key = ColNameKeys.nextElement();
-			if(ColNameType.get(Key)==null)
+			if (ColNameType.get(Key) == null)
 				throw new DBAppException("Column name does not exist");
 		}
 	}
-	
-	
-	private void ValidateType(Object Obj,String Type) throws DBAppException{
-			switch(Type) {
-			case"java.util.Date": 
-				if(Obj instanceof java.util.Date){
-					if (CheckDateFormat(Obj))
-						return;
-					else
-						throw new DBAppException("Wrong date format");
-			}
+
+	private void ValidateType(Object Obj, String Type) throws DBAppException {
+		switch (Type) {
+		case "java.util.Date":
+			if (Obj instanceof java.util.Date) {
+				if (CheckDateFormat(Obj))
+					return;
 				else
-					throw new DBAppException("Invalid Type for date");
-			case "java.lang.Integer":
-				if(Obj instanceof java.lang.Integer)
-					return;
-				throw new DBAppException("Invalid Type for Integer");
-			case "java.lang.String":
-				if(Obj instanceof java.lang.String)
-					return;
-				throw new DBAppException("Invalid Type for String");
-			case "java.lang.Double":
-				if(Obj instanceof java.lang.Double)
-					return;
-				throw new DBAppException("Invalid Type for Double");
-			}
+					throw new DBAppException("Wrong date format");
+			} else
+				throw new DBAppException("Invalid Type for date");
+		case "java.lang.Integer":
+			if (Obj instanceof java.lang.Integer)
+				return;
+			throw new DBAppException("Invalid Type for Integer");
+		case "java.lang.String":
+			if (Obj instanceof java.lang.String)
+				return;
+			throw new DBAppException("Invalid Type for String");
+		case "java.lang.Double":
+			if (Obj instanceof java.lang.Double)
+				return;
+			throw new DBAppException("Invalid Type for Double");
+		}
 	}
-	
+
 	private boolean CheckDateFormat(Object Obj) {
-		
-		
+
 		return false;
 	}
-	
+
+	private void ValidateMinMax(String Key, Object Obj) throws ParseException, DBAppException {
+		Object Min = ParsingCk(ColNameMin.get(Key), ColNameType.get(Key));
+		Object Max = ParsingCk(ColNameMax.get(Key), ColNameType.get(Key));
+		if (compare(Obj, Min) < 0 || compare(Obj, Max) > 0)
+			throw new DBAppException("Entry causes Bounds Violation");
+	}
+
+	private Object ParsingCk(String Value, String Type) throws ParseException {
+
+		switch (Type) {
+		case "java.lang.Integer":
+			return new Integer(Integer.parseInt(Value));
+		case "java.lang.String":
+			return new String(Value);
+		case "java.util.Date":
+			Date date = new SimpleDateFormat("yyyy-MM-dd").parse(Value);
+			return date;
+		case "java.lang.Double":
+			return new Double(Double.parseDouble(Value));
+		default:
+			return new String(Value);
+		}
+	}
 
 	public void InsertInTable(Hashtable<String, Object> ColNameValue) throws DBAppException {
 		Object CK = ColNameValue.get(this.CKName);
@@ -232,24 +256,6 @@ public class Table implements Serializable {
 
 	}
 
-//	private Object ParsingCk(String CkVal) throws ParseException {
-//
-//		switch (CkType) {
-//		case "java.lang.Integer":
-//			return new Integer(Integer.parseInt(CkVal));
-//		case "java.lang.String":
-//			return new String(CkVal);
-//		case "java.util.Date":
-//			Date date = new SimpleDateFormat("yyyy-MM-dd").parse(CkVal);
-//			return date;
-//		case "java.lang.Double":
-//			return new Double(Double.parseDouble(CkVal));
-//		default:
-//			return new String(CkVal);
-//		}
-//	}
-	
-	
 	private RowAddress SearchByCk(Object CkValObj) {
 		Boolean IsPgFound = false;
 		int PgId = 0;
@@ -331,8 +337,8 @@ public class Table implements Serializable {
 		t.AddMetaData(NameType, min, max);
 		t.AddMetaData(NameType, min, max);
 
-t.ReadMetaData();		
-	Hashtable<String, Object> htblColNameValue1 = new Hashtable<String, Object>();
+		t.ReadMetaData();
+		Hashtable<String, Object> htblColNameValue1 = new Hashtable<String, Object>();
 		htblColNameValue1.put("id", new Integer(1));
 		htblColNameValue1.put("name", new String("Ahmed"));
 		htblColNameValue1.put("gpa", new Double(0.69));
