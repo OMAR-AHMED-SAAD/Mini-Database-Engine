@@ -124,7 +124,7 @@ public class Page implements Serializable {
 	public int IsRowFound(String CKName, Object CkValO) {
 		int Min = 0;
 		int Max = VecPage.size() - 1;
-		while (Min < Max) {
+		while (Min <= Max) {
 			int Mid = (Min + Max) / 2;
 			Hashtable<String, Object> CurrRow = VecPage.get(Mid);
 			int comparisonVal = compare(CkValO, CurrRow.get(CKName));
@@ -143,24 +143,27 @@ public class Page implements Serializable {
 	}
 
 	public void DelRows(Hashtable<String, Object> ColNameVal,String CKName) {
-		int Index = 0;
-		for (Hashtable<String, Object> Tuple : VecPage) {
+
+		for (int Index=0; Index<VecPage.size();Index++) {
 			boolean flag = true;
 			Enumeration<String> ColNameValKeys = ColNameVal.keys();
 			while (ColNameValKeys.hasMoreElements()) {
 				String Key = ColNameValKeys.nextElement();
-				int CompVal = compare(Tuple.get(Key), ColNameVal.get(Key));
+				int CompVal = compare(VecPage.get(Index).get(Key), ColNameVal.get(Key));
 				if (CompVal != 0)
 					flag = false;
 			}
 			if (flag) {
-				VecPage.remove(Index);
+				VecPage.remove(Index--);
 				CurrRowCount--;
 				}
-			Index++;
+			
 		}
+		if(!this.IsEmpty())
+		{
 		CurrMax = VecPage.elementAt(CurrRowCount - 1).get(CKName);
 		CurrMin = VecPage.elementAt(0).get(CKName);
+		}
 	}
 
 	public Vector<Hashtable<String, Object>> getVecPage() {

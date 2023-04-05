@@ -7,7 +7,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.PrintWriter;
-import java.text.ParseException;
 import java.util.Hashtable;
 import java.util.Vector;
 import exceptions.DBAppException;
@@ -170,7 +169,7 @@ public class Table {
 		int PgId = 0;
 		int Min = 0;
 		int Max = TablePages.size() - 1;
-		while (Min < Max) {
+		while (Min <= Max) {
 			int Mid = (Min + Max) / 2;
 			Object MinVal = MinPage.get(TablePages.get(Mid));
 			Object MaxVal = MaxPage.get(TablePages.get(Mid));
@@ -206,12 +205,13 @@ public class Table {
 	}
 
 	public void DelFromTbl(Hashtable<String, Object> ColNameVal) {
-		int index = 0;
-		for (int PgId : TablePages) {
+
+		for (int Index = 0; Index < TablePages.size(); Index++) {
+			int PgId = TablePages.get(Index);
 			Page DelPg = LoadPage(PageFilePath.get(PgId));
 			DelPg.DelRows(ColNameVal, CKName);
 			if (DelPg.IsEmpty()) {
-				TablePages.remove(index);
+				TablePages.remove(Index--);
 				MaxPage.remove(PgId);
 				MinPage.remove(PgId);
 				IsPgFull.remove(PgId);
@@ -219,11 +219,11 @@ public class Table {
 				PageFilePath.remove(PgId);
 			} else
 				UpTblData(DelPg);
-			index++;
+
 		}
 	}
 
-	public static void main(String[] args) throws IOException, ParseException {
+	public static void main(String[] args) throws IOException, DBAppException {
 
 		Hashtable<String, String> NameType = new Hashtable<String, String>();
 		NameType.put("id", "java.lang.Integer");
@@ -240,77 +240,57 @@ public class Table {
 		max.put("name", "ZZZZZZZZZZZZ");
 		max.put("gpa", "1000");
 
-		// Table t = new Table("Student", "id");
-		// Table t2 = new Table("Doctor", "id");
+		Table t = new Table("Student", "id");
 
-		Hashtable<String, Object> htblColNameValue = new Hashtable<String, Object>();
-		htblColNameValue.put("id", new Integer(1));
-		htblColNameValue.put("name", new String("Ahmed Noor"));
-		htblColNameValue.put("gpa", new Double(0.95));
+		t.AddMetaData(NameType, min, max);
+		t.AddMetaData(NameType, min, max);
 
 		Hashtable<String, Object> htblColNameValue1 = new Hashtable<String, Object>();
-		htblColNameValue1.put("id", new Integer(2));
-		htblColNameValue1.put("name", new String("Ahmed Noor"));
-		htblColNameValue1.put("gpa", new Double(0.95));
+		htblColNameValue1.put("id", new Integer(1));
+		htblColNameValue1.put("name", new String("Ahmed"));
+		htblColNameValue1.put("gpa", new Double(0.69));
 
 		Hashtable<String, Object> htblColNameValue2 = new Hashtable<String, Object>();
-		htblColNameValue2.put("id", new Integer(3));
-		htblColNameValue2.put("name", new String("Ahmed Noor"));
-		htblColNameValue2.put("gpa", new Double(0.95));
+		htblColNameValue2.put("id", new Integer(2));
+		htblColNameValue2.put("name", new String("Loji"));
+		htblColNameValue2.put("gpa", new Double(1.0));
 
 		Hashtable<String, Object> htblColNameValue3 = new Hashtable<String, Object>();
-		htblColNameValue3.put("id", new Integer(4));
-		htblColNameValue3.put("name", new String("Ahmed Noor"));
-		htblColNameValue3.put("gpa", new Double(0.95));
+		htblColNameValue3.put("id", new Integer(3));
+		htblColNameValue3.put("name", new String("Hamada"));
+		htblColNameValue3.put("gpa", new Double(0.85));
+		// insert tuples
+		t.InsertInTable(htblColNameValue1);
+		t.InsertInTable(htblColNameValue2);
+		t.InsertInTable(htblColNameValue3);
 
-		Hashtable<String, Object> htblColNameValue4 = new Hashtable<String, Object>();
-		htblColNameValue4.put("id", new Integer(5));
-		htblColNameValue4.put("name", new String("Ahmed Noor"));
-		htblColNameValue4.put("gpa", new Double(0.95));
-//		try {
-//			t.InsertInTable(htblColNameValue4);
-//			t.InsertInTable(htblColNameValue1);
-//			t.InsertInTable(htblColNameValue2);
-//			t.InsertInTable(htblColNameValue3);
-//			t.InsertInTable(htblColNameValue);
-//		//	 t.InsertInTable(htblColNameValue);
-//		} catch (DBAppException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//	}
-//		try {
-//		 t.AddMetaData(NameType, min, max);
-//			 t2.AddMetaData(NameType, min, max);
-//		} catch (IOException e) {
-//			System.out.println(e.getMessage());
-//		}
+		// delete tuples
+	//	htblColNameValue3.remove("id");
+//		htblColNameValue3.remove("gpa");
+//		t.DelFromTbl(htblColNameValue3);
+		
+		//update tuples
+	htblColNameValue2.remove("id");
+	t.UpdtTbl(new Integer(1), htblColNameValue2);
 
-//		try {
-//			Page p = t.LoadPage("src/main/DBFiles/StudentPage0.class");
-//			for (Hashtable<String, Object> x : p.getVecPage())
-//				System.out.println(x.get("id"));
-//		} catch (Exception e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		try {
-//			Page p = t.LoadPage("src/main/DBFiles/StudentPage1.class");
-//			for (Hashtable<String, Object> x : p.getVecPage())
-//				System.out.println(x.get("id"));
-//		} catch (Exception e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		try {
-//			Page p = t.LoadPage("src/main/DBFiles/StudentPage2.class");
-//			for (Hashtable<String, Object> x : p.getVecPage())
-//				System.out.println(x.get("id"));
-//		} catch (Exception e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-
-		// System.out.println(t.ParsingCk("2002-11-5"));
+//		System.out.println(t.SearchByCk(new Integer (2)));
+		
+		try {
+			Page p = t.LoadPage("src/main/DBFiles/StudentPage0.bin");
+			for (Hashtable<String, Object> x : p.getVecPage())
+				System.out.println(x.get("id") + " " + x.get("name")+ " "+ x.get("gpa"));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			Page p = t.LoadPage("src/main/DBFiles/StudentPage1.bin");
+			for (Hashtable<String, Object> x : p.getVecPage())
+				System.out.println(x.get("id") + " " + x.get("name")+ " "+ x.get("gpa"));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 

@@ -2,7 +2,7 @@ package dataManagement;
 
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
-import java.util.Hashtable;
+
 import java.util.Vector;
 public class looojiiiii {
 	public static int compare(Object One, Object Two) {
@@ -36,10 +36,10 @@ public class looojiiiii {
 		vec.add(2);
 		vec.add(4);
 		int j=0;
-		for(int i: vec) {
-			if(i==2)
+		for(int i=0;i<vec.size();i++) {
+			if(i==1)
 				vec.remove(j);
-			j++;
+		
 		}
 //		
 //		for(int i=0;i<3;i++) {
