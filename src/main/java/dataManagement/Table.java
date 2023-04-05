@@ -1,33 +1,63 @@
 package dataManagement;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.util.Hashtable;
 import java.util.Vector;
 import exceptions.DBAppException;
 
-public class Table {
-
+public class Table implements Serializable {
+	private static final long serialVersionUID = 2L;
 	private String TblName;
-	private String CKName;
+	private transient String CKName;
 	private Hashtable<Integer, String> PageFilePath = new Hashtable<Integer, String>();
 	private Hashtable<Integer, Object> MaxPage = new Hashtable<Integer, Object>();
 	private Hashtable<Integer, Object> MinPage = new Hashtable<Integer, Object>();
 	private Hashtable<Integer, Boolean> IsPgFull = new Hashtable<Integer, Boolean>();
 	private Vector<Integer> TablePages = new Vector<Integer>();
 	private int PageIdInc;
+	private transient Hashtable<String, String> ColNameType;
+	private transient Hashtable<String, String> ColNameMin;
+	private transient Hashtable<String, String> ColNameMax;
 
-	public Table(String name, String ClustKey) {
+	public Table(String name) {
 		this.TblName = name;
-		this.CKName = ClustKey;
-
 		PageIdInc = 0;
+	}
 
+	private void ReadMetaData() throws IOException {
+		ColNameType = new Hashtable<String, String>();
+		ColNameMin = new Hashtable<String, String>();
+		ColNameMax = new Hashtable<String, String>();
+		String FilePath = "src/main/DBFiles/metadata.csv";
+		FileReader fileReader = new FileReader(FilePath);
+		BufferedReader bufferedreader = new BufferedReader(fileReader);
+		String Line = bufferedreader.readLine();
+		while (Line != null) {
+			String[] content = Line.split(",");
+			if (content[0].equals(TblName)) {
+				String ColName = content[1];
+				String ColType = content[2];
+				String IsPrimaryKey=content[3];
+				String ColMin = content[6];
+				String ColMax = content[7];
+				ColNameType.put(ColName, ColType);
+				ColNameMin.put(ColName, ColMin);
+				ColNameMax.put(ColName, ColMax);
+				if(IsPrimaryKey.equals("True")) 
+					CKName=ColName;
+			}
+			Line = bufferedreader.readLine();
+		}
+		bufferedreader.close();
 	}
 
 	private Page LoadPage(String FilePath) {
@@ -240,12 +270,13 @@ public class Table {
 		max.put("name", "ZZZZZZZZZZZZ");
 		max.put("gpa", "1000");
 
-		Table t = new Table("Student", "id");
+		Table t = new Table("Student");
 
 		t.AddMetaData(NameType, min, max);
 		t.AddMetaData(NameType, min, max);
 
-		Hashtable<String, Object> htblColNameValue1 = new Hashtable<String, Object>();
+t.ReadMetaData();		
+	Hashtable<String, Object> htblColNameValue1 = new Hashtable<String, Object>();
 		htblColNameValue1.put("id", new Integer(1));
 		htblColNameValue1.put("name", new String("Ahmed"));
 		htblColNameValue1.put("gpa", new Double(0.69));
@@ -265,20 +296,20 @@ public class Table {
 		t.InsertInTable(htblColNameValue3);
 
 		// delete tuples
-	//	htblColNameValue3.remove("id");
+		// htblColNameValue3.remove("id");
 //		htblColNameValue3.remove("gpa");
 //		t.DelFromTbl(htblColNameValue3);
-		
-		//update tuples
-	htblColNameValue2.remove("id");
-	t.UpdtTbl(new Integer(1), htblColNameValue2);
+
+		// update tuples
+		htblColNameValue2.remove("id");
+		t.UpdtTbl(new Integer(1), htblColNameValue2);
 
 //		System.out.println(t.SearchByCk(new Integer (2)));
-		
+
 		try {
 			Page p = t.LoadPage("src/main/DBFiles/StudentPage0.bin");
 			for (Hashtable<String, Object> x : p.getVecPage())
-				System.out.println(x.get("id") + " " + x.get("name")+ " "+ x.get("gpa"));
+				System.out.println(x.get("id") + " " + x.get("name") + " " + x.get("gpa"));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -286,7 +317,7 @@ public class Table {
 		try {
 			Page p = t.LoadPage("src/main/DBFiles/StudentPage1.bin");
 			for (Hashtable<String, Object> x : p.getVecPage())
-				System.out.println(x.get("id") + " " + x.get("name")+ " "+ x.get("gpa"));
+				System.out.println(x.get("id") + " " + x.get("name") + " " + x.get("gpa"));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
