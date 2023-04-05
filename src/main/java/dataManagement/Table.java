@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 import exceptions.DBAppException;
@@ -91,6 +92,60 @@ public class Table implements Serializable {
 		pw.flush();
 		pw.close();
 	}
+	
+	public void ValidateInsert(Hashtable<String, Object> ColNameValue) throws DBAppException {
+		if(ColNameValue.get(CKName)==null)
+			throw new DBAppException("Cannot insert without primary key");
+		Enumeration<String> ColNameValKeys = ColNameValue.keys();
+		ValidateColumnsE(ColNameValKeys);
+		while (ColNameValKeys.hasMoreElements()) {
+			String Key = ColNameValKeys.nextElement();
+			ValidateType(ColNameValue.get(Key),ColNameType.get(Key));
+		}
+		
+	}
+	
+	private void ValidateColumnsE(Enumeration<String> ColNameKeys) throws DBAppException {
+		while (ColNameKeys.hasMoreElements()) {
+			String Key = ColNameKeys.nextElement();
+			if(ColNameType.get(Key)==null)
+				throw new DBAppException("Column name does not exist");
+		}
+	}
+	
+	
+	private void ValidateType(Object Obj,String Type) throws DBAppException{
+			switch(Type) {
+			case"java.util.Date": 
+				if(Obj instanceof java.util.Date){
+					if (CheckDateFormat(Obj))
+						return;
+					else
+						throw new DBAppException("Wrong date format");
+			}
+				else
+					throw new DBAppException("Invalid Type for date");
+			case "java.lang.Integer":
+				if(Obj instanceof java.lang.Integer)
+					return;
+				throw new DBAppException("Invalid Type for Integer");
+			case "java.lang.String":
+				if(Obj instanceof java.lang.String)
+					return;
+				throw new DBAppException("Invalid Type for String");
+			case "java.lang.Double":
+				if(Obj instanceof java.lang.Double)
+					return;
+				throw new DBAppException("Invalid Type for Double");
+			}
+	}
+	
+	private boolean CheckDateFormat(Object Obj) {
+		
+		
+		return false;
+	}
+	
 
 	public void InsertInTable(Hashtable<String, Object> ColNameValue) throws DBAppException {
 		Object CK = ColNameValue.get(this.CKName);
@@ -193,7 +248,8 @@ public class Table implements Serializable {
 //			return new String(CkVal);
 //		}
 //	}
-
+	
+	
 	private RowAddress SearchByCk(Object CkValObj) {
 		Boolean IsPgFound = false;
 		int PgId = 0;
