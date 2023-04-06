@@ -1,30 +1,100 @@
 package application;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
+import java.io.ObjectInputStream;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
-
+import dataManagement.ValidatorI;
 import exceptions.DBAppException;
 
-public class DBApp {
-	public void init() {
-		// this does whatever initialization you would like // or leave it empty if
-		// there is no code you want to
-		// execute at application startup
+public class DBApp implements ValidatorI{
+	private Hashtable<String,String> CreatedTables;
+	public void init() throws FileNotFoundException, IOException, ClassNotFoundException {
+		ReadCreatedTables();
 	}
 
-//following method creates one table only
-//strClusteringKeyColumn is the name of the column that will be the primary // key and the clustering column as well. The data type of that column will
-//be passed in htblColNameType
-//htblColNameValue will have the column name as key and the data
-//type as value
-//htblColNameMin and htblColNameMax for passing minimum and maximum values // for data in the column. Key is the name of the column
+	@SuppressWarnings("unchecked")
+	public void ReadCreatedTables() {
+		String FilePath = "src/main/DBFiles/CreatedTables.bin";
+		try {
+			ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(FilePath));
+			CreatedTables = (Hashtable<String,String>) objectInputStream.readObject();
+			objectInputStream.close();
+
+		} catch (FileNotFoundException e) {
+			CreatedTables=new Hashtable<String,String>();
+			WriteCreatedTables();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void WriteCreatedTables() {
+		String FilePath = "src/main/DBFiles/CreatedTables.bin";
+		try {
+			ObjectOutputStream ObjectOutputStream = new ObjectOutputStream(new FileOutputStream(FilePath));
+			ObjectOutputStream.writeObject(CreatedTables);
+			ObjectOutputStream.close();
+		} catch (IOException e) {
+			System.out.println(e.getMessage());
+		}
+	}
 
 	public void createTable(String strTableName, String strClusteringKeyColumn,
 			Hashtable<String, String> htblColNameType, Hashtable<String, String> htblColNameMin,
-			Hashtable<String, String> htblColNameMax) throws DBAppException {
-
+			Hashtable<String, String> htblColNameMax) throws DBAppException, IOException {
+		if(CreatedTables.get(strTableName)!=null)
+			throw new DBAppException(strTableName+" already exists");
+		else
+		{
+			ValidateMetaData(htblColNameType,htblColNameMin,htblColNameMax);
+			AddMetaData(strTableName,strClusteringKeyColumn,htblColNameType,htblColNameMin,htblColNameMax);
+			//to be continued
+		}
+	}
+	public void ValidateMetaData(Hashtable<String, String> ColNameType, Hashtable<String, String> ColNameMin,
+			Hashtable<String, String> ColNameMax) throws DBAppException {
+		Enumeration<String> ColNameTypeKeys = ColNameType.keys();
+		while (ColNameTypeKeys.hasMoreElements()) {
+			String Key = ColNameTypeKeys.nextElement();
+			String type = ColNameType.get(Key);
+			String Min = ColNameMin.get(Key);
+			String Max = ColNameMax.get(Key);
+			V.checkTypeSupport(type);
+			V.tryParse(Max, type);
+			V.tryParse(Min, type);
+		}
 	}
 
+	public void AddMetaData(String TblName,String ClusteringKey,Hashtable<String, String> ColNameType, Hashtable<String, String> ColNameMin,
+			Hashtable<String, String> ColNameMax) throws IOException {
+		String FilePath = "src/main/DBFiles/metadata.csv";
+		boolean FileExist = false;
+		if (new File(FilePath).exists()) {
+			FileExist = true;
+		}
+		FileWriter fw = new FileWriter(FilePath, true);
+		BufferedWriter bw = new BufferedWriter(fw);
+		PrintWriter pw = new PrintWriter(bw);
+		if (!FileExist)
+			pw.println("TableName" + "," + "Column Name" + "," + "Column Type" + "," + "ClusteringKey" + ","
+					+ "IndexName" + "," + "IndexType" + "," + "min" + "," + "max");
+		ColNameType.forEach(
+				(key, value) -> pw.println(TblName + "," + key + "," + value + "," + ClusteringKey.equals(key) + ","
+						+ "null" + "," + "null" + "," + ColNameMin.get(key) + "," + ColNameMax.get(key)));
+		pw.flush();
+		pw.close();
+	}
 //following method creates an octree
 //depending on the count of column names passed.
 //If three column names are passed, create an octree.
@@ -57,11 +127,8 @@ public class DBApp {
 
 	@SuppressWarnings("rawtypes")
 	public Iterator selectFromTable(SQLTerm[] arrSQLTerms, String[] strarrOperators) throws DBAppException {
-		
+
 		return null;
-		
-		
 
 	}
 }
-

@@ -13,7 +13,7 @@ import java.util.Vector;
 
 import exceptions.DBAppException;
 
-public class Page implements Serializable {
+public class Page implements Serializable ,ComparatorI{
 	private static final long serialVersionUID = 1L;
 	private String TblName;
 	private int PageId;
@@ -27,7 +27,7 @@ public class Page implements Serializable {
 	public Page(int id, String TblName) {
 		PageId = id;
 		this.TblName = TblName;
-		FilePath = "src/main/DBFiles/" + this.TblName + "Page" + this.PageId + ".bin";
+		FilePath = "src/main/DBFiles/Pages/" + this.TblName + "Page" + this.PageId + ".bin";
 		CurrRowCount = 0;
 		Properties Prop = new Properties();
 		try {
@@ -41,26 +41,6 @@ public class Page implements Serializable {
 
 	}
 
-	public int getPageId() {
-		return PageId;
-	}
-
-	public Object getCurrMax() {
-		return CurrMax;
-	}
-
-	public Object getCurrMin() {
-		return CurrMin;
-	}
-
-	public int getCurrRowCount() {
-		return CurrRowCount;
-	}
-
-	public String getFilePath() {
-		return FilePath;
-	}
-
 	public void UnLoadPage() {
 		try {
 			ObjectOutputStream ObjectOutputStream = new ObjectOutputStream(new FileOutputStream(FilePath));
@@ -69,18 +49,6 @@ public class Page implements Serializable {
 		} catch (IOException e) {
 			System.out.println(e.getMessage());
 		}
-	}
-
-	public int compare(Object One, Object Two) {
-		if (One instanceof java.lang.Integer && Two instanceof java.lang.Integer)
-			return ((java.lang.Integer) One).compareTo((java.lang.Integer) Two);
-		else if (One instanceof java.lang.String && Two instanceof java.lang.String)
-			return ((java.lang.String) One).compareTo((java.lang.String) Two);
-		else if (One instanceof java.lang.Double && Two instanceof java.lang.Double)
-			return ((java.lang.Double) One).compareTo((java.lang.Double) Two);
-		else if (One instanceof java.util.Date && Two instanceof java.util.Date)
-			return ((java.util.Date) One).compareTo((java.util.Date) Two);
-		return 0;
 	}
 
 	public Hashtable<String, Object> InsertToPage(String ClustKey, Hashtable<String, Object> ColNameValue)
@@ -92,7 +60,7 @@ public class Page implements Serializable {
 		} else {
 			int PageSize = VecPage.size();
 			for (int i = 0; i < PageSize; i++) {
-				int ComparisonValue = this.compare(ColNameValue.get(ClustKey), VecPage.elementAt(i).get(ClustKey));
+				int ComparisonValue = C.compare(ColNameValue.get(ClustKey), VecPage.elementAt(i).get(ClustKey));
 				if (ComparisonValue < 0) {
 					VecPage.insertElementAt(ColNameValue, i);
 					CurrRowCount++;
@@ -118,16 +86,18 @@ public class Page implements Serializable {
 	public boolean IsFull() {
 		return (CurrRowCount == MaxRowCount);
 	}
+
 	public boolean IsEmpty() {
 		return (CurrRowCount == 0);
 	}
+
 	public int IsRowFound(String CKName, Object CkValO) {
 		int Min = 0;
 		int Max = VecPage.size() - 1;
 		while (Min <= Max) {
 			int Mid = (Min + Max) / 2;
 			Hashtable<String, Object> CurrRow = VecPage.get(Mid);
-			int comparisonVal = compare(CkValO, CurrRow.get(CKName));
+			int comparisonVal = C.compare(CkValO, CurrRow.get(CKName));
 			if (comparisonVal == 0)
 				return Mid;
 			else if (comparisonVal < 0)
@@ -142,31 +112,50 @@ public class Page implements Serializable {
 		ColNameVal.forEach((key, value) -> VecPage.get(index).put(key, value));
 	}
 
-	public void DelRows(Hashtable<String, Object> ColNameVal,String CKName) {
+	public void DelRows(Hashtable<String, Object> ColNameVal, String CKName) {
 
-		for (int Index=0; Index<VecPage.size();Index++) {
+		for (int Index = 0; Index < VecPage.size(); Index++) {
 			boolean flag = true;
 			Enumeration<String> ColNameValKeys = ColNameVal.keys();
 			while (ColNameValKeys.hasMoreElements()) {
 				String Key = ColNameValKeys.nextElement();
-				int CompVal = compare(VecPage.get(Index).get(Key), ColNameVal.get(Key));
+				int CompVal = C.compare(VecPage.get(Index).get(Key), ColNameVal.get(Key));
 				if (CompVal != 0)
 					flag = false;
 			}
 			if (flag) {
 				VecPage.remove(Index--);
 				CurrRowCount--;
-				}
-			
+			}
+
 		}
-		if(!this.IsEmpty())
-		{
-		CurrMax = VecPage.elementAt(CurrRowCount - 1).get(CKName);
-		CurrMin = VecPage.elementAt(0).get(CKName);
+		if (!this.IsEmpty()) {
+			CurrMax = VecPage.elementAt(CurrRowCount - 1).get(CKName);
+			CurrMin = VecPage.elementAt(0).get(CKName);
 		}
 	}
 
 	public Vector<Hashtable<String, Object>> getVecPage() {
 		return VecPage;
+	}
+
+	public int getPageId() {
+		return PageId;
+	}
+
+	public Object getCurrMax() {
+		return CurrMax;
+	}
+
+	public Object getCurrMin() {
+		return CurrMin;
+	}
+
+	public int getCurrRowCount() {
+		return CurrRowCount;
+	}
+
+	public String getFilePath() {
+		return FilePath;
 	}
 }

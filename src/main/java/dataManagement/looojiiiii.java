@@ -2,7 +2,8 @@ package dataManagement;
 
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
-
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Vector;
 public class looojiiiii {
 	public static int compare(Object One, Object Two) {
@@ -17,9 +18,21 @@ public class looojiiiii {
 		return 0;
 
 	}
+	private static boolean CheckDateFormat(String date) {
+		SimpleDateFormat DF=new SimpleDateFormat("yyyy-MM-dd");
+		DF.setLenient(false);	
+		try {
+			DF.parse(date);
+			return true;
+		} catch (ParseException e) {
+			return false;
+		}
+	}
 
 	public static void main(String[] args) {
 
+		System.out.println(CheckDateFormat("2022-12-21"));
+		
 //		try {
 //			Properties Prop = new Properties();
 //			FileInputStream inputStream = new FileInputStream("src/Resources/DBApp.config.properties");
@@ -30,26 +43,26 @@ public class looojiiiii {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
-
-		Vector<Integer> vec=new Vector<Integer>();
-		vec.add(1);
-		vec.add(2);
-		vec.add(4);
-		int j=0;
-		for(int i=0;i<vec.size();i++) {
-			if(i==1)
-				vec.remove(j);
-		
-		}
+//
+//		Vector<Integer> vec=new Vector<Integer>();
+//		vec.add(1);
+//		vec.add(2);
+//		vec.add(4);
+//		int j=0;
+//		for(int i=0;i<vec.size();i++) {
+//			if(i==1)
+//				vec.remove(j);
 //		
-//		for(int i=0;i<3;i++) {
-//			if(((Integer)vec.elementAt(i))>3)
-//				vec.insertElementAt(3, i);
 //		}
-		for(int i=0;i<vec.size();i++) {
-			System.out.println(vec.elementAt(i));
-				
-		}
+////		
+////		for(int i=0;i<3;i++) {
+////			if(((Integer)vec.elementAt(i))>3)
+////				vec.insertElementAt(3, i);
+////		}
+//		for(int i=0;i<vec.size();i++) {
+//			System.out.println(vec.elementAt(i));
+//				
+//		}
 		
 //		Object a=new String("3");
 //		Object b=new String("4");

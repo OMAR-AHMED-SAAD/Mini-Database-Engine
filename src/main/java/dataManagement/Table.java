@@ -1,25 +1,20 @@
 package dataManagement;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.PrintWriter;
 import java.io.Serializable;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
-import java.util.Date;
 import exceptions.DBAppException;
 
-public class Table implements Serializable {
-	private static final long serialVersionUID = 2L;
+public class Table implements Serializable,ComparatorI,ValidatorI {
+	private static final long serialVersionUID = 1L;
 	private String TblName;
 	private transient String CKName;
 	private Hashtable<Integer, String> PageFilePath = new Hashtable<Integer, String>();
@@ -28,40 +23,13 @@ public class Table implements Serializable {
 	private Hashtable<Integer, Boolean> IsPgFull = new Hashtable<Integer, Boolean>();
 	private Vector<Integer> TablePages = new Vector<Integer>();
 	private int PageIdInc;
-	private transient Hashtable<String, String> ColNameType;
-	private transient Hashtable<String, String> ColNameMin;
-	private transient Hashtable<String, String> ColNameMax;
+	private transient Hashtable<String, String> ColumnNameType;
+	private transient Hashtable<String, String> ColumnNameMin;
+	private transient Hashtable<String, String> ColumnNameMax;
 
 	public Table(String name) {
 		this.TblName = name;
 		PageIdInc = 0;
-	}
-
-	private void ReadMetaData() throws IOException {
-		ColNameType = new Hashtable<String, String>();
-		ColNameMin = new Hashtable<String, String>();
-		ColNameMax = new Hashtable<String, String>();
-		String FilePath = "src/main/DBFiles/metadata.csv";
-		FileReader fileReader = new FileReader(FilePath);
-		BufferedReader bufferedreader = new BufferedReader(fileReader);
-		String Line = bufferedreader.readLine();
-		while (Line != null) {
-			String[] content = Line.split(",");
-			if (content[0].equals(TblName)) {
-				String ColName = content[1];
-				String ColType = content[2];
-				String IsPrimaryKey = content[3];
-				String ColMin = content[6];
-				String ColMax = content[7];
-				ColNameType.put(ColName, ColType);
-				ColNameMin.put(ColName, ColMin);
-				ColNameMax.put(ColName, ColMax);
-				if (IsPrimaryKey.equals("True"))
-					CKName = ColName;
-			}
-			Line = bufferedreader.readLine();
-		}
-		bufferedreader.close();
 	}
 
 	private Page LoadPage(String FilePath) {
@@ -76,98 +44,42 @@ public class Table implements Serializable {
 		return RestoredPage;
 	}
 
-	public void AddMetaData(Hashtable<String, String> ColNameType, Hashtable<String, String> ColNameMin,
-			Hashtable<String, String> ColNameMax) throws IOException {
+	private void ReadMetaData() throws IOException {
+		ColumnNameType = new Hashtable<String, String>();
+		ColumnNameMin = new Hashtable<String, String>();
+		ColumnNameMax = new Hashtable<String, String>();
 		String FilePath = "src/main/DBFiles/metadata.csv";
-		boolean FileExist = false;
-		if (new File(FilePath).exists()) {
-			FileExist = true;
+		FileReader fileReader = new FileReader(FilePath);
+		BufferedReader bufferedreader = new BufferedReader(fileReader);
+		String Line = bufferedreader.readLine();
+		while (Line != null) {
+			String[] content = Line.split(",");
+			if (content[0].equals(TblName)) {
+				String ColName = content[1];
+				String ColType = content[2];
+				String IsPrimaryKey = content[3];
+				String ColMin = content[6];
+				String ColMax = content[7];
+				ColumnNameType.put(ColName, ColType);
+				ColumnNameMin.put(ColName, ColMin);
+				ColumnNameMax.put(ColName, ColMax);
+				if (IsPrimaryKey.toLowerCase().equals("true"))
+					CKName = ColName;
+			}
+			Line = bufferedreader.readLine();
 		}
-		FileWriter fw = new FileWriter(FilePath, true);
-		BufferedWriter bw = new BufferedWriter(fw);
-		PrintWriter pw = new PrintWriter(bw);
-		if (!FileExist)
-			pw.println("TableName" + "," + "Column Name" + "," + "Column Type" + "," + "ClusteringKey" + ","
-					+ "IndexName" + "," + "IndexType" + "," + "min" + "," + "max");
-		ColNameType.forEach(
-				(key, value) -> pw.println(this.TblName + "," + key + "," + value + "," + key.equals(this.CKName) + ","
-						+ "null" + "," + "null" + "," + ColNameMin.get(key) + "," + ColNameMax.get(key)));
-		pw.flush();
-		pw.close();
+		bufferedreader.close();
 	}
 
 	public void ValidateInsert(Hashtable<String, Object> ColNameValue) throws DBAppException, ParseException {
 		if (ColNameValue.get(CKName) == null)
 			throw new DBAppException("Cannot insert without primary key");
 		Enumeration<String> ColNameValKeys = ColNameValue.keys();
-		ValidateColumnsE(ColNameValKeys);
+		V.ValidateColumnsE(ColNameValKeys, ColumnNameType);
 		while (ColNameValKeys.hasMoreElements()) {
 			String Key = ColNameValKeys.nextElement();
-			ValidateType(ColNameValue.get(Key), ColNameType.get(Key));
-			ValidateMinMax(Key,ColNameValue.get(Key));
-		}
-
-	}
-
-	private void ValidateColumnsE(Enumeration<String> ColNameKeys) throws DBAppException {
-		while (ColNameKeys.hasMoreElements()) {
-			String Key = ColNameKeys.nextElement();
-			if (ColNameType.get(Key) == null)
-				throw new DBAppException("Column name does not exist");
-		}
-	}
-
-	private void ValidateType(Object Obj, String Type) throws DBAppException {
-		switch (Type) {
-		case "java.util.Date":
-			if (Obj instanceof java.util.Date) {
-				if (CheckDateFormat(Obj))
-					return;
-				else
-					throw new DBAppException("Wrong date format");
-			} else
-				throw new DBAppException("Invalid Type for date");
-		case "java.lang.Integer":
-			if (Obj instanceof java.lang.Integer)
-				return;
-			throw new DBAppException("Invalid Type for Integer");
-		case "java.lang.String":
-			if (Obj instanceof java.lang.String)
-				return;
-			throw new DBAppException("Invalid Type for String");
-		case "java.lang.Double":
-			if (Obj instanceof java.lang.Double)
-				return;
-			throw new DBAppException("Invalid Type for Double");
-		}
-	}
-
-	private boolean CheckDateFormat(Object Obj) {
-
-		return false;
-	}
-
-	private void ValidateMinMax(String Key, Object Obj) throws ParseException, DBAppException {
-		Object Min = ParsingCk(ColNameMin.get(Key), ColNameType.get(Key));
-		Object Max = ParsingCk(ColNameMax.get(Key), ColNameType.get(Key));
-		if (compare(Obj, Min) < 0 || compare(Obj, Max) > 0)
-			throw new DBAppException("Entry causes Bounds Violation");
-	}
-
-	private Object ParsingCk(String Value, String Type) throws ParseException {
-
-		switch (Type) {
-		case "java.lang.Integer":
-			return new Integer(Integer.parseInt(Value));
-		case "java.lang.String":
-			return new String(Value);
-		case "java.util.Date":
-			Date date = new SimpleDateFormat("yyyy-MM-dd").parse(Value);
-			return date;
-		case "java.lang.Double":
-			return new Double(Double.parseDouble(Value));
-		default:
-			return new String(Value);
+			V.ValidateObjectType(ColNameValue.get(Key), ColumnNameType.get(Key));
+			V.ValidateBounds(Key, ColNameValue.get(Key), ColumnNameType, ColumnNameMin, ColumnNameMax);
 		}
 	}
 
@@ -184,27 +96,27 @@ public class Table implements Serializable {
 				Boolean IsLastPg = (i == (TablePages.size() - 1));
 				Page InstPg;
 				Hashtable<String, Object> PgInstRes;
-				if (compare(CK, PageMinVal) < 0 || (compare(CK, PageMinVal) > 0 && compare(CK, PageMaxVal) < 0)) {
+				if (C.compare(CK, PageMinVal) < 0 || (C.compare(CK, PageMinVal) > 0 && C.compare(CK, PageMaxVal) < 0)) {
 					InstPg = LoadPage(this.PageFilePath.get(Pid));
 					PgInstRes = InstPg.InsertToPage(this.CKName, ColNameValue);
 					UpTblData(InstPg);
 					OverflowSolver(PgInstRes);
 					break;
-				} else if (compare(CK, PageMaxVal) > 0 && IsPgF && IsLastPg) {
+				} else if (C.compare(CK, PageMaxVal) > 0 && IsPgF && IsLastPg) {
 					CreateAddNewPage(ColNameValue);
 					break;
-				} else if (compare(CK, PageMaxVal) > 0 && IsPgF && !IsLastPg) {
+				} else if (C.compare(CK, PageMaxVal) > 0 && IsPgF && !IsLastPg) {
 					continue;
-				} else if (compare(CK, PageMaxVal) > 0 && !IsPgF && IsLastPg) {
+				} else if (C.compare(CK, PageMaxVal) > 0 && !IsPgF && IsLastPg) {
 					InstPg = LoadPage(this.PageFilePath.get(Pid));
 					PgInstRes = InstPg.InsertToPage(this.CKName, ColNameValue);
 					UpTblData(InstPg);
 					OverflowSolver(PgInstRes);
 					break;
-				} else if (compare(CK, PageMaxVal) > 0 && !IsPgF && !IsLastPg) {
+				} else if (C.compare(CK, PageMaxVal) > 0 && !IsPgF && !IsLastPg) {
 					int NxtPid = TablePages.get(i);
 					Object NxtPageMinVal = MinPage.get(NxtPid);
-					if (compare(CK, NxtPageMinVal) < 0) {
+					if (C.compare(CK, NxtPageMinVal) < 0) {
 						InstPg = LoadPage(this.PageFilePath.get(Pid));
 						PgInstRes = InstPg.InsertToPage(this.CKName, ColNameValue);
 						UpTblData(InstPg);
@@ -225,7 +137,6 @@ public class Table implements Serializable {
 		CreatedPage.InsertToPage(CKName, ColNameValue);
 		UpTblData(CreatedPage);
 		PageIdInc++;
-
 	}
 
 	private void UpTblData(Page Pg) {
@@ -236,24 +147,10 @@ public class Table implements Serializable {
 	}
 
 	private void OverflowSolver(Hashtable<String, Object> PgInstRes) throws DBAppException {
-
 		if (PgInstRes == null)
 			return;
 		else
 			InsertInTable(PgInstRes);
-
-	}
-
-	private int compare(Object One, Object Two) {
-		if (One instanceof java.lang.Integer && Two instanceof java.lang.Integer)
-			return ((java.lang.Integer) One).compareTo((java.lang.Integer) Two);
-		else if (One instanceof java.lang.String && Two instanceof java.lang.String)
-			return ((java.lang.String) One).compareTo((java.lang.String) Two);
-		else if (One instanceof java.util.Date && Two instanceof java.util.Date)
-			return ((java.util.Date) One).compareTo((java.util.Date) Two);
-		else
-			return ((java.lang.Double) One).compareTo((java.lang.Double) Two);
-
 	}
 
 	private RowAddress SearchByCk(Object CkValObj) {
@@ -265,13 +162,13 @@ public class Table implements Serializable {
 			int Mid = (Min + Max) / 2;
 			Object MinVal = MinPage.get(TablePages.get(Mid));
 			Object MaxVal = MaxPage.get(TablePages.get(Mid));
-			if (compare(CkValObj, MinVal) >= 0 && compare(CkValObj, MaxVal) <= 0) {
+			if (C.compare(CkValObj, MinVal) >= 0 && C.compare(CkValObj, MaxVal) <= 0) {
 				PgId = Mid;
 				IsPgFound = true;
 				break;
-			} else if (compare(CkValObj, MinVal) < 0)
+			} else if (C.compare(CkValObj, MinVal) < 0)
 				Max = Mid - 1;
-			else if (compare(CkValObj, MaxVal) > 0)
+			else if (C.compare(CkValObj, MaxVal) > 0)
 				Min = Mid + 1;
 		}
 		if (!IsPgFound)
@@ -287,7 +184,7 @@ public class Table implements Serializable {
 		}
 	}
 
-	public void UpdtTbl(Object CKVal, Hashtable<String, Object> ColNameVal) throws DBAppException {
+	public void UpdateTbl(Object CKVal, Hashtable<String, Object> ColNameVal) throws DBAppException {
 		RowAddress RowAdrs = SearchByCk(CKVal);
 		if (RowAdrs == null)
 			throw new DBAppException("Tuple not found");
@@ -297,7 +194,6 @@ public class Table implements Serializable {
 	}
 
 	public void DelFromTbl(Hashtable<String, Object> ColNameVal) {
-
 		for (int Index = 0; Index < TablePages.size(); Index++) {
 			int PgId = TablePages.get(Index);
 			Page DelPg = LoadPage(PageFilePath.get(PgId));
@@ -311,7 +207,6 @@ public class Table implements Serializable {
 				PageFilePath.remove(PgId);
 			} else
 				UpTblData(DelPg);
-
 		}
 	}
 
@@ -334,8 +229,8 @@ public class Table implements Serializable {
 
 		Table t = new Table("Student");
 
-		t.AddMetaData(NameType, min, max);
-		t.AddMetaData(NameType, min, max);
+		//t.AddMetaData("id",NameType, min, max);
+		
 
 		t.ReadMetaData();
 		Hashtable<String, Object> htblColNameValue1 = new Hashtable<String, Object>();
@@ -364,12 +259,12 @@ public class Table implements Serializable {
 
 		// update tuples
 		htblColNameValue2.remove("id");
-		t.UpdtTbl(new Integer(1), htblColNameValue2);
+		t.UpdateTbl(new Integer(1), htblColNameValue2);
 
 //		System.out.println(t.SearchByCk(new Integer (2)));
 
 		try {
-			Page p = t.LoadPage("src/main/DBFiles/StudentPage0.bin");
+			Page p = t.LoadPage("src/main/DBFiles/Pages/StudentPage0.bin");
 			for (Hashtable<String, Object> x : p.getVecPage())
 				System.out.println(x.get("id") + " " + x.get("name") + " " + x.get("gpa"));
 		} catch (Exception e) {
@@ -377,7 +272,7 @@ public class Table implements Serializable {
 			e.printStackTrace();
 		}
 		try {
-			Page p = t.LoadPage("src/main/DBFiles/StudentPage1.bin");
+			Page p = t.LoadPage("src/main/DBFiles/Pages/StudentPage1.bin");
 			for (Hashtable<String, Object> x : p.getVecPage())
 				System.out.println(x.get("id") + " " + x.get("name") + " " + x.get("gpa"));
 		} catch (Exception e) {
