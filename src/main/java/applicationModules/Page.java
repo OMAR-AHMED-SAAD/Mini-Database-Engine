@@ -1,4 +1,4 @@
-package dataManagement;
+package applicationModules;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -11,9 +11,10 @@ import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Vector;
 
+import dataManagement.ComparatorI;
 import exceptions.DBAppException;
 
-public class Page implements Serializable ,ComparatorI{
+public class Page implements Serializable, ComparatorI {
 	private static final long serialVersionUID = 1L;
 	private String TblName;
 	private int PageId;
@@ -34,7 +35,6 @@ public class Page implements Serializable ,ComparatorI{
 			FileInputStream inputStream = new FileInputStream("src/main/resources/DBApp.config.properties");
 			Prop.load(inputStream);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		this.MaxRowCount = Integer.parseInt(Prop.getProperty("MaximumRowsCountinTablePage"));

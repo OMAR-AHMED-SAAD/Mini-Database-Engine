@@ -1,4 +1,4 @@
-package dataManagement;
+package applicationModules;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -11,6 +11,10 @@ import java.text.ParseException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+
+import dataManagement.ComparatorI;
+import dataManagement.RowAddress;
+import dataManagement.ValidatorI;
 import exceptions.DBAppException;
 
 public class Table implements Serializable,ComparatorI,ValidatorI {
