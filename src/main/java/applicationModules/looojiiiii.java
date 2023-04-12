@@ -116,3 +116,77 @@ public class looojiiiii {
 //		}
 //	}
 //}
+
+
+//main table
+//public static void main(String[] args) throws IOException, DBAppException {
+//
+//	Hashtable<String, String> NameType = new Hashtable<String, String>();
+//	NameType.put("id", "java.lang.Integer");
+//	NameType.put("name", "java.lang.String");
+//	NameType.put("gpa", "java.lang.double");
+//
+//	Hashtable<String, String> min = new Hashtable<String, String>();
+//	min.put("id", "0");
+//	min.put("name", "A");
+//	min.put("gpa", "0");
+//
+//	Hashtable<String, String> max = new Hashtable<String, String>();
+//	max.put("id", "1000");
+//	max.put("name", "ZZZZZZZZZZZZ");
+//	max.put("gpa", "1000");
+//
+//	Table t = new Table("Student");
+//
+//	//t.AddMetaData("id",NameType, min, max);
+//	
+//
+//	t.ReadMetaData();
+//	Hashtable<String, Object> htblColNameValue1 = new Hashtable<String, Object>();
+//	htblColNameValue1.put("id", new Integer(1));
+//	htblColNameValue1.put("name", new String("Ahmed"));
+//	htblColNameValue1.put("gpa", new Double(0.69));
+//
+//	Hashtable<String, Object> htblColNameValue2 = new Hashtable<String, Object>();
+//	htblColNameValue2.put("id", new Integer(2));
+//	htblColNameValue2.put("name", new String("Loji"));
+//	htblColNameValue2.put("gpa", new Double(1.0));
+//
+//	Hashtable<String, Object> htblColNameValue3 = new Hashtable<String, Object>();
+//	htblColNameValue3.put("id", new Integer(3));
+//	htblColNameValue3.put("name", new String("Hamada"));
+//	htblColNameValue3.put("gpa", new Double(0.85));
+//	// insert tuples
+//	t.InsertInTable(htblColNameValue1);
+//	t.InsertInTable(htblColNameValue2);
+//	t.InsertInTable(htblColNameValue3);
+//
+//	// delete tuples
+//	// htblColNameValue3.remove("id");
+////	htblColNameValue3.remove("gpa");
+////	t.DelFromTbl(htblColNameValue3);
+//
+//	// update tuples
+//	htblColNameValue2.remove("id");
+//	t.UpdateTbl(new Integer(1), htblColNameValue2);
+//
+////	System.out.println(t.SearchByCk(new Integer (2)));
+//
+//	try {
+//		Page p = t.LoadPage("src/main/DBFiles/Pages/StudentPage0.bin");
+//		for (Hashtable<String, Object> x : p.getVecPage())
+//			System.out.println(x.get("id") + " " + x.get("name") + " " + x.get("gpa"));
+//	} catch (Exception e) {
+//		// TODO Auto-generated catch block
+//		e.printStackTrace();
+//	}
+//	try {
+//		Page p = t.LoadPage("src/main/DBFiles/Pages/StudentPage1.bin");
+//		for (Hashtable<String, Object> x : p.getVecPage())
+//			System.out.println(x.get("id") + " " + x.get("name") + " " + x.get("gpa"));
+//	} catch (Exception e) {
+//		// TODO Auto-generated catch block
+//		e.printStackTrace();
+//	}
+//
+//}
