@@ -7,7 +7,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.text.ParseException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -48,7 +47,7 @@ public class Table implements Serializable,ComparatorI,ValidatorI {
 		return RestoredPage;
 	}
 
-	private void ReadMetaData() throws IOException {
+	public void ReadMetaData() throws IOException {
 		ColumnNameType = new Hashtable<String, String>();
 		ColumnNameMin = new Hashtable<String, String>();
 		ColumnNameMax = new Hashtable<String, String>();
@@ -170,7 +169,7 @@ public class Table implements Serializable,ComparatorI,ValidatorI {
 			InsertInTable(PgInstRes);
 	}
 
-	private RowAddress SearchByCk(Object CkValObj) {
+	private RowAddress SearchByCk(Object CkValObj) throws DBAppException {
 		Boolean IsPgFound = false;
 		int PgId = 0;
 		int Min = 0;
@@ -210,7 +209,7 @@ public class Table implements Serializable,ComparatorI,ValidatorI {
 		UpdatePg.UnLoadPage();
 	}// String badal object parse it
 
-	public void DelFromTbl(Hashtable<String, Object> ColNameVal) {
+	public void DelFromTbl(Hashtable<String, Object> ColNameVal) throws DBAppException {
 		for (int Index = 0; Index < TablePages.size(); Index++) {
 			int PgId = TablePages.get(Index);
 			Page DelPg = LoadPage(PageFilePath.get(PgId));

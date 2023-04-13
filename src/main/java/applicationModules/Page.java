@@ -91,7 +91,7 @@ public class Page implements Serializable, ComparatorI {
 		return (CurrRowCount == 0);
 	}
 
-	public int IsRowFound(String CKName, Object CkValO) {
+	public int IsRowFound(String CKName, Object CkValO) throws DBAppException {
 		int Min = 0;
 		int Max = VecPage.size() - 1;
 		while (Min <= Max) {
@@ -112,7 +112,7 @@ public class Page implements Serializable, ComparatorI {
 		ColNameVal.forEach((key, value) -> VecPage.get(index).put(key, value));
 	}
 
-	public void DelRows(Hashtable<String, Object> ColNameVal, String CKName) {
+	public void DelRows(Hashtable<String, Object> ColNameVal, String CKName) throws DBAppException {
 
 		for (int Index = 0; Index < VecPage.size(); Index++) {
 			boolean flag = true;

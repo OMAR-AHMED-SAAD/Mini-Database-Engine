@@ -13,8 +13,6 @@ import java.io.ObjectInputStream;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
-
-import applicationModules.Page;
 import applicationModules.Table;
 import dataManagement.ValidatorI;
 import exceptions.DBAppException;
@@ -22,7 +20,14 @@ import exceptions.DBAppException;
 public class DBApp implements ValidatorI {
 	private Hashtable<String, String> CreatedTables;
 
-	public void init() throws FileNotFoundException, IOException, ClassNotFoundException {
+	public DBApp() throws FileNotFoundException, IOException {
+		init();
+	}
+	public static void main(String[] args) throws FileNotFoundException, IOException {
+		DBApp db=new DBApp();
+		System.out.println(db.CreatedTables.toString());
+	}
+	public void init() throws FileNotFoundException, IOException {
 		ReadCreatedTables();
 	}
 
@@ -136,13 +141,16 @@ public class DBApp implements ValidatorI {
 
 // following method inserts one row only.
 //htblColNameValue must include a value for the primary key 
-	public void insertIntoTable(String strTableName, Hashtable<String, Object> htblColNameValue) throws DBAppException {
+	public void insertIntoTable(String strTableName, Hashtable<String, Object> htblColNameValue)
+			throws DBAppException, IOException {
 		if (CreatedTables.get(strTableName) == null)
 			throw new DBAppException(strTableName + " does not exists");
 		String FilePath = CreatedTables.get(strTableName);
 		Table Table = LoadTable(FilePath);
+		Table.ReadMetaData();
 		Table.ValidateInsert(htblColNameValue);
 		Table.InsertInTable(htblColNameValue);
+		UnLoadTable(Table, FilePath);
 	}
 
 //following method updates one row only
@@ -150,25 +158,30 @@ public class DBApp implements ValidatorI {
 //htblColNameValue will not include clustering key as column name
 //strClusteringKeyValue is the value to look for to find the row to update. 
 	public void updateTable(String strTableName, String strClusteringKeyValue,
-			Hashtable<String, Object> htblColNameValue) throws DBAppException {
+			Hashtable<String, Object> htblColNameValue) throws DBAppException, IOException {
 		if (CreatedTables.get(strTableName) == null)
 			throw new DBAppException(strTableName + " does not exists");
 		String FilePath = CreatedTables.get(strTableName);
 		Table Table = LoadTable(FilePath);
-		Table.ValidateUpdate(strClusteringKeyValue,htblColNameValue);
-		Table.UpdateTbl(strClusteringKeyValue,htblColNameValue);
+		Table.ReadMetaData();
+		Table.ValidateUpdate(strClusteringKeyValue, htblColNameValue);
+		Table.UpdateTbl(strClusteringKeyValue, htblColNameValue);
+		UnLoadTable(Table, FilePath);
 	}
 
 //following method could be used to delete one or more rows.
 //htblColNameValue holds the key and value. This will be used in search // to identify which rows/tuples to delete.
 //htblColNameValue enteries are ANDED together
-	public void deleteFromTable(String strTableName, Hashtable<String, Object> htblColNameValue) throws DBAppException {
+	public void deleteFromTable(String strTableName, Hashtable<String, Object> htblColNameValue)
+			throws DBAppException, IOException {
 		if (CreatedTables.get(strTableName) != null)
 			throw new DBAppException(strTableName + " does not exists");
 		String FilePath = CreatedTables.get(strTableName);
 		Table Table = LoadTable(FilePath);
+		Table.ReadMetaData();
 		Table.ValidateDelete(htblColNameValue);
 		Table.DelFromTbl(htblColNameValue);
+		UnLoadTable(Table, FilePath);
 	}
 
 	@SuppressWarnings("rawtypes")

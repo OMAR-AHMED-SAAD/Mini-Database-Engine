@@ -9,13 +9,13 @@ import exceptions.DBAppException;
 
 public class Validator implements ComparatorI {
 
-	private static String[] SupportedTypes = new String[] { "java.lang.Integer", "java.lang.String", "java.util.Date",
-			"java.util.Double" };
+	private static String[] SupportedTypes = new String[] { "java.lang.integer", "java.lang.string", "java.util.date",
+			"java.lang.double" };
 
 	public void checkTypeSupport(String type) throws DBAppException {
 		boolean found = false;
 		for (String SuppType : SupportedTypes)
-			if (SuppType.equals(type))
+			if (SuppType.equals(type.toLowerCase()))
 				found = true;
 		if (!found)
 			throw new DBAppException(type + " is not currently supported");
@@ -35,19 +35,19 @@ public class Validator implements ComparatorI {
 	// takes Object and a type and check if object is of that type
 
 	public void ValidateObjectType(Object Obj, String Type) throws DBAppException {
-		switch (Type) {
-		case "java.util.Date":
+		switch (Type.toLowerCase()) {
+		case "java.util.date":
 			if (!(Obj instanceof java.util.Date))
 				throw new DBAppException("Invalid Type for Date");
-		case "java.lang.Integer":
+		case "java.lang.integer":
 			if (!(Obj instanceof java.lang.Integer))
 				return;
 			throw new DBAppException("Invalid Type for Integer");
-		case "java.lang.String":
+		case "java.lang.string":
 			if (!(Obj instanceof java.lang.String))
 				return;
 			throw new DBAppException("Invalid Type for String");
-		case "java.lang.Double":
+		case "java.lang.double":
 			if (!(Obj instanceof java.lang.Double))
 				return;
 			throw new DBAppException("Invalid Type for Double");
@@ -73,17 +73,17 @@ public class Validator implements ComparatorI {
 
 	// takes string and a type and parse object to that type
 	public Object Parsing(String Value, String Type) throws ParseException {
-		switch (Type) {
-		case "java.lang.Integer":
+		switch (Type.toLowerCase()) {
+		case "java.lang.integer":
 			return new Integer(Integer.parseInt(Value));
-		case "java.lang.String":
+		case "java.lang.string":
 			return new String(Value);
-		case "java.util.Date":
+		case "java.util.date":
 			SimpleDateFormat DF = new SimpleDateFormat("yyyy-MM-dd");
 			DF.setLenient(false);
 			Date date = DF.parse(Value);
 			return date;
-		case "java.lang.Double":
+		case "java.lang.double":
 			return new Double(Double.parseDouble(Value));
 		default:
 			return new String(Value);
