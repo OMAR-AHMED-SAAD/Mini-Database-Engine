@@ -28,5 +28,36 @@ public class test {
 		
 		db.createTable(tblName, "id", NameType, min, max);
 		
+		Hashtable<String, Object> htblColNameValue1 = new Hashtable<String, Object>();
+		htblColNameValue1.put("id", new Integer(1));
+		htblColNameValue1.put("name", new String("Ahmed"));
+		htblColNameValue1.put("gpa", new Double(0.69));
+	
+		Hashtable<String, Object> htblColNameValue2 = new Hashtable<String, Object>();
+		htblColNameValue2.put("id", new Integer(2));
+		htblColNameValue2.put("name", new String("Loji"));
+		htblColNameValue2.put("gpa", new Double(1.0));
+	
+		Hashtable<String, Object> htblColNameValue3 = new Hashtable<String, Object>();
+		htblColNameValue3.put("id", new Integer(3));
+		htblColNameValue3.put("name", new String("Hamada"));
+		htblColNameValue3.put("gpa", new Double(0.85));
+		
+		db.insertIntoTable(tblName,htblColNameValue1);
+		db.insertIntoTable(tblName,htblColNameValue2);
+		db.insertIntoTable(tblName,htblColNameValue3);
+		
+		
+		// delete tuples
+		 htblColNameValue3.remove("id");
+		htblColNameValue3.remove("gpa");
+		db.deleteFromTable(tblName,htblColNameValue3);
+	
+		// update tuples
+		htblColNameValue2.remove("id");
+		htblColNameValue3.remove("gpa");
+		htblColNameValue3.put("gpa", new Double(0.75));
+		db.updateTable(tblName,"1", htblColNameValue2);
+	
 	}
 }
