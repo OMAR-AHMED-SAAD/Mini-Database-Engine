@@ -26,7 +26,7 @@ public class test {
 
 		DBApp db=new DBApp(); 
 		
-		db.createTable(tblName, "id", NameType, min, max);
+		//db.createTable(tblName, "id", NameType, min, max);
 		
 		Hashtable<String, Object> htblColNameValue1 = new Hashtable<String, Object>();
 		htblColNameValue1.put("id", new Integer(1));
@@ -43,16 +43,16 @@ public class test {
 		htblColNameValue3.put("name", new String("Hamada"));
 		htblColNameValue3.put("gpa", new Double(0.85));
 		
-		db.insertIntoTable(tblName,htblColNameValue1);
-		db.insertIntoTable(tblName,htblColNameValue2);
-		db.insertIntoTable(tblName,htblColNameValue3);
+//		db.insertIntoTable(tblName,htblColNameValue1);
+//		db.insertIntoTable(tblName,htblColNameValue2);
+//		db.insertIntoTable(tblName,htblColNameValue3);
 		
 		
-		// delete tuples
-		 htblColNameValue3.remove("id");
-		htblColNameValue3.remove("gpa");
-		db.deleteFromTable(tblName,htblColNameValue3);
-	
+//		// delete tuples
+//		 htblColNameValue3.remove("id");
+//		htblColNameValue3.remove("gpa");
+//		db.deleteFromTable(tblName,htblColNameValue3);
+//	
 		// update tuples
 		htblColNameValue2.remove("id");
 		htblColNameValue3.remove("gpa");

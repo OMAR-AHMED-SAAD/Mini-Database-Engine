@@ -16,7 +16,7 @@ import dataManagement.RowAddress;
 import dataManagement.ValidatorI;
 import exceptions.DBAppException;
 
-public class Table implements Serializable,ComparatorI,ValidatorI {
+public class Table implements Serializable, ComparatorI, ValidatorI {
 	private static final long serialVersionUID = 1L;
 	private String TblName;
 	private transient String CKName;
@@ -74,22 +74,22 @@ public class Table implements Serializable,ComparatorI,ValidatorI {
 		bufferedreader.close();
 	}
 
-	public void ValidateInsert(Hashtable<String, Object> ColNameValue) throws DBAppException{
+	public void ValidateInsert(Hashtable<String, Object> ColNameValue) throws DBAppException {
 		if (ColNameValue.get(CKName) == null)
 			throw new DBAppException("Cannot insert without primary key");
 		validateHelper(ColNameValue);
 	}
-	
-	public void ValidateDelete(Hashtable<String, Object> ColNameValue) throws DBAppException{
+
+	public void ValidateDelete(Hashtable<String, Object> ColNameValue) throws DBAppException {
 		validateHelper(ColNameValue);
 	}
-	
-	public void ValidateUpdate(String CKValue, Hashtable<String,Object> ColNameValue) throws DBAppException {
-		V.tryParse(CKValue,ColumnNameType.get(CKName));
+
+	public void ValidateUpdate(String CKValue, Hashtable<String, Object> ColNameValue) throws DBAppException {
+		V.tryParse(CKValue, ColumnNameType.get(CKName));
 		validateHelper(ColNameValue);
 	}
-	
-	private void validateHelper(Hashtable<String,Object> ColNameValue) throws DBAppException {
+
+	private void validateHelper(Hashtable<String, Object> ColNameValue) throws DBAppException {
 		Enumeration<String> ColNameValKeys = ColNameValue.keys();
 		V.ValidateColumnsE(ColNameValKeys, ColumnNameType);
 		while (ColNameValKeys.hasMoreElements()) {
@@ -200,8 +200,8 @@ public class Table implements Serializable,ComparatorI,ValidatorI {
 		}
 	}
 
-	public void UpdateTbl(Object CKVal, Hashtable<String, Object> ColNameVal) throws DBAppException {
-		RowAddress RowAdrs = SearchByCk(CKVal);
+	public void UpdateTbl(String CKVal, Hashtable<String, Object> ColNameVal) throws DBAppException {
+		RowAddress RowAdrs = SearchByCk(V.tryParse(CKVal, ColumnNameType.get(CKName)));
 		if (RowAdrs == null)
 			throw new DBAppException("Tuple not found");
 		Page UpdatePg = LoadPage(PageFilePath.get(RowAdrs.getPageId()));
