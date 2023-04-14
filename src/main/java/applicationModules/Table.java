@@ -35,7 +35,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		PageIdInc = 0;
 	}
 
-	public Page LoadPage(String FilePath) {
+	private Page LoadPage(String FilePath) {
 		Page RestoredPage = null;
 		try {
 			ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(FilePath));
@@ -130,7 +130,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 					OverflowSolver(PgInstRes);
 					break;
 				} else if (C.compare(CK, PageMaxVal) > 0 && !IsPgF && !IsLastPg) {
-					int NxtPid = TablePages.get(i);
+					int NxtPid = TablePages.get(i+1);
 					Object NxtPageMinVal = MinPage.get(NxtPid);
 					if (C.compare(CK, NxtPageMinVal) < 0) {
 						InstPg = LoadPage(this.PageFilePath.get(Pid));
@@ -207,7 +207,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		Page UpdatePg = LoadPage(PageFilePath.get(RowAdrs.getPageId()));
 		UpdatePg.UpdtRow(RowAdrs.getRowIndex(), ColNameVal);
 		UpdatePg.UnLoadPage();
-	}// String badal object parse it
+	}
 
 	public void DelFromTbl(Hashtable<String, Object> ColNameVal) throws DBAppException {
 		for (int Index = 0; Index < TablePages.size(); Index++) {

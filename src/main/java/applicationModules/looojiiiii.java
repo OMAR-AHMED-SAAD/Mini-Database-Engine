@@ -190,3 +190,123 @@ public class looojiiiii {
 //	}
 //
 //}
+//
+//package application;
+//
+//import java.io.FileNotFoundException;
+//import java.io.IOException;
+//import java.util.Hashtable;
+//
+//import applicationModules.Page;
+//import applicationModules.Table;
+//
+//public class LojiPlzRead {
+//	public static void main(String[] args) throws FileNotFoundException, IOException {
+//		DBApp db=new DBApp(); 
+//		System.out.println(db.CreatedTables.toString());
+//		Table t = new Table("student");
+//		try {
+//			Page p = t.LoadPage("src/main/DBFiles/Pages/StudentPage0.bin");
+//			for (Hashtable<String, Object> x : p.getVecPage())
+//				System.out.println(x.get("id") + " " + x.get("name") + " " + x.get("gpa"));
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		try {
+//			Page p = t.LoadPage("src/main/DBFiles/Pages/StudentPage3.bin");
+//			for (Hashtable<String, Object> x : p.getVecPage())
+//				System.out.println(x.get("id") + " " + x.get("name") + " " + x.get("gpa"));
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		try {
+//			Page p = t.LoadPage("src/main/DBFiles/Pages/StudentPage4.bin");
+//			for (Hashtable<String, Object> x : p.getVecPage())
+//				System.out.println(x.get("id") + " " + x.get("name") + " " + x.get("gpa"));
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//	}
+//}
+//
+
+
+//package application;
+//
+//import java.io.FileNotFoundException;
+//import java.io.IOException;
+//import java.util.Hashtable;
+//
+//import exceptions.DBAppException;
+//
+//public class test {
+//	public static void main(String[] args) throws FileNotFoundException, IOException, DBAppException {
+//		String tblName = "Student";
+//		Hashtable<String, String> NameType = new Hashtable<String, String>();
+//		NameType.put("id", "java.lang.Integer");
+//		NameType.put("name", "java.lang.String");
+//		NameType.put("gpa", "java.lang.double");
+//
+//		Hashtable<String, String> min = new Hashtable<String, String>();
+//		min.put("id", "0");
+//		min.put("name", "A");
+//		min.put("gpa", "0");
+//
+//		Hashtable<String, String> max = new Hashtable<String, String>();
+//		max.put("id", "1000");
+//		max.put("name", "ZZZZZZZZZZZZ");
+//		max.put("gpa", "1000");
+//
+//		DBApp db = new DBApp();
+//
+////		db.createTable(tblName, "id", NameType, min, max);
+//
+//		Hashtable<String, Object> htblColNameValue1 = new Hashtable<String, Object>();
+//		htblColNameValue1.put("id", new Integer(1));
+//		htblColNameValue1.put("name", new String("Ahmed"));
+//		htblColNameValue1.put("gpa", new Double(0.69));
+//
+//		Hashtable<String, Object> htblColNameValue2 = new Hashtable<String, Object>();
+//		htblColNameValue2.put("id", new Integer(2));
+//		htblColNameValue2.put("name", new String("Loji"));
+//		htblColNameValue2.put("gpa", new Double(1.0));
+//
+//		Hashtable<String, Object> htblColNameValue3 = new Hashtable<String, Object>();
+//		htblColNameValue3.put("id", new Integer(7));
+//		htblColNameValue3.put("name", new String("Hamada"));
+//		htblColNameValue3.put("gpa", new Double(0.85));
+//
+//		Hashtable<String, Object> htblColNameValue4 = new Hashtable<String, Object>();
+//		htblColNameValue4.put("id", new Integer(4));
+//		htblColNameValue4.put("name", new String("Ali"));
+//		htblColNameValue4.put("gpa", new Double(1.0));
+//
+//		Hashtable<String, Object> htblColNameValue5 = new Hashtable<String, Object>();
+//		htblColNameValue5.put("id", new Integer(5));
+//		htblColNameValue5.put("name", new String("Nelly"));
+//		htblColNameValue5.put("gpa", new Double(2.0));
+//
+////		db.insertIntoTable(tblName,htblColNameValue1);
+//		// db.insertIntoTable(tblName,htblColNameValue2);
+//		// db.insertIntoTable(tblName,htblColNameValue3);
+//		// db.insertIntoTable(tblName,htblColNameValue4);
+//		// db.insertIntoTable(tblName,htblColNameValue5);
+//
+//		// delete tuples
+////		htblColNameValue2.remove("id");
+////		htblColNameValue2.remove("name");
+////		htblColNameValue2.remove("gpa");
+////		db.deleteFromTable(tblName, htblColNameValue2);
+//
+//		// update tuples
+////		htblColNameValue2.remove("id");
+////		htblColNameValue2.remove("gpa");
+////		htblColNameValue2.remove("name");
+////		htblColNameValue2.put("gpa", new Double(0.75));
+////		db.updateTable(tblName,"1", htblColNameValue2);
+//
+//	}
+//}

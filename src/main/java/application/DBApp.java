@@ -18,7 +18,7 @@ import dataManagement.ValidatorI;
 import exceptions.DBAppException;
 
 public class DBApp implements ValidatorI {
-	Hashtable<String, String> CreatedTables; //private
+	private Hashtable<String, String> CreatedTables;
 
 	public DBApp() throws FileNotFoundException, IOException {
 		init();
@@ -174,7 +174,7 @@ public class DBApp implements ValidatorI {
 //htblColNameValue enteries are ANDED together
 	public void deleteFromTable(String strTableName, Hashtable<String, Object> htblColNameValue)
 			throws DBAppException, IOException {
-		if (CreatedTables.get(strTableName) != null)
+		if (CreatedTables.get(strTableName) == null)
 			throw new DBAppException(strTableName + " does not exists");
 		String FilePath = CreatedTables.get(strTableName);
 		Table Table = LoadTable(FilePath);
