@@ -18,7 +18,7 @@ import dataManagement.ValidatorI;
 import exceptions.DBAppException;
 
 public class DBApp implements ValidatorI {
-	private Hashtable<String, String> CreatedTables;
+	Hashtable<String, String> CreatedTables; //private
 
 	public DBApp() throws FileNotFoundException, IOException {
 		init();

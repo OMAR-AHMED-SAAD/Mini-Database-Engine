@@ -35,7 +35,7 @@ public class Table implements Serializable,ComparatorI,ValidatorI {
 		PageIdInc = 0;
 	}
 
-	private Page LoadPage(String FilePath) {
+	public Page LoadPage(String FilePath) {
 		Page RestoredPage = null;
 		try {
 			ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(FilePath));
