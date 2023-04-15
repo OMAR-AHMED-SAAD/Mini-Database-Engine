@@ -6,7 +6,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.io.ObjectInputStream;
@@ -20,19 +19,16 @@ import exceptions.DBAppException;
 public class DBApp implements ValidatorI {
 	private Hashtable<String, String> CreatedTables;
 
-	public DBApp() throws FileNotFoundException, IOException {
+	public DBApp() throws DBAppException {
 		init();
 	}
-	public static void main(String[] args) throws FileNotFoundException, IOException {
-		DBApp db=new DBApp();
-		System.out.println(db.CreatedTables.toString());
-	}
-	public void init() throws FileNotFoundException, IOException {
+
+	public void init() throws DBAppException {
 		ReadCreatedTables();
 	}
 
 	@SuppressWarnings("unchecked")
-	public void ReadCreatedTables() {
+	public void ReadCreatedTables() throws DBAppException {
 		String FilePath = "src/main/DBFiles/CreatedTables.bin";
 		try {
 			ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(FilePath));
@@ -44,24 +40,24 @@ public class DBApp implements ValidatorI {
 			WriteCreatedTables();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new DBAppException();
 		}
 	}
 
-	public void WriteCreatedTables() {
+	public void WriteCreatedTables() throws DBAppException {
 		String FilePath = "src/main/DBFiles/CreatedTables.bin";
 		try {
 			ObjectOutputStream ObjectOutputStream = new ObjectOutputStream(new FileOutputStream(FilePath));
 			ObjectOutputStream.writeObject(CreatedTables);
 			ObjectOutputStream.close();
-		} catch (IOException e) {
-			System.out.println(e.getMessage());
+		} catch (Exception e) {
+			throw new DBAppException();
 		}
 	}
 
 	public void createTable(String strTableName, String strClusteringKeyColumn,
 			Hashtable<String, String> htblColNameType, Hashtable<String, String> htblColNameMin,
-			Hashtable<String, String> htblColNameMax) throws DBAppException, IOException {
+			Hashtable<String, String> htblColNameMax) throws DBAppException {
 		if (CreatedTables.get(strTableName) != null)
 			throw new DBAppException(strTableName + " already exists");
 		else {
@@ -75,13 +71,13 @@ public class DBApp implements ValidatorI {
 		}
 	}
 
-	public void UnLoadTable(Table tbl, String FilePath) {
+	public void UnLoadTable(Table tbl, String FilePath) throws DBAppException {
 		try {
 			ObjectOutputStream ObjectOutputStream = new ObjectOutputStream(new FileOutputStream(FilePath));
 			ObjectOutputStream.writeObject(tbl);
 			ObjectOutputStream.close();
-		} catch (IOException e) {
-			System.out.println(e.getMessage());
+		} catch (Exception e) {
+			throw new DBAppException();
 		}
 	}
 
@@ -112,13 +108,19 @@ public class DBApp implements ValidatorI {
 	}
 
 	public void AddMetaData(String TblName, String ClusteringKey, Hashtable<String, String> ColNameType,
-			Hashtable<String, String> ColNameMin, Hashtable<String, String> ColNameMax) throws IOException {
+			Hashtable<String, String> ColNameMin, Hashtable<String, String> ColNameMax) throws DBAppException {
 		String FilePath = "src/main/DBFiles/metadata.csv";
 		boolean FileExist = false;
 		if (new File(FilePath).exists()) {
 			FileExist = true;
 		}
-		FileWriter fw = new FileWriter(FilePath, true);
+		FileWriter fw;
+		try {
+			fw = new FileWriter(FilePath, true);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			throw new DBAppException();
+		}
 		BufferedWriter bw = new BufferedWriter(fw);
 		PrintWriter pw = new PrintWriter(bw);
 		if (!FileExist)
@@ -141,8 +143,7 @@ public class DBApp implements ValidatorI {
 
 // following method inserts one row only.
 //htblColNameValue must include a value for the primary key 
-	public void insertIntoTable(String strTableName, Hashtable<String, Object> htblColNameValue)
-			throws DBAppException, IOException {
+	public void insertIntoTable(String strTableName, Hashtable<String, Object> htblColNameValue) throws DBAppException {
 		if (CreatedTables.get(strTableName) == null)
 			throw new DBAppException(strTableName + " does not exists");
 		String FilePath = CreatedTables.get(strTableName);
@@ -158,7 +159,7 @@ public class DBApp implements ValidatorI {
 //htblColNameValue will not include clustering key as column name
 //strClusteringKeyValue is the value to look for to find the row to update. 
 	public void updateTable(String strTableName, String strClusteringKeyValue,
-			Hashtable<String, Object> htblColNameValue) throws DBAppException, IOException {
+			Hashtable<String, Object> htblColNameValue) throws DBAppException {
 		if (CreatedTables.get(strTableName) == null)
 			throw new DBAppException(strTableName + " does not exists");
 		String FilePath = CreatedTables.get(strTableName);
@@ -172,8 +173,7 @@ public class DBApp implements ValidatorI {
 //following method could be used to delete one or more rows.
 //htblColNameValue holds the key and value. This will be used in search // to identify which rows/tuples to delete.
 //htblColNameValue enteries are ANDED together
-	public void deleteFromTable(String strTableName, Hashtable<String, Object> htblColNameValue)
-			throws DBAppException, IOException {
+	public void deleteFromTable(String strTableName, Hashtable<String, Object> htblColNameValue) throws DBAppException {
 		if (CreatedTables.get(strTableName) == null)
 			throw new DBAppException(strTableName + " does not exists");
 		String FilePath = CreatedTables.get(strTableName);
@@ -188,6 +188,5 @@ public class DBApp implements ValidatorI {
 	public Iterator selectFromTable(SQLTerm[] arrSQLTerms, String[] strarrOperators) throws DBAppException {
 
 		return null;
-
 	}
 }

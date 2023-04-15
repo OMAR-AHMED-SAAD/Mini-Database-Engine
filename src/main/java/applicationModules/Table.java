@@ -4,13 +4,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
-
 import dataManagement.ComparatorI;
 import dataManagement.RowAddress;
 import dataManagement.ValidatorI;
@@ -47,31 +45,36 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		return RestoredPage;
 	}
 
-	public void ReadMetaData() throws IOException {
+	public void ReadMetaData() throws DBAppException {
 		ColumnNameType = new Hashtable<String, String>();
 		ColumnNameMin = new Hashtable<String, String>();
 		ColumnNameMax = new Hashtable<String, String>();
 		String FilePath = "src/main/DBFiles/metadata.csv";
-		FileReader fileReader = new FileReader(FilePath);
-		BufferedReader bufferedreader = new BufferedReader(fileReader);
-		String Line = bufferedreader.readLine();
-		while (Line != null) {
-			String[] content = Line.split(",");
-			if (content[0].equals(TblName)) {
-				String ColName = content[1];
-				String ColType = content[2];
-				String IsPrimaryKey = content[3];
-				String ColMin = content[6];
-				String ColMax = content[7];
-				ColumnNameType.put(ColName, ColType);
-				ColumnNameMin.put(ColName, ColMin);
-				ColumnNameMax.put(ColName, ColMax);
-				if (IsPrimaryKey.toLowerCase().equals("true"))
-					CKName = ColName;
+		try {
+			FileReader fileReader = new FileReader(FilePath);
+			BufferedReader bufferedreader = new BufferedReader(fileReader);
+			String Line = bufferedreader.readLine();
+			while (Line != null) {
+				String[] content = Line.split(",");
+				if (content[0].equals(TblName)) {
+					String ColName = content[1];
+					String ColType = content[2];
+					String IsPrimaryKey = content[3];
+					String ColMin = content[6];
+					String ColMax = content[7];
+					ColumnNameType.put(ColName, ColType);
+					ColumnNameMin.put(ColName, ColMin);
+					ColumnNameMax.put(ColName, ColMax);
+					if (IsPrimaryKey.toLowerCase().equals("true"))
+						CKName = ColName;
+				}
+				Line = bufferedreader.readLine();
 			}
-			Line = bufferedreader.readLine();
+			bufferedreader.close();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			throw new DBAppException();
 		}
-		bufferedreader.close();
 	}
 
 	public void ValidateInsert(Hashtable<String, Object> ColNameValue) throws DBAppException {
@@ -130,7 +133,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 					OverflowSolver(PgInstRes);
 					break;
 				} else if (C.compare(CK, PageMaxVal) > 0 && !IsPgF && !IsLastPg) {
-					int NxtPid = TablePages.get(i+1);
+					int NxtPid = TablePages.get(i + 1);
 					Object NxtPageMinVal = MinPage.get(NxtPid);
 					if (C.compare(CK, NxtPageMinVal) < 0) {
 						InstPg = LoadPage(this.PageFilePath.get(Pid));
@@ -155,7 +158,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		PageIdInc++;
 	}
 
-	private void UpTblData(Page Pg) {
+	private void UpTblData(Page Pg) throws DBAppException {
 		MaxPage.put(Pg.getPageId(), Pg.getCurrMax());
 		MinPage.put(Pg.getPageId(), Pg.getCurrMin());
 		IsPgFull.put(Pg.getPageId(), Pg.IsFull());

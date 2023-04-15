@@ -2,15 +2,12 @@ package applicationModules;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.Hashtable;
-
 import java.util.Properties;
 import java.util.Vector;
-
 import dataManagement.ComparatorI;
 import exceptions.DBAppException;
 
@@ -25,7 +22,7 @@ public class Page implements Serializable, ComparatorI {
 	private String FilePath;
 	private Vector<Hashtable<String, Object>> VecPage = new Vector<Hashtable<String, Object>>();
 
-	public Page(int id, String TblName) {
+	public Page(int id, String TblName) throws DBAppException {
 		PageId = id;
 		this.TblName = TblName;
 		FilePath = "src/main/DBFiles/Pages/" + this.TblName + "Page" + this.PageId + ".bin";
@@ -34,20 +31,20 @@ public class Page implements Serializable, ComparatorI {
 		try {
 			FileInputStream inputStream = new FileInputStream("src/main/resources/DBApp.config.properties");
 			Prop.load(inputStream);
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			throw new DBAppException();
 		}
 		this.MaxRowCount = Integer.parseInt(Prop.getProperty("MaximumRowsCountinTablePage"));
 
 	}
 
-	public void UnLoadPage() {
+	public void UnLoadPage() throws DBAppException {
 		try {
 			ObjectOutputStream ObjectOutputStream = new ObjectOutputStream(new FileOutputStream(FilePath));
 			ObjectOutputStream.writeObject(this);
 			ObjectOutputStream.close();
-		} catch (IOException e) {
-			System.out.println(e.getMessage());
+		} catch (Exception e) {
+			throw new DBAppException();
 		}
 	}
 
