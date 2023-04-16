@@ -29,7 +29,7 @@ public class Page implements Serializable, ComparatorI {
 		CurrRowCount = 0;
 		Properties Prop = new Properties();
 		try {
-			FileInputStream inputStream = new FileInputStream("src/main/resources/DBApp.config.properties");
+			FileInputStream inputStream = new FileInputStream("src/main/resources/DBApp.config");
 			Prop.load(inputStream);
 		} catch (Exception e) {
 			throw new DBAppException();

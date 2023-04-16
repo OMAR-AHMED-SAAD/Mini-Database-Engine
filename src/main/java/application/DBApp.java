@@ -19,12 +19,17 @@ import exceptions.DBAppException;
 public class DBApp implements ValidatorI {
 	private Hashtable<String, String> CreatedTables;
 
-	public DBApp() throws DBAppException {
+	public DBApp()  {
 		init();
 	}
 
-	public void init() throws DBAppException {
+	public void init() {
+		try{
 		ReadCreatedTables();
+		}
+		catch(DBAppException e) {
+			System.out.println("DBAppException");
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -109,7 +114,7 @@ public class DBApp implements ValidatorI {
 
 	public void AddMetaData(String TblName, String ClusteringKey, Hashtable<String, String> ColNameType,
 			Hashtable<String, String> ColNameMin, Hashtable<String, String> ColNameMax) throws DBAppException {
-		String FilePath = "src/main/DBFiles/metadata.csv";
+		String FilePath = "src/main/resources/metadata.csv";
 		boolean FileExist = false;
 		if (new File(FilePath).exists()) {
 			FileExist = true;

@@ -49,7 +49,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		ColumnNameType = new Hashtable<String, String>();
 		ColumnNameMin = new Hashtable<String, String>();
 		ColumnNameMax = new Hashtable<String, String>();
-		String FilePath = "src/main/DBFiles/metadata.csv";
+		String FilePath = "src/main/resources/metadata.csv";
 		try {
 			FileReader fileReader = new FileReader(FilePath);
 			BufferedReader bufferedreader = new BufferedReader(fileReader);
