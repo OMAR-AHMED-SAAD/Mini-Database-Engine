@@ -115,10 +115,6 @@ public class DBApp implements ValidatorI {
 	public void AddMetaData(String TblName, String ClusteringKey, Hashtable<String, String> ColNameType,
 			Hashtable<String, String> ColNameMin, Hashtable<String, String> ColNameMax) throws DBAppException {
 		String FilePath = "src/main/resources/metadata.csv";
-		boolean FileExist = false;
-		if (new File(FilePath).exists()) {
-			FileExist = true;
-		}
 		FileWriter fw;
 		try {
 			fw = new FileWriter(FilePath, true);
@@ -128,7 +124,7 @@ public class DBApp implements ValidatorI {
 		}
 		BufferedWriter bw = new BufferedWriter(fw);
 		PrintWriter pw = new PrintWriter(bw);
-		if (!FileExist)
+		if (new File(FilePath).length()==0)
 			pw.println("TableName" + "," + "Column Name" + "," + "Column Type" + "," + "ClusteringKey" + ","
 					+ "IndexName" + "," + "IndexType" + "," + "min" + "," + "max");
 		ColNameType
