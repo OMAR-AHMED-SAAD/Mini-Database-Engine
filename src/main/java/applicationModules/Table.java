@@ -9,9 +9,10 @@ import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
-import dataManagement.ComparatorI;
-import dataManagement.RowAddress;
-import dataManagement.ValidatorI;
+
+import basicTools.ComparatorI;
+import basicTools.RowAddress;
+import basicTools.ValidatorI;
 import exceptions.DBAppException;
 
 public class Table implements Serializable, ComparatorI, ValidatorI {

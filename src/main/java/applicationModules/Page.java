@@ -8,7 +8,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Vector;
-import dataManagement.ComparatorI;
+
+import basicTools.ComparatorI;
 import exceptions.DBAppException;
 
 public class Page implements Serializable, ComparatorI {

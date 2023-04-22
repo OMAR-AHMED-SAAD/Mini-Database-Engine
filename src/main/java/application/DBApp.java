@@ -13,7 +13,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 import applicationModules.Table;
-import dataManagement.ValidatorI;
+import basicTools.ValidatorI;
 import exceptions.DBAppException;
 
 public class DBApp implements ValidatorI {
