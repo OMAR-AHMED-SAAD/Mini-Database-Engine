@@ -285,6 +285,16 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 				sb.append("- ").append(columnName).append("\n");
 			}
 		}
+		for(int i=0;i<this.TablePages.size();i++) {
+			 String FilePath=this.PageFilePath.get(this.TablePages.get(i));
+		Page page=LoadPage(FilePath);
+		sb.append("\n").append(page.toString());
+		try {
+			page.UnLoadPage();
+		} catch (DBAppException e) {
+			e.printStackTrace();
+		}
+		}
 		return sb.toString();
 	}
 

@@ -15,10 +15,5 @@ public class loojiPleaseRead {
 		table.ReadMetaData();
 		System.out.println(table.toString());
 		
-		for(int i=0;i<table.TablePages.size();i++) {
-			 FilePath=table.PageFilePath.get(table.TablePages.get(i));
-		Page page=table.LoadPage(FilePath);
-		System.out.println(page.toString());
-		}
 	}
 }
