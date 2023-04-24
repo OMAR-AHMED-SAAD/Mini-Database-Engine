@@ -72,6 +72,7 @@ public class Validator implements ComparatorI {
 	}
 
 	// takes string and a type and parse object to that type
+	@SuppressWarnings("removal")
 	public Object Parsing(String Value, String Type) throws ParseException {
 		switch (Type.toLowerCase()) {
 		case "java.lang.integer":

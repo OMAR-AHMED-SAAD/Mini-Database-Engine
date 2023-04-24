@@ -310,3 +310,26 @@ public class looojiiiii {
 //
 //	}
 //}
+
+
+
+
+
+
+//public String toString() {
+//	StringBuilder sb = new StringBuilder();
+//	sb.append("Table Name: ").append(TblName).append("\n");
+//	sb.append("Primary Key Name: ").append(CKName).append("\n");
+//	sb.append("Page File Paths: ").append(PageFilePath).append("\n");
+//	sb.append("Maximum Page Values: ").append(MaxPage).append("\n");
+//	sb.append("Minimum Page Values: ").append(MinPage).append("\n");
+//	sb.append("Is Page Full: ").append(IsPgFull).append("\n");
+//	sb.append("Table Pages: ").append(TablePages).append("\n");
+//	sb.append("Page ID Increment: ").append(PageIdInc).append("\n");
+//	sb.append("Column Name Type: ").append(ColumnNameType).append("\n");
+//	sb.append("Column Name Minimum: ").append(ColumnNameMin).append("\n");
+//	sb.append("Column Name Maximum: ").append(ColumnNameMax).append("\n");
+//	sb.append("Creation Order: ").append(creationOrder).append("\n");
+//	return sb.toString();
+//}
+

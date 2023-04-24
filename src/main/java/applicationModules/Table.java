@@ -28,13 +28,14 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 	private transient Hashtable<String, String> ColumnNameType;
 	private transient Hashtable<String, String> ColumnNameMin;
 	private transient Hashtable<String, String> ColumnNameMax;
+	private Vector<String> creationOrder = new Vector<String>();
 
 	public Table(String name) {
 		this.TblName = name;
 		PageIdInc = 0;
 	}
 
-	private Page LoadPage(String FilePath) {
+	public Page LoadPage(String FilePath) {
 		Page RestoredPage = null;
 		try {
 			ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(FilePath));
@@ -183,7 +184,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 			Object MinVal = MinPage.get(TablePages.get(Mid));
 			Object MaxVal = MaxPage.get(TablePages.get(Mid));
 			if (C.compare(CkValObj, MinVal) >= 0 && C.compare(CkValObj, MaxVal) <= 0) {
-				PgId = Mid;
+				PgId = TablePages.get(Mid);
 				IsPgFound = true;
 				break;
 			} else if (C.compare(CkValObj, MinVal) < 0)
@@ -228,6 +229,63 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 			} else
 				UpTblData(DelPg);
 		}
+	}
+
+	public Hashtable<String, String> getColumnNameType() {
+		return ColumnNameType;
+	}
+
+	public String getCKName() {
+		return CKName;
+	}
+
+	public Vector<String> getCreationOrder() {
+		return creationOrder;
+	}
+
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Table Name: ").append(TblName).append("\n");
+		sb.append("CK Name: ").append(CKName).append("\n");
+		sb.append("Page File Path:\n");
+		for (Integer pageId : PageFilePath.keySet()) {
+			sb.append("- Page ").append(pageId).append(": ").append(PageFilePath.get(pageId)).append("\n");
+		}
+		sb.append("Maximum Page:\n");
+		for (Integer pageId : MaxPage.keySet()) {
+			sb.append("- Page ").append(pageId).append(": ").append(MaxPage.get(pageId)).append("\n");
+		}
+		sb.append("Minimum Page:\n");
+		for (Integer pageId : MinPage.keySet()) {
+			sb.append("- Page ").append(pageId).append(": ").append(MinPage.get(pageId)).append("\n");
+		}
+		sb.append("Is Page Full:\n");
+		for (Integer pageId : IsPgFull.keySet()) {
+			sb.append("- Page ").append(pageId).append(": ").append(IsPgFull.get(pageId)).append("\n");
+		}
+		sb.append("Table Pages: ").append(TablePages).append("\n");
+		sb.append("Page ID Increment: ").append(PageIdInc).append("\n");
+		sb.append("Column Name Type:\n");
+		for (String columnName : ColumnNameType.keySet()) {
+			sb.append("- ").append(columnName).append(": ").append(ColumnNameType.get(columnName)).append("\n");
+		}
+		sb.append("Column Name Minimum:\n");
+		for (String columnName : ColumnNameMin.keySet()) {
+			sb.append("- ").append(columnName).append(": ").append(ColumnNameMin.get(columnName)).append("\n");
+		}
+		sb.append("Column Name Maximum:\n");
+		for (String columnName : ColumnNameMax.keySet()) {
+			sb.append("- ").append(columnName).append(": ").append(ColumnNameMax.get(columnName)).append("\n");
+		}
+		sb.append("Column Creation Order:\n");
+		if (creationOrder.isEmpty()) {
+			sb.append("- N/A\n");
+		} else {
+			for (String columnName : creationOrder) {
+				sb.append("- ").append(columnName).append("\n");
+			}
+		}
+		return sb.toString();
 	}
 
 }

@@ -17,17 +17,16 @@ import basicTools.ValidatorI;
 import exceptions.DBAppException;
 
 public class DBApp implements ValidatorI {
-	private Hashtable<String, String> CreatedTables;
+	Hashtable<String, String> CreatedTables;
 
-	public DBApp()  {
+	public DBApp() {
 		init();
 	}
 
 	public void init() {
-		try{
-		ReadCreatedTables();
-		}
-		catch(DBAppException e) {
+		try {
+			ReadCreatedTables();
+		} catch (DBAppException e) {
 			System.out.println("DBAppException");
 		}
 	}
@@ -44,7 +43,6 @@ public class DBApp implements ValidatorI {
 			CreatedTables = new Hashtable<String, String>();
 			WriteCreatedTables();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			throw new DBAppException();
 		}
 	}
@@ -86,7 +84,7 @@ public class DBApp implements ValidatorI {
 		}
 	}
 
-	private Table LoadTable(String FilePath) {
+	public Table LoadTable(String FilePath) {
 		Table RestoredTable = null;
 		try {
 			ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(FilePath));
@@ -103,6 +101,8 @@ public class DBApp implements ValidatorI {
 		Enumeration<String> ColNameTypeKeys = ColNameType.keys();
 		while (ColNameTypeKeys.hasMoreElements()) {
 			String Key = ColNameTypeKeys.nextElement();
+			if (ColNameMin.get(Key)==null|| ColNameMax.get(Key)==null)
+				throw new DBAppException("You should insert same ids for types ,minimum and maximum");
 			String type = ColNameType.get(Key);
 			String Min = ColNameMin.get(Key);
 			String Max = ColNameMax.get(Key);
@@ -119,12 +119,11 @@ public class DBApp implements ValidatorI {
 		try {
 			fw = new FileWriter(FilePath, true);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			throw new DBAppException();
 		}
 		BufferedWriter bw = new BufferedWriter(fw);
 		PrintWriter pw = new PrintWriter(bw);
-		if (new File(FilePath).length()==0)
+		if (new File(FilePath).length() == 0)
 			pw.println("TableName" + "," + "Column Name" + "," + "Column Type" + "," + "ClusteringKey" + ","
 					+ "IndexName" + "," + "IndexType" + "," + "min" + "," + "max");
 		ColNameType
@@ -134,16 +133,10 @@ public class DBApp implements ValidatorI {
 		pw.close();
 	}
 
-//following method creates an octree
-//depending on the count of column names passed.
-//If three column names are passed, create an octree.
-//If only one or two column names is passed, throw an Exception.
 	public void createIndex(String strTableName, String[] strarrColName) throws DBAppException {
 
 	}
 
-// following method inserts one row only.
-//htblColNameValue must include a value for the primary key 
 	public void insertIntoTable(String strTableName, Hashtable<String, Object> htblColNameValue) throws DBAppException {
 		if (CreatedTables.get(strTableName) == null)
 			throw new DBAppException(strTableName + " does not exists");
@@ -155,10 +148,6 @@ public class DBApp implements ValidatorI {
 		UnLoadTable(Table, FilePath);
 	}
 
-//following method updates one row only
-//htblColNameValue holds the key and new value
-//htblColNameValue will not include clustering key as column name
-//strClusteringKeyValue is the value to look for to find the row to update. 
 	public void updateTable(String strTableName, String strClusteringKeyValue,
 			Hashtable<String, Object> htblColNameValue) throws DBAppException {
 		if (CreatedTables.get(strTableName) == null)
@@ -171,9 +160,6 @@ public class DBApp implements ValidatorI {
 		UnLoadTable(Table, FilePath);
 	}
 
-//following method could be used to delete one or more rows.
-//htblColNameValue holds the key and value. This will be used in search // to identify which rows/tuples to delete.
-//htblColNameValue enteries are ANDED together
 	public void deleteFromTable(String strTableName, Hashtable<String, Object> htblColNameValue) throws DBAppException {
 		if (CreatedTables.get(strTableName) == null)
 			throw new DBAppException(strTableName + " does not exists");
@@ -187,7 +173,12 @@ public class DBApp implements ValidatorI {
 
 	@SuppressWarnings("rawtypes")
 	public Iterator selectFromTable(SQLTerm[] arrSQLTerms, String[] strarrOperators) throws DBAppException {
-
 		return null;
+	}
+
+	@SuppressWarnings("rawtypes")
+	public Iterator parseSQL(StringBuffer strbufSQL) throws DBAppException {
+		SQLParserAPI sql = new SQLParserAPI(this);
+		return (Iterator) sql.sqlExecuteParse(strbufSQL.toString());
 	}
 }
