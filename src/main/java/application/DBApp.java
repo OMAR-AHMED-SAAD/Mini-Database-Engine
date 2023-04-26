@@ -134,6 +134,7 @@ public class DBApp implements ValidatorI {
 	}
 
 	public void createIndex(String strTableName, String[] strarrColName) throws DBAppException {
+		
 
 	}
 

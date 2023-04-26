@@ -46,6 +46,18 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		}
 		return RestoredPage;
 	}
+	
+	public Octree LoadTree(String FilePath) {
+		Octree RestoredOctree = null;
+		try {
+			ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(FilePath));
+			RestoredOctree = (Octree) objectInputStream.readObject();
+			objectInputStream.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return RestoredOctree;
+	}
 
 	public void ReadMetaData() throws DBAppException {
 		ColumnNameType = new Hashtable<String, String>();
