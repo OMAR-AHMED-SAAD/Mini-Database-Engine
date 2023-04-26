@@ -46,7 +46,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		}
 		return RestoredPage;
 	}
-	
+
 	public Octree LoadTree(String FilePath) {
 		Octree RestoredOctree = null;
 		try {
@@ -220,19 +220,20 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 	public void UpdateTbl(String CKVal, Hashtable<String, Object> ColNameVal) throws DBAppException {
 		RowAddress RowAdrs = SearchByCk(V.tryParse(CKVal, ColumnNameType.get(CKName)));
 		if (RowAdrs == null)
-			throw new DBAppException("Tuple not found");
+			throw new DBAppException("Tuple not found"); /// check piazzaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 		Page UpdatePg = LoadPage(PageFilePath.get(RowAdrs.getPageId()));
 		UpdatePg.UpdtRow(RowAdrs.getRowIndex(), ColNameVal);
 		UpdatePg.UnLoadPage();
 	}
 
 	public void DelFromTbl(Hashtable<String, Object> ColNameVal) throws DBAppException {
-		for (int Index = 0; Index < TablePages.size(); Index++) {
-			int PgId = TablePages.get(Index);
+		if (ColNameVal.containsKey(CKName)) {
+			RowAddress RowAdrs = SearchByCk(ColNameVal.get(CKName));
+			int PgId = RowAdrs.getPageId();
 			Page DelPg = LoadPage(PageFilePath.get(PgId));
 			DelPg.DelRows(ColNameVal, CKName);
 			if (DelPg.IsEmpty()) {
-				TablePages.remove(Index--);
+				TablePages.remove(PgId);
 				MaxPage.remove(PgId);
 				MinPage.remove(PgId);
 				IsPgFull.remove(PgId);
@@ -240,6 +241,21 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 				PageFilePath.remove(PgId);
 			} else
 				UpTblData(DelPg);
+		} else {
+			for (int Index = 0; Index < TablePages.size(); Index++) {
+				int PgId = TablePages.get(Index);
+				Page DelPg = LoadPage(PageFilePath.get(PgId));
+				DelPg.DelRows(ColNameVal, CKName);
+				if (DelPg.IsEmpty()) {
+					TablePages.remove(Index--);
+					MaxPage.remove(PgId);
+					MinPage.remove(PgId);
+					IsPgFull.remove(PgId);
+					new File(PageFilePath.get(PgId)).delete();
+					PageFilePath.remove(PgId);
+				} else
+					UpTblData(DelPg);
+			}
 		}
 	}
 
@@ -297,15 +313,15 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 				sb.append("- ").append(columnName).append("\n");
 			}
 		}
-		for(int i=0;i<this.TablePages.size();i++) {
-			 String FilePath=this.PageFilePath.get(this.TablePages.get(i));
-		Page page=LoadPage(FilePath);
-		sb.append("\n").append(page.toString());
-		try {
-			page.UnLoadPage();
-		} catch (DBAppException e) {
-			e.printStackTrace();
-		}
+		for (int i = 0; i < this.TablePages.size(); i++) {
+			String FilePath = this.PageFilePath.get(this.TablePages.get(i));
+			Page page = LoadPage(FilePath);
+			sb.append("\n").append(page.toString());
+			try {
+				page.UnLoadPage();
+			} catch (DBAppException e) {
+				e.printStackTrace();
+			}
 		}
 		return sb.toString();
 	}
