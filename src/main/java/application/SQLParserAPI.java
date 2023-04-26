@@ -98,7 +98,7 @@ public class SQLParserAPI implements ValidatorI {
 				throw new DBAppException("Inavlid type input");
 		}
 		db.createTable(tableName, primaryKey, NameType, min, max);
-		String FilePath = db.CreatedTables.get(tableName);
+		String FilePath = db.getCreatedTables().get(tableName);
 		Table table = db.LoadTable(FilePath);
 		table.ReadMetaData();
 		for (String col : columnNames)
@@ -139,9 +139,9 @@ public class SQLParserAPI implements ValidatorI {
 	}
 
 	public Object getObject(String tableName, String columnName, String input) throws DBAppException {
-		if (db.CreatedTables.get(tableName) == null)
+		if (db.getCreatedTables().get(tableName) == null)
 			throw new DBAppException(tableName + " does not exists");
-		String FilePath = db.CreatedTables.get(tableName);
+		String FilePath = db.getCreatedTables().get(tableName);
 		Table table = db.LoadTable(FilePath);
 		table.ReadMetaData();
 		Object result = V.tryParse(input, table.getColumnNameType().get(columnName));
@@ -153,9 +153,9 @@ public class SQLParserAPI implements ValidatorI {
 		String tableName = visitor.getTableName();
 		List<String> columnNames = visitor.getInsertionColumnNames();
 		List<String> columnValues = visitor.getInsertionValues();
-		if (db.CreatedTables.get(tableName) == null)
+		if (db.getCreatedTables().get(tableName) == null)
 			throw new DBAppException(tableName + " does not exists");
-		String FilePath = db.CreatedTables.get(tableName);
+		String FilePath = db.getCreatedTables().get(tableName);
 		Table table = db.LoadTable(FilePath);
 		table.ReadMetaData();
 		if (columnNames.size() != 0 && !columnNames.contains(table.getCKName()))
@@ -191,9 +191,9 @@ public class SQLParserAPI implements ValidatorI {
 		String pkValue = visitor.getUpdateConditionValue();
 		List<String> columnNames = visitor.getUpdateColumnNames();
 		List<String> columnValues = visitor.getUpdateValues();
-		if (db.CreatedTables.get(tableName) == null)
+		if (db.getCreatedTables().get(tableName) == null)
 			throw new DBAppException(tableName + " does not exists");
-		String FilePath = db.CreatedTables.get(tableName);
+		String FilePath = db.getCreatedTables().get(tableName);
 		Table table = db.LoadTable(FilePath);
 		table.ReadMetaData();
 		if (!table.getCKName().equals(pkName))

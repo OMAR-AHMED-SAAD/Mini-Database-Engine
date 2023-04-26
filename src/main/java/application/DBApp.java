@@ -17,7 +17,7 @@ import basicTools.ValidatorI;
 import exceptions.DBAppException;
 
 public class DBApp implements ValidatorI {
-	Hashtable<String, String> CreatedTables;
+	private Hashtable<String, String> CreatedTables;
 
 	public DBApp() {
 		init();
@@ -180,5 +180,9 @@ public class DBApp implements ValidatorI {
 	public Iterator parseSQL(StringBuffer strbufSQL) throws DBAppException {
 		SQLParserAPI sql = new SQLParserAPI(this);
 		return (Iterator) sql.sqlExecuteParse(strbufSQL.toString());
+	}
+
+	public Hashtable<String, String> getCreatedTables() {
+		return CreatedTables;
 	}
 }
