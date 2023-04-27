@@ -220,7 +220,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 	public void UpdateTbl(String CKVal, Hashtable<String, Object> ColNameVal) throws DBAppException {
 		RowAddress RowAdrs = SearchByCk(V.tryParse(CKVal, ColumnNameType.get(CKName)));
 		if (RowAdrs == null)
-			throw new DBAppException("Tuple not found"); /// check piazzaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+			return;
 		Page UpdatePg = LoadPage(PageFilePath.get(RowAdrs.getPageId()));
 		UpdatePg.UpdtRow(RowAdrs.getRowIndex(), ColNameVal);
 		UpdatePg.UnLoadPage();
@@ -229,9 +229,11 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 	public void DelFromTbl(Hashtable<String, Object> ColNameVal) throws DBAppException {
 		if (ColNameVal.containsKey(CKName)) {
 			RowAddress RowAdrs = SearchByCk(ColNameVal.get(CKName));
+			if (RowAdrs == null)
+				return;
 			int PgId = RowAdrs.getPageId();
 			Page DelPg = LoadPage(PageFilePath.get(PgId));
-			DelPg.DelRows(ColNameVal, CKName);
+			DelPg.DelRows(ColNameVal, CKName,RowAdrs.getRowIndex());
 			if (DelPg.IsEmpty()) {
 				TablePages.remove(PgId);
 				MaxPage.remove(PgId);

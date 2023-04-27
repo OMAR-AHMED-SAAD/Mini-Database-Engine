@@ -138,6 +138,25 @@ public class Page implements Serializable, ComparatorI {
 		}
 	}
 
+	public void DelRows(Hashtable<String, Object> ColNameVal, String CKName, int rowIndex) throws DBAppException {
+		boolean flag = true;
+		Enumeration<String> ColNameValKeys = ColNameVal.keys();
+		while (ColNameValKeys.hasMoreElements()) {
+			String Key = ColNameValKeys.nextElement();
+			int CompVal = C.compare(VecPage.get(rowIndex).get(Key), ColNameVal.get(Key));
+			if (CompVal != 0)
+				flag = false;
+		}
+		if (flag) {
+			VecPage.remove(rowIndex);
+			CurrRowCount--;
+		}
+		if (!this.IsEmpty()) {
+			CurrMax = VecPage.elementAt(CurrRowCount - 1).get(CKName);
+			CurrMin = VecPage.elementAt(0).get(CKName);
+		}
+	}
+
 	public Vector<Hashtable<String, Object>> getVecPage() {
 		return VecPage;
 	}
@@ -162,69 +181,69 @@ public class Page implements Serializable, ComparatorI {
 		return FilePath;
 	}
 
-	
 	public String toString() {
-	    StringBuilder sb = new StringBuilder();
-	    sb.append("Page ID: ").append(PageId).append("\n");
-	    sb.append("Table Name: ").append(TblName).append("\n");
-	    sb.append("Current Min: ").append(CurrMin).append("\n");
-	    sb.append("Current Max: ").append(CurrMax).append("\n");
-	    sb.append("Current Row Count: ").append(CurrRowCount).append("\n");
-	    sb.append("Maximum Row Count: ").append(MaxRowCount).append("\n");
-	    sb.append("File Path: ").append(FilePath).append("\n");
+		StringBuilder sb = new StringBuilder();
+		sb.append("Page ID: ").append(PageId).append("\n");
+		sb.append("Table Name: ").append(TblName).append("\n");
+		sb.append("Current Min: ").append(CurrMin).append("\n");
+		sb.append("Current Max: ").append(CurrMax).append("\n");
+		sb.append("Current Row Count: ").append(CurrRowCount).append("\n");
+		sb.append("Maximum Row Count: ").append(MaxRowCount).append("\n");
+		sb.append("File Path: ").append(FilePath).append("\n");
 
-	    // Append the table as a string
-	    sb.append("Table Contents:\n");
-	    // Get the column names from the first hashtable in the vector
-	    Hashtable<String, Object> firstHashtable = VecPage.firstElement();
-	    Set<String> columnNames = firstHashtable.keySet();
+		// Append the table as a string
+		sb.append("Table Contents:\n");
+		// Get the column names from the first hashtable in the vector
+		Hashtable<String, Object> firstHashtable = VecPage.firstElement();
+		Set<String> columnNames = firstHashtable.keySet();
 
-	    // Determine the maximum width of each column
-	    Map<String, Integer> columnWidths = new TreeMap<String, Integer>();
-	    for (String columnName : columnNames) {
-	        int maxWidth = columnName.length();
-	        for (Hashtable<String, Object> row : VecPage) {
-	            Object value = row.get(columnName);
-	            if (value != null) {
-	                if (value instanceof Date) {
-	                    // Format date cells as yyyy-MM-dd
-	                    maxWidth = Math.max(maxWidth, 10);
-	                } else {
-	                    maxWidth = Math.max(maxWidth, value.toString().length());
-	                }
-	            }
-	        }
-	        columnWidths.put(columnName, maxWidth);
-	    }
+		// Determine the maximum width of each column
+		Map<String, Integer> columnWidths = new TreeMap<String, Integer>();
+		for (String columnName : columnNames) {
+			int maxWidth = columnName.length();
+			for (Hashtable<String, Object> row : VecPage) {
+				Object value = row.get(columnName);
+				if (value != null) {
+					if (value instanceof Date) {
+						// Format date cells as yyyy-MM-dd
+						maxWidth = Math.max(maxWidth, 10);
+					} else {
+						maxWidth = Math.max(maxWidth, value.toString().length());
+					}
+				}
+			}
+			columnWidths.put(columnName, maxWidth);
+		}
 
-	    // Append the header row
-	    for (String columnName : columnNames) {
-	        int width = columnWidths.get(columnName);
-	        sb.append(String.format("%-" + width + "s", columnName)).append("  ");
-	    }
-	    sb.append("\n");
+		// Append the header row
+		for (String columnName : columnNames) {
+			int width = columnWidths.get(columnName);
+			sb.append(String.format("%-" + width + "s", columnName)).append("  ");
+		}
+		sb.append("\n");
 
-	    // Append a separator row
-	    for (String columnName : columnNames) {
-	        int width = columnWidths.get(columnName);
-	        sb.append(String.format("%-" + width + "s", "").replace(' ', '-')).append("--");
-	    }
-	    sb.append("\n");
+		// Append a separator row
+		for (String columnName : columnNames) {
+			int width = columnWidths.get(columnName);
+			sb.append(String.format("%-" + width + "s", "").replace(' ', '-')).append("--");
+		}
+		sb.append("\n");
 
-	    // Append each row of the table
-	    for (Hashtable<String, Object> row : VecPage) {
-	        for (String columnName : columnNames) {
-	            int width = columnWidths.get(columnName);
-	            Object value = row.get(columnName);
-	            if (value instanceof Date) {
-	                // Format date cells as yyyy-MM-dd
-	                sb.append(String.format("%-" + width + "s", new SimpleDateFormat("yyyy-MM-dd").format(value))).append("  ");
-	            } else {
-	                sb.append(String.format("%-" + width + "s", value)).append("  ");
-	            }
-	        }
-	        sb.append("\n");
-	    }
-	    return sb.toString();
+		// Append each row of the table
+		for (Hashtable<String, Object> row : VecPage) {
+			for (String columnName : columnNames) {
+				int width = columnWidths.get(columnName);
+				Object value = row.get(columnName);
+				if (value instanceof Date) {
+					// Format date cells as yyyy-MM-dd
+					sb.append(String.format("%-" + width + "s", new SimpleDateFormat("yyyy-MM-dd").format(value)))
+							.append("  ");
+				} else {
+					sb.append(String.format("%-" + width + "s", value)).append("  ");
+				}
+			}
+			sb.append("\n");
+		}
+		return sb.toString();
 	}
-	}
+}
