@@ -1,23 +1,5 @@
 TableName,Column Name,Column Type,ClusteringKey,IndexName,IndexType,min,max
-Club,id,java.lang.integer,true,null,null,0,10
-Club,name,java.lang.string,false,null,null,A,ZZZZZZZZZZZZZZZZZZZZ
-Club,location,java.lang.string,false,null,null,A,ZZZZZZZZZZZZZZZZZZZZ
 Student,birth,java.util.date,false,null,null,2000-11-01,2023-10-01
-Student,id,java.lang.Integer,true,null,null,0,1000
+Student,id,java.lang.String,true,null,null,0,1000
 Student,name,java.lang.String,false,null,null,A,ZZZZZZZZZZZZ
 Student,gpa,java.lang.double,false,null,null,0,1000
-Club,id,java.lang.integer,true,null,null,0,10
-Club,name,java.lang.string,false,null,null,A,ZZZZZZZZZZZZZZZZZZZZ
-Club,location,java.lang.string,false,null,null,A,ZZZZZZZZZZZZZZZZZZZZ
-Student,birth,java.util.date,false,null,null,2000-11-01,2023-10-01
-Student,id,java.lang.Integer,true,null,null,0,1000
-Student,name,java.lang.String,false,null,null,A,ZZZZZZZZZZZZ
-Student,gpa,java.lang.double,false,null,null,0,1000
-Student1,birth,java.util.date,false,null,null,2000-11-01,2023-10-01
-Student1,id,java.lang.Integer,true,null,null,0,1000
-Student1,name,java.lang.String,false,null,null,A,ZZZZZZZZZZZZ
-Student1,gpa,java.lang.double,false,null,null,0,1000
-Student2,birth,java.util.date,false,null,null,2000-11-01,2023-10-01
-Student2,id,java.lang.Integer,true,null,null,0,1000
-Student2,name,java.lang.String,false,null,null,A,ZZZZZZZZZZZZ
-Student2,gpa,java.lang.double,false,null,null,0,1000

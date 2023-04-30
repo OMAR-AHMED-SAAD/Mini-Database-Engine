@@ -38,29 +38,29 @@ public class Validator implements ComparatorI {
 		switch (Type.toLowerCase()) {
 		case "java.util.date":
 			if (!(Obj instanceof java.util.Date))
-				throw new DBAppException("Invalid Type for Date");
+				throw new DBAppException(Obj.toString() + " Invalid Type for Date");
+			return;
 		case "java.lang.integer":
 			if (!(Obj instanceof java.lang.Integer))
-				return;
-			throw new DBAppException("Invalid Type for Integer");
+				throw new DBAppException(Obj.toString() + " Invalid Type for Integer");
+			return;
 		case "java.lang.string":
 			if (!(Obj instanceof java.lang.String))
-				return;
-			throw new DBAppException("Invalid Type for String");
+				throw new DBAppException(Obj.toString() + " Invalid Type for String");
+			return;
 		case "java.lang.double":
 			if (!(Obj instanceof java.lang.Double))
-				return;
-			throw new DBAppException("Invalid Type for Double");
+				throw new DBAppException(Obj.toString() + " Invalid Type for Double");
+			return;
 		}
 	}
 
 	public void ValidateBounds(String Key, Object Obj, Hashtable<String, String> ColumnNameType,
-			Hashtable<String, String> ColumnNameMin, Hashtable<String, String> ColumnNameMax)
-			throws DBAppException {
+			Hashtable<String, String> ColumnNameMin, Hashtable<String, String> ColumnNameMax) throws DBAppException {
 		Object Min = tryParse(ColumnNameMin.get(Key), ColumnNameType.get(Key));
 		Object Max = tryParse(ColumnNameMax.get(Key), ColumnNameType.get(Key));
 		if (C.compare(Obj, Min) < 0 || C.compare(Obj, Max) > 0)
-			throw new DBAppException("Entry causes Bounds Violation");
+			throw new DBAppException(Obj.toString() + " Entry causes Bounds Violation");
 	}
 
 	public Object tryParse(String Value, String Type) throws DBAppException {

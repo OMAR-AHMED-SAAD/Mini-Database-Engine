@@ -9,14 +9,14 @@ import exceptions.DBAppException;
 
 public class test2 {
 	public static void main(String[] args) throws FileNotFoundException, IOException, DBAppException {
-		String tblName = "Student3";
+		String tblName = "Student";
 		Hashtable<String, String> NameType = new Hashtable<String, String>();
-		NameType.put("id", "java.lang.Integer");
+		NameType.put("id", "java.lang.String");
 		NameType.put("name", "java.lang.String");
 		NameType.put("gpa", "java.lang.double");
 		NameType.put("birth", "java.util.date");
 		Hashtable<String, String> min = new Hashtable<String, String>();
-		min.put("id1", "0");
+		min.put("id", "0");
 		min.put("name", "A");
 		min.put("gpa", "0");
 		min.put("birth", "2000-11-01");
@@ -27,17 +27,19 @@ public class test2 {
 		max.put("birth", "2023-10-01");
 //
 		DBApp db = new DBApp();
+		db.init();
 //
 		db.createTable(tblName, "id", NameType, min, max);
 //
 		Hashtable<String, Object> htblColNameValue1 = new Hashtable<String, Object>();
-		htblColNameValue1.put("id", new Integer(2));
+		htblColNameValue1.put("id",  new String("10"));
 		htblColNameValue1.put("name", new String("Ahmed"));
 		htblColNameValue1.put("gpa", new Double(0.69));
-		htblColNameValue1.put("birth", new Date(2002 - 14 - 01));
+		htblColNameValue1.put("gpa2", new Double(0.69));
+		htblColNameValue1.put("birth",  new Date(2011 - 1900, 4 - 1, 1));
 //
 		Hashtable<String, Object> htblColNameValue2 = new Hashtable<String, Object>();
-		htblColNameValue2.put("id", new Integer(2));
+		htblColNameValue2.put("id", new String("Loji"));
 		htblColNameValue2.put("name", new String("Loji"));
 		htblColNameValue2.put("gpa", new Double(1.0));
 //
@@ -56,7 +58,7 @@ public class test2 {
 //		htblColNameValue5.put("name", new String("Nelly"));
 //		htblColNameValue5.put("gpa", new Double(2.0));
 //
-		// db.insertIntoTable(tblName,htblColNameValue1);
+		db.insertIntoTable(tblName,htblColNameValue1);
 // db.insertIntoTable(tblName,htblColNameValue2);
 // db.insertIntoTable(tblName,htblColNameValue3);
 // db.insertIntoTable(tblName,htblColNameValue4);

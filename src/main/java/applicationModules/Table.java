@@ -104,6 +104,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 	private void validateHelperDelete(Hashtable<String, Object> ColNameValue) throws DBAppException {
 		Enumeration<String> ColNameValKeys = ColNameValue.keys();
 		V.ValidateColumnsE(ColNameValKeys, ColumnNameType);
+		ColNameValKeys = ColNameValue.keys();
 		while (ColNameValKeys.hasMoreElements()) {
 			String Key = ColNameValKeys.nextElement();
 			V.ValidateObjectType(ColNameValue.get(Key), ColumnNameType.get(Key));
@@ -120,6 +121,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 	private void validateHelper(Hashtable<String, Object> ColNameValue) throws DBAppException {
 		Enumeration<String> ColNameValKeys = ColNameValue.keys();
 		V.ValidateColumnsE(ColNameValKeys, ColumnNameType);
+		ColNameValKeys = ColNameValue.keys();
 		while (ColNameValKeys.hasMoreElements()) {
 			String Key = ColNameValKeys.nextElement();
 			V.ValidateObjectType(ColNameValue.get(Key), ColumnNameType.get(Key));
