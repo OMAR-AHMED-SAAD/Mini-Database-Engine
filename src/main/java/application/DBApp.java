@@ -12,16 +12,14 @@ import java.io.ObjectInputStream;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Set;
+
 import applicationModules.Table;
 import basicTools.ValidatorI;
 import exceptions.DBAppException;
 
 public class DBApp implements ValidatorI {
 	private Hashtable<String, String> CreatedTables;
-
-	public DBApp() {
-		init();
-	}
 
 	public void init() {
 		try {
@@ -43,6 +41,7 @@ public class DBApp implements ValidatorI {
 			CreatedTables = new Hashtable<String, String>();
 			WriteCreatedTables();
 		} catch (Exception e) {
+			// TODO Auto-generated catch block
 			throw new DBAppException();
 		}
 	}
@@ -63,6 +62,8 @@ public class DBApp implements ValidatorI {
 			Hashtable<String, String> htblColNameMax) throws DBAppException {
 		if (CreatedTables.get(strTableName) != null)
 			throw new DBAppException(strTableName + " already exists");
+		else if(htblColNameType.get(strClusteringKeyColumn)==null)
+			throw new DBAppException("You should specify clustering key type ,min and max");
 		else {
 			ValidateMetaData(htblColNameType, htblColNameMin, htblColNameMax);
 			AddMetaData(strTableName, strClusteringKeyColumn, htblColNameType, htblColNameMin, htblColNameMax);
@@ -71,6 +72,7 @@ public class DBApp implements ValidatorI {
 			CreatedTables.put(strTableName, FilePath);
 			WriteCreatedTables();
 			UnLoadTable(newTable, FilePath);
+			newTable = null;
 		}
 	}
 
@@ -98,10 +100,15 @@ public class DBApp implements ValidatorI {
 
 	public void ValidateMetaData(Hashtable<String, String> ColNameType, Hashtable<String, String> ColNameMin,
 			Hashtable<String, String> ColNameMax) throws DBAppException {
+		Set<String> nameTypeList = ColNameType.keySet();
+		Set<String> nameMinList = ColNameMin.keySet();
+		Set<String> nameMaxList = ColNameMax.keySet();
+		if (!(nameTypeList.size() == nameMinList.size() && nameMinList.size() == nameMaxList.size()))
+			throw new DBAppException("You should insert same ids for types ,minimum and maximum");
 		Enumeration<String> ColNameTypeKeys = ColNameType.keys();
 		while (ColNameTypeKeys.hasMoreElements()) {
 			String Key = ColNameTypeKeys.nextElement();
-			if (ColNameMin.get(Key)==null|| ColNameMax.get(Key)==null)
+			if (ColNameMin.get(Key) == null || ColNameMax.get(Key) == null)
 				throw new DBAppException("You should insert same ids for types ,minimum and maximum");
 			String type = ColNameType.get(Key);
 			String Min = ColNameMin.get(Key);
@@ -119,6 +126,7 @@ public class DBApp implements ValidatorI {
 		try {
 			fw = new FileWriter(FilePath, true);
 		} catch (Exception e) {
+			// TODO Auto-generated catch block
 			throw new DBAppException();
 		}
 		BufferedWriter bw = new BufferedWriter(fw);
@@ -134,7 +142,6 @@ public class DBApp implements ValidatorI {
 	}
 
 	public void createIndex(String strTableName, String[] strarrColName) throws DBAppException {
-		
 
 	}
 
@@ -147,6 +154,7 @@ public class DBApp implements ValidatorI {
 		Table.ValidateInsert(htblColNameValue);
 		Table.InsertInTable(htblColNameValue);
 		UnLoadTable(Table, FilePath);
+		Table = null;
 	}
 
 	public void updateTable(String strTableName, String strClusteringKeyValue,
@@ -159,6 +167,7 @@ public class DBApp implements ValidatorI {
 		Table.ValidateUpdate(strClusteringKeyValue, htblColNameValue);
 		Table.UpdateTbl(strClusteringKeyValue, htblColNameValue);
 		UnLoadTable(Table, FilePath);
+		Table = null;
 	}
 
 	public void deleteFromTable(String strTableName, Hashtable<String, Object> htblColNameValue) throws DBAppException {
@@ -170,10 +179,12 @@ public class DBApp implements ValidatorI {
 		Table.ValidateDelete(htblColNameValue);
 		Table.DelFromTbl(htblColNameValue);
 		UnLoadTable(Table, FilePath);
+		Table = null;
 	}
 
 	@SuppressWarnings("rawtypes")
 	public Iterator selectFromTable(SQLTerm[] arrSQLTerms, String[] strarrOperators) throws DBAppException {
+
 		return null;
 	}
 

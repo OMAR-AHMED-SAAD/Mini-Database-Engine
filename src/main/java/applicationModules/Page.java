@@ -61,20 +61,8 @@ public class Page implements Serializable, ComparatorI {
 			VecPage.add(ColNameValue);
 			CurrRowCount++;
 		} else {
-			int PageSize = VecPage.size();
-			for (int i = 0; i < PageSize; i++) {
-				int ComparisonValue = C.compare(ColNameValue.get(ClustKey), VecPage.elementAt(i).get(ClustKey));
-				if (ComparisonValue < 0) {
-					VecPage.insertElementAt(ColNameValue, i);
-					CurrRowCount++;
-					break;
-				} else if (ComparisonValue == 0)
-					throw new DBAppException("Can not accept duplicate primary keys");
-				else if (ComparisonValue > 0 && i == (PageSize - 1)) {
-					VecPage.insertElementAt(ColNameValue, i + 1);
-					CurrRowCount++;
-				}
-			}
+			VecPage.add(binarySearchInsertionIndex(ClustKey, VecPage, ColNameValue), ColNameValue);
+			CurrRowCount++;
 		}
 		if (CurrRowCount > MaxRowCount) {
 			Result = VecPage.elementAt(CurrRowCount - 1);
@@ -84,6 +72,24 @@ public class Page implements Serializable, ComparatorI {
 		CurrMax = VecPage.elementAt(CurrRowCount - 1).get(ClustKey);
 		CurrMin = VecPage.elementAt(0).get(ClustKey);
 		return Result;
+	}
+
+	private int binarySearchInsertionIndex(String clkName, Vector<Hashtable<String, Object>> vecOfPages,
+			Hashtable<String, Object> ColNameValue) throws DBAppException {
+		int Min = 0;
+		int Max = vecOfPages.size() - 1;
+		while (Min <= Max) {
+			int Mid = (Min + Max) / 2;
+			int ComparisonValue = C.compare(vecOfPages.get(Mid).get(clkName), ColNameValue.get(clkName));
+			if (ComparisonValue == 0) {
+				throw new DBAppException("Can not accept duplicate primary keys");
+			} else if (ComparisonValue < 0) {
+				Min = Mid + 1;
+			} else {
+				Max = Mid - 1;
+			}
+		}
+		return Min;
 	}
 
 	public boolean IsFull() {

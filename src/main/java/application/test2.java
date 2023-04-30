@@ -1,8 +1,5 @@
 package application;
 
-
-
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Date;
@@ -22,7 +19,7 @@ public class test2 {
 		min.put("id1", "0");
 		min.put("name", "A");
 		min.put("gpa", "0");
-min.put("birth", "2000-11-01");
+		min.put("birth", "2000-11-01");
 		Hashtable<String, String> max = new Hashtable<String, String>();
 		max.put("id", "1000");
 		max.put("name", "ZZZZZZZZZZZZ");
@@ -37,7 +34,7 @@ min.put("birth", "2000-11-01");
 		htblColNameValue1.put("id", new Integer(2));
 		htblColNameValue1.put("name", new String("Ahmed"));
 		htblColNameValue1.put("gpa", new Double(0.69));
-		htblColNameValue1.put("birth", new Date(2002-14-01));
+		htblColNameValue1.put("birth", new Date(2002 - 14 - 01));
 //
 		Hashtable<String, Object> htblColNameValue2 = new Hashtable<String, Object>();
 		htblColNameValue2.put("id", new Integer(2));
@@ -59,11 +56,11 @@ min.put("birth", "2000-11-01");
 //		htblColNameValue5.put("name", new String("Nelly"));
 //		htblColNameValue5.put("gpa", new Double(2.0));
 //
-	//	db.insertIntoTable(tblName,htblColNameValue1);
+		// db.insertIntoTable(tblName,htblColNameValue1);
 // db.insertIntoTable(tblName,htblColNameValue2);
 // db.insertIntoTable(tblName,htblColNameValue3);
 // db.insertIntoTable(tblName,htblColNameValue4);
-	//	db.insertIntoTable(tblName,htblColNameValue5);
+		// db.insertIntoTable(tblName,htblColNameValue5);
 //
 //		// delete tuples
 ////		htblColNameValue2.remove("id");
@@ -71,7 +68,7 @@ min.put("birth", "2000-11-01");
 ////		htblColNameValue2.remove("gpa");
 ////		db.deleteFromTable(tblName, htblColNameValue2);
 //
-		 //update tuples
+		// update tuples
 //		htblColNameValue2.remove("id");
 //		htblColNameValue2.remove("gpa");
 //		htblColNameValue2.remove("name");
@@ -80,4 +77,3 @@ min.put("birth", "2000-11-01");
 
 	}
 }
-

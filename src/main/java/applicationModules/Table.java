@@ -98,10 +98,21 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 	}
 
 	public void ValidateDelete(Hashtable<String, Object> ColNameValue) throws DBAppException {
-		validateHelper(ColNameValue);
+		validateHelperDelete(ColNameValue);
+	}
+
+	private void validateHelperDelete(Hashtable<String, Object> ColNameValue) throws DBAppException {
+		Enumeration<String> ColNameValKeys = ColNameValue.keys();
+		V.ValidateColumnsE(ColNameValKeys, ColumnNameType);
+		while (ColNameValKeys.hasMoreElements()) {
+			String Key = ColNameValKeys.nextElement();
+			V.ValidateObjectType(ColNameValue.get(Key), ColumnNameType.get(Key));
+		}
 	}
 
 	public void ValidateUpdate(String CKValue, Hashtable<String, Object> ColNameValue) throws DBAppException {
+		if (ColNameValue.get(CKName) != null)
+			throw new DBAppException("This DBMS does not allow altering the primary key value");
 		V.tryParse(CKValue, ColumnNameType.get(CKName));
 		validateHelper(ColNameValue);
 	}
@@ -134,6 +145,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 					PgInstRes = InstPg.InsertToPage(this.CKName, ColNameValue);
 					UpTblData(InstPg);
 					OverflowSolver(PgInstRes);
+					InstPg = null;
 					break;
 				} else if (C.compare(CK, PageMaxVal) > 0 && IsPgF && IsLastPg) {
 					CreateAddNewPage(ColNameValue);
@@ -145,6 +157,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 					PgInstRes = InstPg.InsertToPage(this.CKName, ColNameValue);
 					UpTblData(InstPg);
 					OverflowSolver(PgInstRes);
+					InstPg = null;
 					break;
 				} else if (C.compare(CK, PageMaxVal) > 0 && !IsPgF && !IsLastPg) {
 					int NxtPid = TablePages.get(i + 1);
@@ -154,6 +167,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 						PgInstRes = InstPg.InsertToPage(this.CKName, ColNameValue);
 						UpTblData(InstPg);
 						OverflowSolver(PgInstRes);
+						InstPg = null;
 						break;
 					} else
 						continue;
@@ -169,6 +183,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		this.PageFilePath.put(CreatedPage.getPageId(), CreatedPage.getFilePath());
 		CreatedPage.InsertToPage(CKName, ColNameValue);
 		UpTblData(CreatedPage);
+		CreatedPage = null;
 		PageIdInc++;
 	}
 
@@ -177,6 +192,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		MinPage.put(Pg.getPageId(), Pg.getCurrMin());
 		IsPgFull.put(Pg.getPageId(), Pg.IsFull());
 		Pg.UnLoadPage();
+		Pg = null;
 	}
 
 	private void OverflowSolver(Hashtable<String, Object> PgInstRes) throws DBAppException {
@@ -210,6 +226,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 			Page Pg = LoadPage(PageFilePath.get(PgId));
 			int RowId = Pg.IsRowFound(CKName, CkValObj);
 			Pg.UnLoadPage();
+			Pg = null;
 			if (RowId == -1)
 				return null;
 			else
@@ -224,6 +241,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		Page UpdatePg = LoadPage(PageFilePath.get(RowAdrs.getPageId()));
 		UpdatePg.UpdtRow(RowAdrs.getRowIndex(), ColNameVal);
 		UpdatePg.UnLoadPage();
+		UpdatePg = null;
 	}
 
 	public void DelFromTbl(Hashtable<String, Object> ColNameVal) throws DBAppException {
@@ -233,7 +251,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 				return;
 			int PgId = RowAdrs.getPageId();
 			Page DelPg = LoadPage(PageFilePath.get(PgId));
-			DelPg.DelRows(ColNameVal, CKName,RowAdrs.getRowIndex());
+			DelPg.DelRows(ColNameVal, CKName, RowAdrs.getRowIndex());
 			if (DelPg.IsEmpty()) {
 				TablePages.remove(PgId);
 				MaxPage.remove(PgId);
@@ -241,8 +259,11 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 				IsPgFull.remove(PgId);
 				new File(PageFilePath.get(PgId)).delete();
 				PageFilePath.remove(PgId);
-			} else
+				DelPg = null;
+			} else {
 				UpTblData(DelPg);
+				DelPg = null;
+			}
 		} else {
 			for (int Index = 0; Index < TablePages.size(); Index++) {
 				int PgId = TablePages.get(Index);
@@ -255,8 +276,11 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 					IsPgFull.remove(PgId);
 					new File(PageFilePath.get(PgId)).delete();
 					PageFilePath.remove(PgId);
-				} else
+					DelPg = null;
+				} else {
 					UpTblData(DelPg);
+					DelPg = null;
+				}
 			}
 		}
 	}
