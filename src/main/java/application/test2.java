@@ -29,19 +29,20 @@ public class test2 {
 		DBApp db = new DBApp();
 		db.init();
 //
-		db.createTable(tblName, "id", NameType, min, max);
+		//db.createTable(tblName, "Name", NameType, min, max);
 //
 		Hashtable<String, Object> htblColNameValue1 = new Hashtable<String, Object>();
 		htblColNameValue1.put("id",  new String("10"));
 		htblColNameValue1.put("name", new String("Ahmed"));
 		htblColNameValue1.put("gpa", new Double(0.69));
-		htblColNameValue1.put("gpa2", new Double(0.69));
 		htblColNameValue1.put("birth",  new Date(2011 - 1900, 4 - 1, 1));
 //
 		Hashtable<String, Object> htblColNameValue2 = new Hashtable<String, Object>();
-		htblColNameValue2.put("id", new String("Loji"));
-		htblColNameValue2.put("name", new String("Loji"));
-		htblColNameValue2.put("gpa", new Double(1.0));
+		htblColNameValue2.put("id", new String("01"));
+		htblColNameValue2.put("gpa", new Double(2.0));
+//		htblColNameValue2.put("id", new String("Loji"));
+//		htblColNameValue2.put("name", new String("Loji"));
+//		htblColNameValue2.put("gpa", new Double(1.0));
 //
 		Hashtable<String, Object> htblColNameValue3 = new Hashtable<String, Object>();
 		htblColNameValue3.put("id", new Integer(7));
@@ -49,16 +50,13 @@ public class test2 {
 		htblColNameValue3.put("gpa", new Double(0.85));
 //
 		Hashtable<String, Object> htblColNameValue4 = new Hashtable<String, Object>();
-		htblColNameValue4.put("id", new Integer(4));
-		htblColNameValue4.put("name", new String("Ali"));
-		htblColNameValue4.put("gpa", new Double(1.0));
 //
 //		Hashtable<String, Object> htblColNameValue5 = new Hashtable<String, Object>();
 //		htblColNameValue5.put("id", new Integer(5));
 //		htblColNameValue5.put("name", new String("Nelly"));
 //		htblColNameValue5.put("gpa", new Double(2.0));
 //
-		db.insertIntoTable(tblName,htblColNameValue1);
+	//	db.insertIntoTable(tblName,htblColNameValue1);
 // db.insertIntoTable(tblName,htblColNameValue2);
 // db.insertIntoTable(tblName,htblColNameValue3);
 // db.insertIntoTable(tblName,htblColNameValue4);
@@ -75,7 +73,7 @@ public class test2 {
 //		htblColNameValue2.remove("gpa");
 //		htblColNameValue2.remove("name");
 //		htblColNameValue2.put("gpa", new Double(0.78));
-//		db.updateTable(tblName,"2", htblColNameValue2);
+db.updateTable(tblName,"ahMed", htblColNameValue2);
 
 	}
 }

@@ -655,19 +655,21 @@ public class View extends JFrame implements ActionListener {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-		else if (e.getSource().equals(save)&& tabbedPane.getSelectedComponent() != null)
+		else if (e.getSource().equals(save) && tabbedPane.getSelectedComponent() != null)
 			saveToFile((JScrollPane) tabbedPane.getSelectedComponent());
 		else if (e.getSource().equals(open)) {
 			loadFromFile();
 		} else if (e.getSource().equals(run) && tabbedPane.getSelectedComponent() != null) {
 			JScrollPane js = (JScrollPane) tabbedPane.getSelectedComponent();
 			JTextArea ta = (JTextArea) js.getViewport().getView();
-			if(ta.getSelectedText()==null) {
+			if (ta.getSelectedText() == null) {
 				consoleJPanel.setForeground(Color.RED);
 				consoleJPanel.setText("Please select a query to run");
 				return;
 			}
+
 			controller.run(ta.getSelectedText());
+
 		} else if (e.getSource().equals(closeTab) && tabbedPane.getSelectedComponent() != null) {
 			int selectedIndex = tabbedPane.getSelectedIndex();
 			if (selectedIndex != -1)

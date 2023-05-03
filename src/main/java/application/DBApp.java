@@ -60,11 +60,11 @@ public class DBApp implements ValidatorI {
 	public void createTable(String strTableName, String strClusteringKeyColumn,
 			Hashtable<String, String> htblColNameType, Hashtable<String, String> htblColNameMin,
 			Hashtable<String, String> htblColNameMax) throws DBAppException {
-		strTableName=strTableName.toLowerCase();
-		strClusteringKeyColumn=strClusteringKeyColumn.toLowerCase();
-		htblColNameType=convertToSmallCase(htblColNameType);
-		htblColNameMin=convertToSmallCase(htblColNameMin);
-		htblColNameMax=convertToSmallCase(htblColNameMax);
+		strTableName = strTableName.toLowerCase();
+		strClusteringKeyColumn = strClusteringKeyColumn.toLowerCase();
+		htblColNameType = convertToSmallCase(htblColNameType);
+		htblColNameMin = convertToSmallCase(htblColNameMin);
+		htblColNameMax = convertToSmallCase(htblColNameMax);
 		if (CreatedTables.get(strTableName) != null)
 			throw new DBAppException(strTableName + " already exists");
 		else if (htblColNameType.get(strClusteringKeyColumn) == null)
@@ -171,8 +171,8 @@ public class DBApp implements ValidatorI {
 	}
 
 	public void insertIntoTable(String strTableName, Hashtable<String, Object> htblColNameValue) throws DBAppException {
-		strTableName=strTableName.toLowerCase();
-		htblColNameValue=convertToSmallCaseObj(htblColNameValue);
+		strTableName = strTableName.toLowerCase();
+		htblColNameValue = convertToSmallCaseObj(htblColNameValue);
 		if (CreatedTables.get(strTableName) == null)
 			throw new DBAppException(strTableName + " does not exists");
 		String FilePath = CreatedTables.get(strTableName);
@@ -186,8 +186,8 @@ public class DBApp implements ValidatorI {
 
 	public void updateTable(String strTableName, String strClusteringKeyValue,
 			Hashtable<String, Object> htblColNameValue) throws DBAppException {
-		strTableName=strTableName.toLowerCase();
-		htblColNameValue=convertToSmallCaseObj(htblColNameValue);
+		strTableName = strTableName.toLowerCase();
+		htblColNameValue = convertToSmallCaseObj(htblColNameValue);
 		if (CreatedTables.get(strTableName) == null)
 			throw new DBAppException(strTableName + " does not exists");
 		String FilePath = CreatedTables.get(strTableName);
@@ -200,8 +200,8 @@ public class DBApp implements ValidatorI {
 	}
 
 	public void deleteFromTable(String strTableName, Hashtable<String, Object> htblColNameValue) throws DBAppException {
-		strTableName=strTableName.toLowerCase();
-		htblColNameValue=convertToSmallCaseObj(htblColNameValue);
+		strTableName = strTableName.toLowerCase();
+		htblColNameValue = convertToSmallCaseObj(htblColNameValue);
 		if (CreatedTables.get(strTableName) == null)
 			throw new DBAppException(strTableName + " does not exists");
 		String FilePath = CreatedTables.get(strTableName);

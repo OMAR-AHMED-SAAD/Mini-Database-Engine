@@ -88,10 +88,9 @@ public class Controller {
 		try {
 			if (db.parseSQL(sb) == null) {
 				view.consoleJPanel.setForeground(Color.GREEN);
-				view.consoleJPanel.setText(" "+s + "\nexecuted succesfully");
-			}
-			else {
-				//print iterator result of select statement
+				view.consoleJPanel.setText(" " + s + "\nexecuted succesfully");
+			} else {
+				// print iterator result of select statement
 			}
 		} catch (DBAppException e) {
 			// TODO Auto-generated catch block

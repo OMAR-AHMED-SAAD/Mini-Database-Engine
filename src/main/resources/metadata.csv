@@ -1,5 +1,5 @@
 TableName,Column Name,Column Type,ClusteringKey,IndexName,IndexType,min,max
-Student,birth,java.util.date,false,null,null,2000-11-01,2023-10-01
-Student,id,java.lang.String,true,null,null,0,1000
-Student,name,java.lang.String,false,null,null,A,ZZZZZZZZZZZZ
-Student,gpa,java.lang.double,false,null,null,0,1000
+student,id,java.lang.String,false,null,null,0,1000
+student,birth,java.util.date,false,null,null,2000-11-01,2023-10-01
+student,name,java.lang.String,true,null,null,A,ZZZZZZZZZZZZ
+student,gpa,java.lang.double,false,null,null,0,1000

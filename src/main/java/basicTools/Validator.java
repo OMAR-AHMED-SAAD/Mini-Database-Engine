@@ -87,7 +87,7 @@ public class Validator implements ComparatorI {
 		case "java.lang.double":
 			return new Double(Double.parseDouble(Value));
 		default:
-			return new String(Value);
+			return new String(Value).toLowerCase();
 		}
 	}
 }
