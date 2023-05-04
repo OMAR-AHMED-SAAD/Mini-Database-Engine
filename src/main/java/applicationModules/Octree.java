@@ -45,10 +45,11 @@ public class Octree implements Serializable, ComparatorI {
 			insertElement(root.elements, element);
 		else if (root.elements.size() <= root.maxElements && root.children == null)
 			if (!insertElement(root.elements, element))
+
 				;
 	}
 
-	public boolean insertElement(Vector<Vector<Element>> elements, Element element) throws DBAppException {
+	private boolean insertElement(Vector<Vector<Element>> elements, Element element) throws DBAppException {
 		boolean inserted = false;
 		for (Vector<Element> vec : elements) {
 			for (Element existingElement : vec) {
@@ -71,6 +72,13 @@ public class Octree implements Serializable, ComparatorI {
 			elements.add(elementsVector);
 		}
 		return true;
+	}
+
+	private void split(Node nd) {
+		nd.children = new Node[8];
+		Hashtable<String, Object> maxNd = new Hashtable<String, Object>();
+		Hashtable<String, Object> minNd = new Hashtable<String, Object>();
+//		nd.children[0]=new Node(maxNd,minNd);
 	}
 
 	class Node implements Serializable {

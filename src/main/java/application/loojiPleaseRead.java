@@ -15,5 +15,8 @@ public class loojiPleaseRead {
 		table.ReadMetaData();
 		System.out.println(table.toString());
 		
+		
+		String X="djw ck eq v vkjqerjerkclmwqwkjjqw";
+		System.out.println(X.getBytes());
 	}
 }
