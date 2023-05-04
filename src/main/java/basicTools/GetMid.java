@@ -8,13 +8,13 @@ public class GetMid {
 
 	public Object getMid(Object min, Object max) throws DBAppException {
 		if (min instanceof java.lang.Integer && max instanceof java.lang.Integer)
-			return ((java.lang.Integer) min).compareTo((java.lang.Integer) max);
+			return (((java.lang.Integer) min)+(java.lang.Integer) max)/2;
 		else if (min instanceof java.lang.String && max instanceof java.lang.String)
 			return middleString((String) max, (String) min, ((String) max).length());
 		else if (min instanceof java.util.Date && max instanceof java.util.Date)
 			return new Date((((java.util.Date) min).getTime() + ((java.util.Date) max).getTime()) / 2);
 		else if (min instanceof java.lang.Double && max instanceof java.lang.Double)
-			return ((java.lang.Double) min).compareTo((java.lang.Double) max);
+			return (((java.lang.Double) min)+(java.lang.Double) max)/2;
 		else
 			throw new DBAppException("getMid");
 	}
@@ -67,5 +67,9 @@ public class GetMid {
 			result += (char) (a1[i] + 97);
 		}
 		return result;
+	}
+	
+	public static void main(String[] args) {
+		
 	}
 }

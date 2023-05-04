@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Vector;
@@ -11,20 +12,22 @@ import java.util.Vector;
 import javax.lang.model.util.Elements;
 
 import basicTools.ComparatorI;
+import basicTools.GetMidI;
 import exceptions.DBAppException;
 
-public class Octree implements Serializable, ComparatorI {
+public class Octree implements Serializable, ComparatorI,GetMidI {
 	private static final long serialVersionUID = 1L;
 	private Node root;
+	
 	private String FilePath;
-	private String[] Attributes;
+	private String[] attributes;
 
 	public Octree(String tblName, String A1, String A2, String A3, Hashtable<String, Object> max,
 			Hashtable<String, Object> min) throws DBAppException {
-		Attributes = new String[3];
-		Attributes[0] = A1;
-		Attributes[1] = A2;
-		Attributes[2] = A3;
+		attributes = new String[3];
+		attributes[0] = A1;
+		attributes[1] = A2;
+		attributes[2] = A3;
 		FilePath = "src/main/DBFiles/Indices/" + tblName + A1 + A2 + A3 + ".bin";
 		root = new Node(max, min);
 		// populate();
@@ -74,11 +77,14 @@ public class Octree implements Serializable, ComparatorI {
 		return true;
 	}
 
-	private void split(Node nd) {
+	private void split(Node nd) throws DBAppException {
 		nd.children = new Node[8];
-		Hashtable<String, Object> maxNd = new Hashtable<String, Object>();
-		Hashtable<String, Object> minNd = new Hashtable<String, Object>();
-//		nd.children[0]=new Node(maxNd,minNd);
+		Hashtable<String, Object> mid = new Hashtable<String, Object>();
+		mid.put(attributes[0],GM.getMid(nd.min.get(attributes[0]), nd.max.get(attributes[0])) );
+		mid.put(attributes[1],GM.getMid(nd.min.get(attributes[1]), nd.max.get(attributes[1])) );
+		mid.put(attributes[2],GM.getMid(nd.min.get(attributes[2]), nd.max.get(attributes[2])) );
+		Hashtable<String, Object> maxNewNd = new Hashtable<String, Object>();
+		Hashtable<String, Object> minNewNd = new Hashtable<String, Object>();
 	}
 
 	class Node implements Serializable {
