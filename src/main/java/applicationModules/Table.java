@@ -287,6 +287,17 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		}
 	}
 
+	public void validateCreateOctree(String[] strarrColName) {
+
+	}
+
+	public void createOctree(String[] strarrColName) {
+		///create
+//		if( ! kjfjkffn.populate)
+//			delete octree and throw exception of update null values in table
+		
+	}
+
 	public Hashtable<String, String> getColumnNameType() {
 		return ColumnNameType;
 	}
@@ -297,6 +308,14 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 
 	public Vector<String> getCreationOrder() {
 		return creationOrder;
+	}
+
+	public Vector<Integer> getTablePages() {
+		return TablePages;
+	}
+
+	public Hashtable<Integer, String> getPageFilePath() {
+		return PageFilePath;
 	}
 
 	public String toString() {
