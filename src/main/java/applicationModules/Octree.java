@@ -96,7 +96,6 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 				insert(child, element);
 				break;
 			}
-
 	}
 
 	private boolean insertElement(Vector<Vector<Element>> elements, Element element) throws DBAppException {
@@ -126,7 +125,7 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 
 	private void split(Node node) throws DBAppException {
 		node.children = new Node[8];
-		createChildren1(node);
+		createChildren(node);
 		Vector<Vector<Element>> elementsSplit = node.elements;
 		node.elements = null;
 		for (Vector<Element> vec : elementsSplit)
@@ -135,45 +134,6 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 	}
 
 	public void createChildren(Node node) throws DBAppException {
-		Hashtable<String, Object> mid = new Hashtable<String, Object>();
-		mid.put(attributes[0], GM.getMid(node.min.get(attributes[0]), node.max.get(attributes[0])));
-		mid.put(attributes[1], GM.getMid(node.min.get(attributes[1]), node.max.get(attributes[1])));
-		mid.put(attributes[2], GM.getMid(node.min.get(attributes[2]), node.max.get(attributes[2])));
-		Hashtable<String, Object> maxNewNd = new Hashtable<String, Object>();
-		Hashtable<String, Object> minNewNd = new Hashtable<String, Object>();
-		minNewNd.put(attributes[0], node.min.get(attributes[0]));
-		minNewNd.put(attributes[1], node.min.get(attributes[1]));
-		minNewNd.put(attributes[2], node.min.get(attributes[2]));
-		maxNewNd.put(attributes[0], mid.get(attributes[0]));
-		maxNewNd.put(attributes[1], mid.get(attributes[1]));
-		maxNewNd.put(attributes[2], mid.get(attributes[2]));
-		node.children[0] = new Node(maxNewNd, minNewNd);
-		minNewNd.put(attributes[1], mid.get(attributes[1]));
-		maxNewNd.put(attributes[1], node.max.get(attributes[1]));
-		node.children[1] = new Node(maxNewNd, minNewNd);
-		minNewNd.put(attributes[2], mid.get(attributes[2]));
-		maxNewNd.put(attributes[2], node.max.get(attributes[2]));
-		node.children[2] = new Node(maxNewNd, minNewNd);
-		minNewNd.put(attributes[1], node.min.get(attributes[1]));
-		maxNewNd.put(attributes[1], mid.get(attributes[1]));
-		node.children[3] = new Node(maxNewNd, minNewNd);
-		minNewNd.put(attributes[0], mid.get(attributes[0]));
-		maxNewNd.put(attributes[0], node.max.get(attributes[0]));
-		minNewNd.put(attributes[2], node.min.get(attributes[2]));
-		maxNewNd.put(attributes[2], mid.get(attributes[2]));
-		node.children[4] = new Node(maxNewNd, minNewNd);
-		minNewNd.put(attributes[1], mid.get(attributes[1]));
-		maxNewNd.put(attributes[1], node.max.get(attributes[1]));
-		node.children[5] = new Node(maxNewNd, minNewNd);
-		minNewNd.put(attributes[2], mid.get(attributes[2]));
-		maxNewNd.put(attributes[2], node.max.get(attributes[2]));
-		node.children[6] = new Node(maxNewNd, minNewNd);
-		minNewNd.put(attributes[1], node.min.get(attributes[1]));
-		maxNewNd.put(attributes[1], mid.get(attributes[1]));
-		node.children[7] = new Node(maxNewNd, minNewNd);
-	}
-
-	public void createChildren1(Node node) throws DBAppException {
 		Object att1Min = node.min.get(attributes[0]);
 		Object att2Min = node.min.get(attributes[1]);
 		Object att3Min = node.min.get(attributes[2]);

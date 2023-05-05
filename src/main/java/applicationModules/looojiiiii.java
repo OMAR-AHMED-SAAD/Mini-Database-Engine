@@ -4,6 +4,10 @@ import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Hashtable;
+
+import applicationModules.Octree.Node;
+import exceptions.DBAppException;
 
 public class looojiiiii {
 	public static int compare(Object One, Object Two) {
@@ -333,3 +337,44 @@ public class looojiiiii {
 //	return sb.toString();
 //}
 
+
+
+
+//public void createChildren(Node node) throws DBAppException {
+//	Hashtable<String, Object> mid = new Hashtable<String, Object>();
+//	mid.put(attributes[0], GM.getMid(node.min.get(attributes[0]), node.max.get(attributes[0])));
+//	mid.put(attributes[1], GM.getMid(node.min.get(attributes[1]), node.max.get(attributes[1])));
+//	mid.put(attributes[2], GM.getMid(node.min.get(attributes[2]), node.max.get(attributes[2])));
+//	Hashtable<String, Object> maxNewNd = new Hashtable<String, Object>();
+//	Hashtable<String, Object> minNewNd = new Hashtable<String, Object>();
+//	minNewNd.put(attributes[0], node.min.get(attributes[0]));
+//	minNewNd.put(attributes[1], node.min.get(attributes[1]));
+//	minNewNd.put(attributes[2], node.min.get(attributes[2]));
+//	maxNewNd.put(attributes[0], mid.get(attributes[0]));
+//	maxNewNd.put(attributes[1], mid.get(attributes[1]));
+//	maxNewNd.put(attributes[2], mid.get(attributes[2]));
+//	node.children[0] = new Node(maxNewNd, minNewNd);
+//	minNewNd.put(attributes[1], mid.get(attributes[1]));
+//	maxNewNd.put(attributes[1], node.max.get(attributes[1]));
+//	node.children[1] = new Node(maxNewNd, minNewNd);
+//	minNewNd.put(attributes[2], mid.get(attributes[2]));
+//	maxNewNd.put(attributes[2], node.max.get(attributes[2]));
+//	node.children[2] = new Node(maxNewNd, minNewNd);
+//	minNewNd.put(attributes[1], node.min.get(attributes[1]));
+//	maxNewNd.put(attributes[1], mid.get(attributes[1]));
+//	node.children[3] = new Node(maxNewNd, minNewNd);
+//	minNewNd.put(attributes[0], mid.get(attributes[0]));
+//	maxNewNd.put(attributes[0], node.max.get(attributes[0]));
+//	minNewNd.put(attributes[2], node.min.get(attributes[2]));
+//	maxNewNd.put(attributes[2], mid.get(attributes[2]));
+//	node.children[4] = new Node(maxNewNd, minNewNd);
+//	minNewNd.put(attributes[1], mid.get(attributes[1]));
+//	maxNewNd.put(attributes[1], node.max.get(attributes[1]));
+//	node.children[5] = new Node(maxNewNd, minNewNd);
+//	minNewNd.put(attributes[2], mid.get(attributes[2]));
+//	maxNewNd.put(attributes[2], node.max.get(attributes[2]));
+//	node.children[6] = new Node(maxNewNd, minNewNd);
+//	minNewNd.put(attributes[1], node.min.get(attributes[1]));
+//	maxNewNd.put(attributes[1], mid.get(attributes[1]));
+//	node.children[7] = new Node(maxNewNd, minNewNd);
+//}
