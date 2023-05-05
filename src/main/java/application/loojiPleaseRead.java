@@ -10,7 +10,7 @@ public class loojiPleaseRead {
 		DBApp db=new DBApp(); 
 		db.init();
 		System.out.println(db.getCreatedTables().toString());
-		String FilePath = db.getCreatedTables().get("student");
+		String FilePath = db.getCreatedTables().get("students");
 		Table table = db.LoadTable(FilePath);
 		table.ReadMetaData();
 		System.out.println(table.toString());

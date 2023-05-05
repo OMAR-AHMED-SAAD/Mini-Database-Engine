@@ -227,36 +227,6 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 				}
 		}
 	}
-	
-	public static void main(String[] args) throws DBAppException {
-		DBApp db=new DBApp();
-		  String tableName = "students";
-
-	        Hashtable<String, String> htblColNameType = new Hashtable<String, String>();
-	        htblColNameType.put("id", "java.lang.String");
-	        htblColNameType.put("first_name", "java.lang.String");
-	        htblColNameType.put("last_name", "java.lang.String");
-	        htblColNameType.put("dob", "java.util.Date");
-	        htblColNameType.put("gpa", "java.lang.Double");
-
-	        Hashtable<String, String> minValues = new Hashtable<>();
-	        minValues.put("id", "43-0000");
-	        minValues.put("first_name", "AAAAAA");
-	        minValues.put("last_name", "AAAAAA");
-	        minValues.put("dob", "1990-01-01");
-	        minValues.put("gpa", "0.7");
-
-	        Hashtable<String, String> maxValues = new Hashtable<>();
-	        maxValues.put("id", "99-9999");
-	        maxValues.put("first_name", "zzzzzz");
-	        maxValues.put("last_name", "zzzzzz");
-	        maxValues.put("dob", "2000-12-31");
-	        maxValues.put("gpa", "5.0");
-
-	        db.createTable(tableName, "id", htblColNameType, minValues, maxValues);
-        
-        
-	}
 
 	public void searchByIndex(int X) {
 		
