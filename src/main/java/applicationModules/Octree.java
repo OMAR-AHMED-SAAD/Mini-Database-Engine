@@ -4,11 +4,13 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Vector;
 
+import application.DBApp;
 import basicTools.ComparatorI;
 import basicTools.GetMidI;
 import exceptions.DBAppException;
@@ -19,20 +21,20 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 	private String FilePath;
 	private String[] attributes;
 	private int maxElements;
-
-	public static void main(String[] args) throws DBAppException {
-		Hashtable<String, Object> max = new Hashtable<String, Object>();
-		Hashtable<String, Object> min = new Hashtable<String, Object>();
-		min.put("x", 0);
-		min.put("y", 0);
-		min.put("z", 0);
-		max.put("x", 8);
-		max.put("y", 80);
-		max.put("z", 800);
-		Octree o = new Octree("lol", "x", "y", "z", max, min);
-		o.split(o.root);
-		System.out.println(o);
-	}
+// Test Ranges
+//	public static void main(String[] args) throws DBAppException {
+//		Hashtable<String, Object> max = new Hashtable<String, Object>();
+//		Hashtable<String, Object> min = new Hashtable<String, Object>();
+//		min.put("x", 0);
+//		min.put("y", 0);
+//		min.put("z", 0);
+//		max.put("x", 8);
+//		max.put("y", 80);
+//		max.put("z", 800);
+//		Octree o = new Octree("lol", "x", "y", "z", max, min);
+//		o.split(o.root);
+//		System.out.println(o);
+//	}
 
 	public Octree(String tblName, String A1, String A2, String A3, Hashtable<String, Object> max,
 			Hashtable<String, Object> min) throws DBAppException {
@@ -171,6 +173,93 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 					&& comparison2Max >= 0 && comparison3Max >= 0)
 				return true;
 		return false;
+	}
+
+	public boolean isRightNode(Node node, Hashtable<String, Object> colNameValues) throws DBAppException {
+		boolean flag = false;
+		Enumeration<String> keys = colNameValues.keys();
+		while (keys.hasMoreElements()) {
+			String currKey = keys.nextElement();
+			int compareMin = C.compare(node.min.get(currKey), colNameValues.get(currKey));
+			int compareMax = C.compare(node.max.get(currKey), colNameValues.get(currKey));
+			int compareRoot = C.compare(root.max.get(currKey), colNameValues.get(currKey));
+			if ((compareMin <= 0 && compareMax > 0) || (compareRoot == 0 && compareMin <= 0 && compareMax >= 0))
+				flag = true;
+			else
+				return false;
+		}
+
+		return flag;
+	}
+
+	public boolean isRightElement(Element element, Hashtable<String, Object> tuple) throws DBAppException {
+		Object a0 = tuple.get(attributes[0]);
+		Object a1 = tuple.get(attributes[1]);
+		Object a2 = tuple.get(attributes[2]);
+		int comp0 = C.compareWNull(a0, element.attribute1);
+		int comp1 = C.compareWNull(a1, element.attribute2);
+		int comp2 = C.compareWNull(a2, element.attribute3);
+		if (comp0 == 0 && comp1 == 0 && comp2 == 0)
+			return true;
+		return false;
+	}
+
+	public ArrayList<String> search(Hashtable<String, Object> tuple) throws DBAppException {
+		ArrayList<String> pagePaths = new ArrayList<>();
+		searchHelper(root, tuple, pagePaths);
+		return pagePaths;
+	}
+
+	private void searchHelper(Node node, Hashtable<String, Object> tuple, ArrayList<String> pagePaths)
+			throws DBAppException {
+		if (node.children == null) {
+			for (Vector<Element> vec : node.elements)
+				for (Element element : vec) {
+					if (isRightElement(element, tuple))
+						pagePaths.add(element.pointer);
+				}
+		} else {
+			for (Node child : node.children)
+				if (isRightNode(child, tuple)) {
+					searchHelper(child, tuple, pagePaths);
+					if (tuple.size() == 3)
+						break;
+				}
+		}
+	}
+	
+	public static void main(String[] args) throws DBAppException {
+		DBApp db=new DBApp();
+		  String tableName = "students";
+
+	        Hashtable<String, String> htblColNameType = new Hashtable<String, String>();
+	        htblColNameType.put("id", "java.lang.String");
+	        htblColNameType.put("first_name", "java.lang.String");
+	        htblColNameType.put("last_name", "java.lang.String");
+	        htblColNameType.put("dob", "java.util.Date");
+	        htblColNameType.put("gpa", "java.lang.Double");
+
+	        Hashtable<String, String> minValues = new Hashtable<>();
+	        minValues.put("id", "43-0000");
+	        minValues.put("first_name", "AAAAAA");
+	        minValues.put("last_name", "AAAAAA");
+	        minValues.put("dob", "1990-01-01");
+	        minValues.put("gpa", "0.7");
+
+	        Hashtable<String, String> maxValues = new Hashtable<>();
+	        maxValues.put("id", "99-9999");
+	        maxValues.put("first_name", "zzzzzz");
+	        maxValues.put("last_name", "zzzzzz");
+	        maxValues.put("dob", "2000-12-31");
+	        maxValues.put("gpa", "5.0");
+
+	        db.createTable(tableName, "id", htblColNameType, minValues, maxValues);
+        
+        
+	}
+
+	public void searchByIndex(int X) {
+		
 	}
 
 	public String toString() {

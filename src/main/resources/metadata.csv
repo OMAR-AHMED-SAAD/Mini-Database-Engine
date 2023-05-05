@@ -1,8 +1,4 @@
 TableName,Column Name,Column Type,ClusteringKey,IndexName,IndexType,min,max
-student,id,java.lang.String,false,null,null,0,1000
-student,birth,java.util.date,false,null,null,2000-11-01,2023-10-01
-student,name,java.lang.String,true,null,null,A,ZZZZZZZZZZZZ
-student,gpa,java.lang.double,false,null,null,0,1000
 employees,id,java.lang.integer,true,null,null,0,10000
 employees,dob,java.util.date,false,null,null,1753-01-01,9998-12-31
 employees,salary,java.lang.double,false,null,null,0,100000.00
