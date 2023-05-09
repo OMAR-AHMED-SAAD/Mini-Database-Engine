@@ -378,3 +378,19 @@ public class looojiiiii {
 //	maxNewNd.put(attributes[1], mid.get(attributes[1]));
 //	node.children[7] = new Node(maxNewNd, minNewNd);
 //}
+
+
+//Test Ranges
+//	public static void main(String[] args) throws DBAppException {
+//		Hashtable<String, Object> max = new Hashtable<String, Object>();
+//		Hashtable<String, Object> min = new Hashtable<String, Object>();
+//		min.put("x", 0);
+//		min.put("y", 0);
+//		min.put("z", 0);
+//		max.put("x", 8);
+//		max.put("y", 80);
+//		max.put("z", 800);
+//		Octree o = new Octree("lol", "x", "y", "z", max, min);
+//		o.split(o.root);
+//		System.out.println(o);
+//	}

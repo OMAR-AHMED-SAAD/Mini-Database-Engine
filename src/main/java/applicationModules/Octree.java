@@ -4,13 +4,14 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Vector;
 
-import application.DBApp;
 import basicTools.ComparatorI;
 import basicTools.GetMidI;
 import exceptions.DBAppException;
@@ -21,20 +22,6 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 	private String FilePath;
 	private String[] attributes;
 	private int maxElements;
-// Test Ranges
-//	public static void main(String[] args) throws DBAppException {
-//		Hashtable<String, Object> max = new Hashtable<String, Object>();
-//		Hashtable<String, Object> min = new Hashtable<String, Object>();
-//		min.put("x", 0);
-//		min.put("y", 0);
-//		min.put("z", 0);
-//		max.put("x", 8);
-//		max.put("y", 80);
-//		max.put("z", 800);
-//		Octree o = new Octree("lol", "x", "y", "z", max, min);
-//		o.split(o.root);
-//		System.out.println(o);
-//	}
 
 	public Octree(String tblName, String A1, String A2, String A3, Hashtable<String, Object> max,
 			Hashtable<String, Object> min) throws DBAppException {
@@ -87,12 +74,14 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 	}
 
 	private void insert(Node node, Element element) throws DBAppException {
-		if (node.elements.size() < this.maxElements && node.children == null) {
+		if (node.elements != null && node.elements.size() < this.maxElements && node.children == null) {
 			insertElement(node.elements, element);
 			return;
-		} else if (node.elements.size() == this.maxElements && node.children == null)
+		} else if (node.elements != null && node.elements.size() == this.maxElements && node.children == null)
 			if (!insertElement(node.elements, element))
 				split(node);
+			else
+				return;
 		for (Node child : node.children)
 			if (isRightNode(child, element)) {
 				insert(child, element);
@@ -117,7 +106,7 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 		if (!inserted && elements.size() == this.maxElements) {
 			return false;
 		}
-		if (elements.isEmpty() && !inserted) {
+		if (elements.size() < this.maxElements && !inserted) {
 			Vector<Element> elementsVector = new Vector<Element>();
 			elementsVector.add(element);
 			elements.add(elementsVector);
@@ -128,14 +117,13 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 	private void split(Node node) throws DBAppException {
 		node.children = new Node[8];
 		createChildren(node);
-		Vector<Vector<Element>> elementsSplit = node.elements;
-		node.elements = null;
-		for (Vector<Element> vec : elementsSplit)
+		for (Vector<Element> vec : node.elements)
 			for (Element element : vec)
 				insert(node, element);
+		node.elements = null;
 	}
 
-	public void createChildren(Node node) throws DBAppException {
+	private void createChildren(Node node) throws DBAppException {
 		Object att1Min = node.min.get(attributes[0]);
 		Object att2Min = node.min.get(attributes[1]);
 		Object att3Min = node.min.get(attributes[2]);
@@ -155,7 +143,7 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 		node.children[7] = new Node(att1Mid, att2Min, att3Mid, att1Max, att2Mid, att3Max);
 	}
 
-	public boolean isRightNode(Node node, Element element) throws DBAppException {
+	private boolean isRightNode(Node node, Element element) throws DBAppException {
 		int comparison1Min = C.compare(node.min.get(attributes[0]), element.attribute1);
 		int comparison2Min = C.compare(node.min.get(attributes[1]), element.attribute2);
 		int comparison3Min = C.compare(node.min.get(attributes[2]), element.attribute3);
@@ -167,7 +155,7 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 			return true;
 		int comparison1MaxRoot = C.compare(node.max.get(attributes[0]), root.max.get(attributes[0]));
 		int comparison2MaxRoot = C.compare(node.max.get(attributes[1]), root.max.get(attributes[1]));
-		int comparison3MaxRoot = C.compare(node.max.get(attributes[2]), root.max.get(attributes[1]));
+		int comparison3MaxRoot = C.compare(node.max.get(attributes[2]), root.max.get(attributes[2]));
 		if (comparison1MaxRoot == 0 && comparison2MaxRoot == 0 && comparison3MaxRoot == 0)
 			if (comparison1Min <= 0 && comparison2Min <= 0 && comparison3Min <= 0 && comparison1Max >= 0
 					&& comparison2Max >= 0 && comparison3Max >= 0)
@@ -175,7 +163,7 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 		return false;
 	}
 
-	public boolean isRightNode(Node node, Hashtable<String, Object> colNameValues) throws DBAppException {
+	private boolean isRightNode(Node node, Hashtable<String, Object> colNameValues) throws DBAppException {
 		boolean flag = false;
 		Enumeration<String> keys = colNameValues.keys();
 		while (keys.hasMoreElements()) {
@@ -193,16 +181,34 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 	}
 
 	public boolean isRightElement(Element element, Hashtable<String, Object> tuple) throws DBAppException {
-		Object a0 = tuple.get(attributes[0]);
-		Object a1 = tuple.get(attributes[1]);
-		Object a2 = tuple.get(attributes[2]);
-		int comp0 = C.compareWNull(a0, element.attribute1);
-		int comp1 = C.compareWNull(a1, element.attribute2);
-		int comp2 = C.compareWNull(a2, element.attribute3);
-		if (comp0 == 0 && comp1 == 0 && comp2 == 0)
-			return true;
-		return false;
+		Hashtable<String, Object> elementAttributes = new Hashtable<String, Object>();
+		elementAttributes.put(attributes[0], element.attribute1);
+		elementAttributes.put(attributes[1], element.attribute2);
+		elementAttributes.put(attributes[2], element.attribute3);
+		boolean flag = false;
+		Enumeration<String> keys = tuple.keys();
+		while (keys.hasMoreElements()) {
+			String currKey = keys.nextElement();
+			int comp = C.compare(tuple.get(currKey), elementAttributes.get(currKey));
+			if (comp == 0)
+				flag = true;
+			else
+				return false;
+		}
+
+		return flag;
 	}
+//	public boolean isRightElement(Element element, Hashtable<String, Object> tuple) throws DBAppException {
+//		Object a0 = tuple.get(attributes[0]);
+//		Object a1 = tuple.get(attributes[1]);
+//		Object a2 = tuple.get(attributes[2]);
+//		int comp0 = C.compareWNull(a0, element.attribute1);
+//		int comp1 = C.compareWNull(a1, element.attribute2);
+//		int comp2 = C.compareWNull(a2, element.attribute3);
+//		if (comp0 == 0 && comp1 == 0 && comp2 == 0)
+//			return true;
+//		return false;
+//	}
 
 	public ArrayList<String> search(Hashtable<String, Object> tuple) throws DBAppException {
 		ArrayList<String> pagePaths = new ArrayList<>();
@@ -229,7 +235,7 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 	}
 
 	public void searchByIndex(int X) {
-		
+
 	}
 
 	public String toString() {
@@ -299,7 +305,10 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 			StringBuilder sb = new StringBuilder();
 			sb.append("{");
 			for (String attribute : attributes) {
-				sb.append(attribute + "=" + max.get(attribute) + ", ");
+				Object att = max.get(attribute);
+				if (att instanceof Date)
+					att = new SimpleDateFormat("yyyy-MM-dd").format(att);
+				sb.append(attribute + "=" + att + ", ");
 			}
 			sb.delete(sb.length() - 2, sb.length());
 			sb.append("}");
@@ -310,7 +319,10 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 			StringBuilder sb = new StringBuilder();
 			sb.append("{");
 			for (String attribute : attributes) {
-				sb.append(attribute + "=" + min.get(attribute) + ", ");
+				Object att = min.get(attribute);
+				if (att instanceof Date)
+					att = new SimpleDateFormat("yyyy-MM-dd").format(att);
+				sb.append(attribute + "=" + att + ", ");
 			}
 			sb.delete(sb.length() - 2, sb.length());
 			sb.append("}");

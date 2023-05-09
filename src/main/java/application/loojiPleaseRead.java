@@ -10,13 +10,12 @@ public class loojiPleaseRead {
 		DBApp db=new DBApp(); 
 		db.init();
 		System.out.println(db.getCreatedTables().toString());
-		String FilePath = db.getCreatedTables().get("students");
+		String FilePath = db.getCreatedTables().get("students2");
 		Table table = db.LoadTable(FilePath);
 		table.ReadMetaData();
 		System.out.println(table.toString());
 		
 		
-		String X="djw ck eq v vkjqerjerkclmwqwkjjqw";
-		System.out.println(X.getBytes());
+		
 	}
 }
