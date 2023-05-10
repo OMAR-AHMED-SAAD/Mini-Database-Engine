@@ -16,14 +16,14 @@ import basicTools.ComparatorI;
 import basicTools.GetMidI;
 import exceptions.DBAppException;
 
-public class Octree implements Serializable, ComparatorI, GetMidI {
+public class OctreeOLD implements Serializable, ComparatorI, GetMidI {
 	private static final long serialVersionUID = 1L;
 	private Node root;
 	private String FilePath;
 	private String[] attributes;
 	private int maxElements;
 
-	public Octree(String tblName, String A1, String A2, String A3, Hashtable<String, Object> max,
+	public OctreeOLD(String tblName, String A1, String A2, String A3, Hashtable<String, Object> max,
 			Hashtable<String, Object> min) throws DBAppException {
 		attributes = new String[3];
 		attributes[0] = A1;
@@ -52,28 +52,28 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 		}
 	}
 
-	public void populate(Table tbl) throws DBAppException {
+	public boolean populate(Table tbl) throws DBAppException {
 		for (int pageId : tbl.getTablePages()) {
 			String filePath = tbl.getPageFilePath().get(pageId);
 			Page pg = tbl.LoadPage(filePath);
 			for (Hashtable<String, Object> row : pg.getVecPage()) {
-				Enumeration<String> keys = row.keys();
-				while (keys.hasMoreElements()) {
-					String key = keys.nextElement();
-					if (!attributes[0].equals(key) && !attributes[1].equals(key) && !attributes[2].equals(key))
-						row.remove(key);
-				}
-				Element element = new Element(row, filePath);
+				Object attribute1 = row.get(attributes[0]);
+				Object attribute2 = row.get(attributes[1]);
+				Object attribute3 = row.get(attributes[2]);
+				if (attribute1 == null || attribute2 == null || attribute3 == null)
+					return false;
+				ElementOLD element = new ElementOLD(attribute1, attribute2, attribute3, filePath);
 				insert(element);
 			}
 		}
+		return true;
 	}
 
-	public void insert(Element element) throws DBAppException {
+	public void insert(ElementOLD element) throws DBAppException {
 		insert(root, element);
 	}
 
-	private void insert(Node node, Element element) throws DBAppException {
+	private void insert(Node node, ElementOLD element) throws DBAppException {
 		if (node.elements != null && node.elements.size() < this.maxElements && node.children == null) {
 			insertElement(node.elements, element);
 			return;
@@ -83,24 +83,19 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 			else
 				return;
 		for (Node child : node.children)
-			if (isRightNode(child, element.htblAttributes)) {
+			if (isRightNode(child, element)) {
 				insert(child, element);
 				break;
 			}
 	}
 
-	// when we want to check duplicates we used compareWNull instead of
-	// fullnullsupport as we don't want to consider nulls duplicates to each other
-	private boolean insertElement(Vector<Vector<Element>> elements, Element element) throws DBAppException {
+	private boolean insertElement(Vector<Vector<ElementOLD>> elements, ElementOLD element) throws DBAppException {
 		boolean inserted = false;
-		for (Vector<Element> vec : elements) {
-			for (Element existingElement : vec) {
-				int comparison1 = C.compareWNull(existingElement.htblAttributes.get(attributes[0]),
-						element.htblAttributes.get(attributes[0]));
-				int comparison2 = C.compareWNull(existingElement.htblAttributes.get(attributes[1]),
-						element.htblAttributes.get(attributes[1]));
-				int comparison3 = C.compareWNull(existingElement.htblAttributes.get(attributes[2]),
-						element.htblAttributes.get(attributes[2]));
+		for (Vector<ElementOLD> vec : elements) {
+			for (ElementOLD existingElement : vec) {
+				int comparison1 = C.compare(existingElement.attribute1, element.attribute1);
+				int comparison2 = C.compare(existingElement.attribute2, element.attribute2);
+				int comparison3 = C.compare(existingElement.attribute3, element.attribute3);
 				if (comparison1 == 0 || comparison2 == 0 || comparison3 == 0) {
 					vec.add(element);
 					inserted = true;
@@ -112,7 +107,7 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 			return false;
 		}
 		if (elements.size() < this.maxElements && !inserted) {
-			Vector<Element> elementsVector = new Vector<Element>();
+			Vector<ElementOLD> elementsVector = new Vector<ElementOLD>();
 			elementsVector.add(element);
 			elements.add(elementsVector);
 		}
@@ -122,8 +117,8 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 	private void split(Node node) throws DBAppException {
 		node.children = new Node[8];
 		createChildren(node);
-		for (Vector<Element> vec : node.elements)
-			for (Element element : vec)
+		for (Vector<ElementOLD> vec : node.elements)
+			for (ElementOLD element : vec)
 				insert(node, element);
 		node.elements = null;
 	}
@@ -148,6 +143,26 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 		node.children[7] = new Node(att1Mid, att2Min, att3Mid, att1Max, att2Mid, att3Max);
 	}
 
+	private boolean isRightNode(Node node, ElementOLD element) throws DBAppException {
+		int comparison1Min = C.compare(node.min.get(attributes[0]), element.attribute1);
+		int comparison2Min = C.compare(node.min.get(attributes[1]), element.attribute2);
+		int comparison3Min = C.compare(node.min.get(attributes[2]), element.attribute3);
+		int comparison1Max = C.compare(node.max.get(attributes[0]), element.attribute1);
+		int comparison2Max = C.compare(node.max.get(attributes[1]), element.attribute2);
+		int comparison3Max = C.compare(node.max.get(attributes[2]), element.attribute3);
+		if (comparison1Min <= 0 && comparison2Min <= 0 && comparison3Min <= 0 && comparison1Max > 0
+				&& comparison2Max > 0 && comparison3Max > 0)
+			return true;
+		int comparison1MaxRoot = C.compare(node.max.get(attributes[0]), root.max.get(attributes[0]));
+		int comparison2MaxRoot = C.compare(node.max.get(attributes[1]), root.max.get(attributes[1]));
+		int comparison3MaxRoot = C.compare(node.max.get(attributes[2]), root.max.get(attributes[2]));
+		if (comparison1MaxRoot == 0 && comparison2MaxRoot == 0 && comparison3MaxRoot == 0)
+			if (comparison1Min <= 0 && comparison2Min <= 0 && comparison3Min <= 0 && comparison1Max >= 0
+					&& comparison2Max >= 0 && comparison3Max >= 0)
+				return true;
+		return false;
+	}
+
 	private boolean isRightNode(Node node, Hashtable<String, Object> colNameValues) throws DBAppException {
 		boolean flag = false;
 		Enumeration<String> keys = colNameValues.keys();
@@ -165,6 +180,36 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 		return flag;
 	}
 
+	public boolean isRightElement(ElementOLD element, Hashtable<String, Object> tuple) throws DBAppException {
+		Hashtable<String, Object> elementAttributes = new Hashtable<String, Object>();
+		elementAttributes.put(attributes[0], element.attribute1);
+		elementAttributes.put(attributes[1], element.attribute2);
+		elementAttributes.put(attributes[2], element.attribute3);
+		boolean flag = false;
+		Enumeration<String> keys = tuple.keys();
+		while (keys.hasMoreElements()) {
+			String currKey = keys.nextElement();
+			int comp = C.compare(tuple.get(currKey), elementAttributes.get(currKey));
+			if (comp == 0)
+				flag = true;
+			else
+				return false;
+		}
+
+		return flag;
+	}
+//	public boolean isRightElement(Element element, Hashtable<String, Object> tuple) throws DBAppException {
+//		Object a0 = tuple.get(attributes[0]);
+//		Object a1 = tuple.get(attributes[1]);
+//		Object a2 = tuple.get(attributes[2]);
+//		int comp0 = C.compareWNull(a0, element.attribute1);
+//		int comp1 = C.compareWNull(a1, element.attribute2);
+//		int comp2 = C.compareWNull(a2, element.attribute3);
+//		if (comp0 == 0 && comp1 == 0 && comp2 == 0)
+//			return true;
+//		return false;
+//	}
+
 	public ArrayList<String> search(Hashtable<String, Object> tuple) throws DBAppException {
 		ArrayList<String> pagePaths = new ArrayList<>();
 		searchHelper(root, tuple, pagePaths);
@@ -174,8 +219,8 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 	private void searchHelper(Node node, Hashtable<String, Object> tuple, ArrayList<String> pagePaths)
 			throws DBAppException {
 		if (node.children == null) {
-			for (Vector<Element> vec : node.elements)
-				for (Element element : vec) {
+			for (Vector<ElementOLD> vec : node.elements)
+				for (ElementOLD element : vec) {
 					if (isRightElement(element, tuple))
 						pagePaths.add(element.pointer);
 				}
@@ -183,25 +228,14 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 			for (Node child : node.children)
 				if (isRightNode(child, tuple)) {
 					searchHelper(child, tuple, pagePaths);
-					if (tuple.size() == 3)//// check risk!!!
+					if (tuple.size() == 3)
 						break;
 				}
 		}
 	}
 
-	public boolean isRightElement(Element element, Hashtable<String, Object> tuple) throws DBAppException {
-		boolean flag = false;
-		Enumeration<String> keys = tuple.keys();
-		while (keys.hasMoreElements()) {
-			String currKey = keys.nextElement();
-			int comp = C.compareNullSupport(tuple.get(currKey), element.htblAttributes.get(currKey));
-			if (comp == 0)
-				flag = true;
-			else
-				return false;
-		}
+	public void searchByIndex(int X) {
 
-		return flag;
 	}
 
 	public String toString() {
@@ -212,7 +246,7 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 		private static final long serialVersionUID = 1L;
 		private Hashtable<String, Object> max = new Hashtable<String, Object>();
 		private Hashtable<String, Object> min = new Hashtable<String, Object>();
-		private Vector<Vector<Element>> elements = new Vector<Vector<Element>>();
+		private Vector<Vector<ElementOLD>> elements = new Vector<Vector<ElementOLD>>();
 		private Node[] children;
 
 		public Node(Hashtable<String, Object> max, Hashtable<String, Object> min) throws DBAppException {
@@ -240,7 +274,7 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 		public String toString(int level) {
 			StringBuilder sb = new StringBuilder();
 			if (children == null) {
-				for (Vector<Element> e : elements) {
+				for (Vector<ElementOLD> e : elements) {
 					sb.append(getIndent(level)).append(e.toString()).append("\n");
 				}
 			} else {
@@ -293,36 +327,6 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 			sb.delete(sb.length() - 2, sb.length());
 			sb.append("}");
 			return sb.toString();
-		}
-	}
-
-	public class Element implements Serializable {
-		private static final long serialVersionUID = 1L;
-		Hashtable<String, Object> htblAttributes = new Hashtable<String, Object>();
-		String pointer;
-
-		public Element(Hashtable<String, Object> att, String filePath) {
-			Enumeration<String> keys = att.keys();
-			while (keys.hasMoreElements()) {
-				String key = (String) keys.nextElement();
-				htblAttributes.put(key, att.get(key));
-			}
-			this.pointer = filePath;
-		}
-
-		public String toString() {
-			Object att1 = htblAttributes.get(attributes[0]);
-			Object att2 = htblAttributes.get(attributes[1]);
-			Object att3 = htblAttributes.get(attributes[2]);
-			if (att1 instanceof Date)
-				att1 = new SimpleDateFormat("yyyy-MM-dd").format(att1);
-			if (att2 instanceof Date)
-				att2 = new SimpleDateFormat("yyyy-MM-dd").format(att2);
-			if (att3 instanceof Date)
-				att3 = new SimpleDateFormat("yyyy-MM-dd").format(att3);
-
-			return "Element{" + "att1=" + att1 + ", att2=" + att2 + ", att3=" + att3 + ", ptr='" + pointer.substring(23)
-					+ '\'' + '}';
 		}
 	}
 }

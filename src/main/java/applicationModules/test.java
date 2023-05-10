@@ -34,14 +34,21 @@ public class test implements ValidatorI {
 		String FilePath = db.getCreatedTables().get("students2");
 		Table table = db.LoadTable(FilePath);
 		table.ReadMetaData();
+		 Hashtable<String, Object> row = new Hashtable<>();
+		 row.put("id", "46-5041");
+		 row.put("dob", new Date(1990-1900,12-1,18));
+		//db.insertIntoTable("students2", row);
+		 row = new Hashtable<>();
+		 row.put("id", "49-5041");
+		// db.insertIntoTable("students2", row);
 		o.populate(table);
 		Hashtable<String, Object> tuple = new Hashtable<>();
-//		tuple.put("id","64-2646");
-	tuple.put("dob",new Date(1994-1900,12-1,18));
-//		tuple.put("gpa",new Double(4.54));
+	//tuple.put("id","49-5041");//"64-2646");
+	//tuple.put("dob",new Date(1994-1900,12-1,18));
+	//	tuple.put("gpa",new Double(2.54));
 
-		System.out.println(o.search(tuple));
-//		System.out.println(o);
+	//System.out.println(o.search(tuple));
+	System.out.println(o);
 	}
 
 //	public static void main(String[] args) throws DBAppException, IOException {

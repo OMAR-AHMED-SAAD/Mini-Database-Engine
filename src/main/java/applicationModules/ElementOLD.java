@@ -4,14 +4,14 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class Element implements Serializable {
+public class ElementOLD implements Serializable {
 	private static final long serialVersionUID = 1L;
 	Object attribute1;
 	Object attribute2;
 	Object attribute3;
 	String pointer;
 
-	public Element(Object attribute1, Object attribute2, Object attribute3, String filePath) {
+	public ElementOLD(Object attribute1, Object attribute2, Object attribute3, String filePath) {
 		this.attribute1 = attribute1;
 		this.attribute2 = attribute2;
 		this.attribute3 = attribute3;

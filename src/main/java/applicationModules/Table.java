@@ -47,11 +47,11 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		return RestoredPage;
 	}
 
-	public Octree LoadTree(String FilePath) {
-		Octree RestoredOctree = null;
+	public OctreeOLD LoadTree(String FilePath) {
+		OctreeOLD RestoredOctree = null;
 		try {
 			ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(FilePath));
-			RestoredOctree = (Octree) objectInputStream.readObject();
+			RestoredOctree = (OctreeOLD) objectInputStream.readObject();
 			objectInputStream.close();
 		} catch (Exception e) {
 			e.printStackTrace();
