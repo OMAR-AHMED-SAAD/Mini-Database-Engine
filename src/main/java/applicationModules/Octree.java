@@ -22,6 +22,7 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 	private String FilePath;
 	private String[] attributes;
 	private int maxElements;
+	static int count=0;//delete
 
 	public Octree(String tblName, String A1, String A2, String A3, Hashtable<String, Object> max,
 			Hashtable<String, Object> min) throws DBAppException {
@@ -164,7 +165,8 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 
 		return flag;
 	}
-
+	
+	//searches for all elements that matches & matches on null
 	public ArrayList<String> search(Hashtable<String, Object> tuple) throws DBAppException {
 		ArrayList<String> pagePaths = new ArrayList<>();
 		searchHelper(root, tuple, pagePaths);
@@ -203,9 +205,58 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 
 		return flag;
 	}
+	//deletes one element & matches on null
+	public void delete(Hashtable<String, Object> tuple, String filePath) throws DBAppException {
+		deleteHelper(root,tuple,filePath);
+	}
+
+	private void deleteHelper(Node node, Hashtable<String, Object> tuple, String filePath) throws DBAppException {
+		if (node.children == null) {
+			for (Vector<Element> vec : node.elements)
+				for (Element element : vec)
+					if (isRightElement(element, tuple) && element.pointer.equals(filePath)) {
+						vec.removeElement(element);
+						if (vec.isEmpty())
+							node.elements.remove(vec);
+						return;
+					}
+		}else {
+			for (Node child : node.children)
+				if (isRightNode(child, tuple)) {
+					deleteHelper(child, tuple, filePath);
+					if (tuple.size() == 3)//// check risk!!!
+						break;
+				}
+		}
+	}
+	// updates one element & matches null
+	public void updatePageRef(Hashtable<String, Object> tuple, String oldFilePath, String newFilePath) throws DBAppException {
+		updtPgRef(root,tuple, oldFilePath, newFilePath);
+	}
+	
+	private void updtPgRef(Node node,Hashtable<String, Object> tuple, String oldFilePath, String newFilePath) throws DBAppException {
+		if (node.children == null) {
+			for (Vector<Element> vec : node.elements)
+				for (Element element : vec)
+					if (isRightElement(element, tuple) && element.pointer.equals(oldFilePath)) {
+						element.pointer=newFilePath;
+						return;
+					}
+		}else {
+			for (Node child : node.children)
+				if (isRightNode(child, tuple)) {
+					updtPgRef(child, tuple, oldFilePath, newFilePath);
+					if (tuple.size() == 3)//// check risk!!!
+						break;
+				}
+		}
+	}
 
 	public String toString() {
-		return root.toString(0);
+		
+		return root.toString(0)
+				+"\n"+ count;//delete
+		
 	}
 
 	public class Node implements Serializable {
@@ -311,6 +362,7 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 		}
 
 		public String toString() {
+			count++;//delete
 			Object att1 = htblAttributes.get(attributes[0]);
 			Object att2 = htblAttributes.get(attributes[1]);
 			Object att3 = htblAttributes.get(attributes[2]);
