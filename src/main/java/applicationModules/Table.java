@@ -13,6 +13,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import applicationModules.Octree.Element;
 import basicTools.ComparatorI;
 import basicTools.RowAddress;
 import basicTools.ValidatorI;
@@ -133,10 +134,12 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		}
 	}
 
-	public void InsertInTable(Hashtable<String, Object> ColNameValue) throws DBAppException {
+	public String InsertInTable(Hashtable<String, Object> ColNameValue) throws DBAppException {
 		Object CK = ColNameValue.get(this.CKName);
+		String resultFilePath = "";
+		boolean isInserted = true;
 		if (TablePages.size() == 0)
-			CreateAddNewPage(ColNameValue);
+			resultFilePath = CreateAddNewPage(ColNameValue);
 		else if (TablePages.size() > 0) {
 			for (int i = 0; i < TablePages.size(); i++) {
 				int Pid = TablePages.get(i);
@@ -150,11 +153,14 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 					InstPg = LoadPage(this.PageFilePath.get(Pid));
 					PgInstRes = InstPg.InsertToPage(this.CKName, ColNameValue);
 					UpTblData(InstPg);
-					OverflowSolver(PgInstRes);
+					if (!ColNameValue.equals(PgInstRes))
+						isInserted = false;
+					resultFilePath = InstPg.getFilePath();
+					OverflowSolver(PgInstRes, resultFilePath);
 					InstPg = null;
 					break;
 				} else if (C.compare(CK, PageMaxVal) > 0 && IsPgF && IsLastPg) {
-					CreateAddNewPage(ColNameValue);
+					resultFilePath = CreateAddNewPage(ColNameValue);
 					break;
 				} else if (C.compare(CK, PageMaxVal) > 0 && IsPgF && !IsLastPg) {
 					continue;
@@ -162,7 +168,10 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 					InstPg = LoadPage(this.PageFilePath.get(Pid));
 					PgInstRes = InstPg.InsertToPage(this.CKName, ColNameValue);
 					UpTblData(InstPg);
-					OverflowSolver(PgInstRes);
+					if (!ColNameValue.equals(PgInstRes))
+						isInserted = false;
+					resultFilePath = InstPg.getFilePath();
+					OverflowSolver(PgInstRes, resultFilePath);
 					InstPg = null;
 					break;
 				} else if (C.compare(CK, PageMaxVal) > 0 && !IsPgF && !IsLastPg) {
@@ -172,7 +181,10 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 						InstPg = LoadPage(this.PageFilePath.get(Pid));
 						PgInstRes = InstPg.InsertToPage(this.CKName, ColNameValue);
 						UpTblData(InstPg);
-						OverflowSolver(PgInstRes);
+						if (!ColNameValue.equals(PgInstRes))
+							isInserted = false;
+						resultFilePath = InstPg.getFilePath();
+						OverflowSolver(PgInstRes, resultFilePath);
 						InstPg = null;
 						break;
 					} else
@@ -181,16 +193,37 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 					throw new DBAppException("Can not accept duplicate primary keys");
 			}
 		}
+		if (isInserted)
+			insertInOctree(ColNameValue, resultFilePath);
+		return resultFilePath;
 	}
 
-	private void CreateAddNewPage(Hashtable<String, Object> ColNameValue) throws DBAppException {
+	private void insertInOctree(Hashtable<String, Object> tuple, String FilePath) throws DBAppException { // test it
+		Hashtable<String, Object> insertTuple = new Hashtable<String, Object>();
+		for (OctreeDescription od : octrees) {
+			for (String attribute : od.getAttributes()) {
+				Object value = tuple.get(attribute);
+				if (value != null)
+					insertTuple.put(attribute, value);
+			}
+			Octree oct = this.LoadOctree(od.getFilePath());
+			Element insertelememt = oct.new Element(insertTuple, FilePath);
+			oct.insert(insertelememt);
+			oct.UnLoadTree();
+			oct = null;
+		}
+	}
+
+	private String CreateAddNewPage(Hashtable<String, Object> ColNameValue) throws DBAppException {
 		Page CreatedPage = new Page(PageIdInc, this.TblName);
 		TablePages.add(CreatedPage.getPageId());
 		this.PageFilePath.put(CreatedPage.getPageId(), CreatedPage.getFilePath());
 		CreatedPage.InsertToPage(CKName, ColNameValue);
 		UpTblData(CreatedPage);
+		String pageFilePath = CreatedPage.getFilePath();
 		CreatedPage = null;
 		PageIdInc++;
+		return pageFilePath;
 	}
 
 	private void UpTblData(Page Pg) throws DBAppException {
@@ -201,7 +234,17 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		Pg = null;
 	}
 
-	private void OverFlowSolverOctree(Hashtable<String, Object> tuple, String oldFilePath, String newFilePath) throws DBAppException {
+	private void OverflowSolver(Hashtable<String, Object> PgInstRes, String oldFilePath) throws DBAppException {
+		if (PgInstRes == null)
+			return;
+		else {
+			String newFilePath = InsertInTable(PgInstRes);
+			OverFlowSolverOctree(PgInstRes, oldFilePath, newFilePath);
+		}
+	}
+
+	private void OverFlowSolverOctree(Hashtable<String, Object> tuple, String oldFilePath, String newFilePath)
+			throws DBAppException {
 		if (tuple == null)
 			return;
 		Hashtable<String, Object> searchTuple = new Hashtable<String, Object>();
@@ -211,18 +254,11 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 				if (value != null)
 					searchTuple.put(attribute, value);
 			}
-			Octree oct=this.LoadOctree(od.getFilePath());
+			Octree oct = this.LoadOctree(od.getFilePath());
 			oct.updatePageRef(searchTuple, oldFilePath, newFilePath);
 			oct.UnLoadTree();
-			oct=null;
+			oct = null;
 		}
-	}
-
-	private void OverflowSolver(Hashtable<String, Object> PgInstRes) throws DBAppException {
-		if (PgInstRes == null)
-			return;
-		else
-			InsertInTable(PgInstRes);
 	}
 
 	private RowAddress SearchByCk(Object CkValObj) throws DBAppException {
@@ -274,7 +310,8 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 				return;
 			int PgId = RowAdrs.getPageId();
 			Page DelPg = LoadPage(PageFilePath.get(PgId));
-			DelPg.DelRows(ColNameVal, CKName, RowAdrs.getRowIndex());
+			Vector<Hashtable<String, Object>> deletedRows = DelPg.DelRows(ColNameVal, CKName, RowAdrs.getRowIndex());
+			deleteFromOctree(deletedRows, DelPg.getFilePath());
 			if (DelPg.IsEmpty()) {
 				TablePages.remove(PgId);
 				MaxPage.remove(PgId);
@@ -291,7 +328,8 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 			for (int Index = 0; Index < TablePages.size(); Index++) {
 				int PgId = TablePages.get(Index);
 				Page DelPg = LoadPage(PageFilePath.get(PgId));
-				DelPg.DelRows(ColNameVal, CKName);
+				Vector<Hashtable<String, Object>> deletedRows = DelPg.DelRows(ColNameVal, CKName);
+				deleteFromOctree(deletedRows, DelPg.getFilePath());
 				if (DelPg.IsEmpty()) {
 					TablePages.remove(Index--);
 					MaxPage.remove(PgId);
@@ -304,6 +342,24 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 					UpTblData(DelPg);
 					DelPg = null;
 				}
+			}
+		}
+	}
+
+	private void deleteFromOctree(Vector<Hashtable<String, Object>> deletedRows, String filePath)
+			throws DBAppException {
+		for (Hashtable<String, Object> tuple : deletedRows) {
+			Hashtable<String, Object> deleteTuple = new Hashtable<String, Object>();
+			for (OctreeDescription od : octrees) {
+				for (String attribute : od.getAttributes()) {
+					Object value = tuple.get(attribute);
+					if (value != null)
+						deleteTuple.put(attribute, value);
+				}
+				Octree oct = this.LoadOctree(od.getFilePath());
+				oct.delete(deleteTuple, filePath);
+				oct.UnLoadTree();
+				oct = null;
 			}
 		}
 	}

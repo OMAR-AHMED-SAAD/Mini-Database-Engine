@@ -25,7 +25,8 @@ public class tester2 {
 		System.out.println(getBestMatch(ss));
 		long end=System.currentTimeMillis();
 		System.out.println(end-st);
-	
+	Object o=new Object();
+		System.out.println(o.equals(null));
 	}
 
 	public static Vector<OctreeDescription> getMatchingInex(String[] columns) {

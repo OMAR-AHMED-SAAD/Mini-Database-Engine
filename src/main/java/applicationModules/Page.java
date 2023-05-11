@@ -121,8 +121,9 @@ public class Page implements Serializable, ComparatorI {
 		ColNameVal.forEach((key, value) -> VecPage.get(index).put(key, value));
 	}
 
-	public void DelRows(Hashtable<String, Object> ColNameVal, String CKName) throws DBAppException {
-
+	public Vector<Hashtable<String, Object>> DelRows(Hashtable<String, Object> ColNameVal, String CKName)
+			throws DBAppException {
+		Vector<Hashtable<String, Object>> deletedRows = new Vector<Hashtable<String, Object>>();
 		for (int Index = 0; Index < VecPage.size(); Index++) {
 			boolean flag = true;
 			Enumeration<String> ColNameValKeys = ColNameVal.keys();
@@ -133,6 +134,7 @@ public class Page implements Serializable, ComparatorI {
 					flag = false;
 			}
 			if (flag) {
+				deletedRows.add(VecPage.get(Index));
 				VecPage.remove(Index--);
 				CurrRowCount--;
 			}
@@ -142,9 +144,12 @@ public class Page implements Serializable, ComparatorI {
 			CurrMax = VecPage.elementAt(CurrRowCount - 1).get(CKName);
 			CurrMin = VecPage.elementAt(0).get(CKName);
 		}
+		return deletedRows;
 	}
 
-	public void DelRows(Hashtable<String, Object> ColNameVal, String CKName, int rowIndex) throws DBAppException {
+	public Vector<Hashtable<String, Object>> DelRows(Hashtable<String, Object> ColNameVal, String CKName, int rowIndex)
+			throws DBAppException {
+		Vector<Hashtable<String, Object>> deletedRows = new Vector<Hashtable<String, Object>>();
 		boolean flag = true;
 		Enumeration<String> ColNameValKeys = ColNameVal.keys();
 		while (ColNameValKeys.hasMoreElements()) {
@@ -154,6 +159,7 @@ public class Page implements Serializable, ComparatorI {
 				flag = false;
 		}
 		if (flag) {
+			deletedRows.add(VecPage.get(rowIndex));
 			VecPage.remove(rowIndex);
 			CurrRowCount--;
 		}
@@ -161,6 +167,7 @@ public class Page implements Serializable, ComparatorI {
 			CurrMax = VecPage.elementAt(CurrRowCount - 1).get(CKName);
 			CurrMin = VecPage.elementAt(0).get(CKName);
 		}
+		return deletedRows;
 	}
 
 	public Vector<Hashtable<String, Object>> getVecPage() {
