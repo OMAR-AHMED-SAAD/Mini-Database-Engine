@@ -117,8 +117,12 @@ public class Page implements Serializable, ComparatorI {
 		return -1;
 	}
 
-	public void UpdtRow(int index, Hashtable<String, Object> ColNameVal) {
+	public Vector<Hashtable<String, Object>> UpdtRow(int index, Hashtable<String, Object> ColNameVal) {
+		Vector<Hashtable<String, Object>> oldAndNewValues=new Vector<Hashtable<String, Object>>();
+		oldAndNewValues.add(VecPage.get(index));
 		ColNameVal.forEach((key, value) -> VecPage.get(index).put(key, value));
+		oldAndNewValues.add(VecPage.get(index));
+		return oldAndNewValues;
 	}
 
 	public Vector<Hashtable<String, Object>> DelRows(Hashtable<String, Object> ColNameVal, String CKName)

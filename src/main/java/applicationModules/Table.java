@@ -9,6 +9,7 @@ import java.io.FileWriter;
 import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -198,9 +199,10 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		return resultFilePath;
 	}
 
-	private void insertInOctree(Hashtable<String, Object> tuple, String FilePath) throws DBAppException { // test it
-		Hashtable<String, Object> insertTuple = new Hashtable<String, Object>();
+	private void insertInOctree(Hashtable<String, Object> tuple, String FilePath) throws DBAppException { // needs
+																											// testing
 		for (OctreeDescription od : octrees) {
+			Hashtable<String, Object> insertTuple = new Hashtable<String, Object>();
 			for (String attribute : od.getAttributes()) {
 				Object value = tuple.get(attribute);
 				if (value != null)
@@ -243,12 +245,13 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		}
 	}
 
+//needs testing
 	private void OverFlowSolverOctree(Hashtable<String, Object> tuple, String oldFilePath, String newFilePath)
 			throws DBAppException {
 		if (tuple == null)
 			return;
-		Hashtable<String, Object> searchTuple = new Hashtable<String, Object>();
 		for (OctreeDescription od : octrees) {
+			Hashtable<String, Object> searchTuple = new Hashtable<String, Object>();
 			for (String attribute : od.getAttributes()) {
 				Object value = tuple.get(attribute);
 				if (value != null)
@@ -261,7 +264,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		}
 	}
 
-	private RowAddress SearchByCk(Object CkValObj) throws DBAppException {
+	private RowAddress SearchByCkWithoutIndex(Object CkValObj) throws DBAppException {
 		Boolean IsPgFound = false;
 		int PgId = 0;
 		int Min = 0;
@@ -292,26 +295,105 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 				return new RowAddress(PgId, RowId);
 		}
 	}
-
+	// need to test later on
+	private RowAddress SearchByCkWithIndex(Object CkValObj) throws DBAppException {
+		Boolean IsPgFound = false;
+		Octree oct = this.LoadOctree(getBestMatch(new String[] { CKName }).getFilePath());
+		Hashtable<String, Object> serachHtbl = new Hashtable<String, Object>();
+		serachHtbl.put(CKName, CkValObj);
+		ArrayList<String> pages = oct.search(serachHtbl);
+		if (pages.size() != 0)
+			IsPgFound = true;
+		oct.UnLoadTree();
+		oct = null;
+		if (!IsPgFound)
+			return null;
+		else {
+			Page page = LoadPage(pages.get(0));
+			int RowId = page.IsRowFound(CKName, CkValObj);
+			int PgId = page.getPageId();
+			page.UnLoadPage();
+			page = null;
+			if (RowId == -1)
+				return null;
+			else
+				return new RowAddress(PgId, RowId);
+		}
+	}
+	// need to test later on
 	public void UpdateTbl(String CKVal, Hashtable<String, Object> ColNameVal) throws DBAppException {
-		RowAddress RowAdrs = SearchByCk(V.tryParse(CKVal, ColumnNameType.get(CKName)));
-		if (RowAdrs == null)
-			return;
-		Page UpdatePg = LoadPage(PageFilePath.get(RowAdrs.getPageId()));
-		UpdatePg.UpdtRow(RowAdrs.getRowIndex(), ColNameVal);
-		UpdatePg.UnLoadPage();
-		UpdatePg = null;
+		Vector<OctreeDescription> existingOctrees = this.getMatchingIndex(new String[] { CKName });
+		if (existingOctrees.size() == 0)
+			updateWithoutIndex(CKVal, ColNameVal);
+		else
+			updateWithIndex(CKVal, ColNameVal);
 	}
 
+	private void updateWithoutIndex(String CKVal, Hashtable<String, Object> ColNameVal) throws DBAppException {
+		RowAddress RowAdrs = SearchByCkWithoutIndex(V.tryParse(CKVal, ColumnNameType.get(CKName)));
+		if (RowAdrs == null)
+			return;
+		Page updatePg = LoadPage(PageFilePath.get(RowAdrs.getPageId()));
+		Vector<Hashtable<String, Object>> oldAndNewValues = updatePg.UpdtRow(RowAdrs.getRowIndex(), ColNameVal);
+		updateOctrees(oldAndNewValues.firstElement(), oldAndNewValues.lastElement(), ColNameVal,
+				updatePg.getFilePath());
+		updatePg.UnLoadPage();
+		updatePg = null;
+	}
+	// need to test later on
+	private void updateWithIndex(String CKVal, Hashtable<String, Object> ColNameVal) throws DBAppException {
+		RowAddress RowAdrs = SearchByCkWithIndex(V.tryParse(CKVal, ColumnNameType.get(CKName)));
+		if (RowAdrs == null)
+			return;
+		Page updatePg = LoadPage(PageFilePath.get(RowAdrs.getPageId()));
+		Vector<Hashtable<String, Object>> oldAndNewValues = updatePg.UpdtRow(RowAdrs.getRowIndex(), ColNameVal);
+		updateOctrees(oldAndNewValues.firstElement(), oldAndNewValues.lastElement(), ColNameVal,
+				updatePg.getFilePath());
+		updatePg.UnLoadPage();
+		updatePg = null;
+	}
+	// need to test later on
+	private void updateOctrees(Hashtable<String, Object> oldTuple, Hashtable<String, Object> newTuple,
+			Hashtable<String, Object> updateValues, String pageFilePath) throws DBAppException {
+		Vector<OctreeDescription> updatedOctrees = this.getMatchingIndex((String[]) updateValues.keySet().toArray());
+		for (OctreeDescription od : updatedOctrees) {
+			Hashtable<String, Object> deleteTuple = new Hashtable<String, Object>();
+			Hashtable<String, Object> insertTuple = new Hashtable<String, Object>();
+			for (String attribute : od.getAttributes()) {
+				Object value = oldTuple.get(attribute);
+				if (value != null)
+					deleteTuple.put(attribute, value);
+				value = newTuple.get(attribute);
+				if (value != null)
+					insertTuple.put(attribute, value);
+			}
+			Octree oct = this.LoadOctree(od.getFilePath());
+			oct.delete(deleteTuple, pageFilePath);
+			Element insertelememt = oct.new Element(insertTuple, pageFilePath);
+			oct.insert(insertelememt);
+			oct.UnLoadTree();
+			oct = null;
+		}
+
+	}
+	// need to test later on
 	public void DelFromTbl(Hashtable<String, Object> ColNameVal) throws DBAppException {
+		Vector<OctreeDescription> existingOctrees = this.getMatchingIndex((String[]) ColNameVal.keySet().toArray());
+		if (existingOctrees.size() == 0)
+			deleteWithoutIndex(ColNameVal);
+		else
+			deleteWithIndex(ColNameVal);
+	}
+
+	private void deleteWithoutIndex(Hashtable<String, Object> ColNameVal) throws DBAppException {
 		if (ColNameVal.containsKey(CKName)) {
-			RowAddress RowAdrs = SearchByCk(ColNameVal.get(CKName));
+			RowAddress RowAdrs = SearchByCkWithoutIndex(ColNameVal.get(CKName));
 			if (RowAdrs == null)
 				return;
 			int PgId = RowAdrs.getPageId();
 			Page DelPg = LoadPage(PageFilePath.get(PgId));
 			Vector<Hashtable<String, Object>> deletedRows = DelPg.DelRows(ColNameVal, CKName, RowAdrs.getRowIndex());
-			deleteFromOctree(deletedRows, DelPg.getFilePath());
+			deleteFromOctrees(deletedRows, DelPg.getFilePath());
 			if (DelPg.IsEmpty()) {
 				TablePages.remove(PgId);
 				MaxPage.remove(PgId);
@@ -329,7 +411,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 				int PgId = TablePages.get(Index);
 				Page DelPg = LoadPage(PageFilePath.get(PgId));
 				Vector<Hashtable<String, Object>> deletedRows = DelPg.DelRows(ColNameVal, CKName);
-				deleteFromOctree(deletedRows, DelPg.getFilePath());
+				deleteFromOctrees(deletedRows, DelPg.getFilePath());
 				if (DelPg.IsEmpty()) {
 					TablePages.remove(Index--);
 					MaxPage.remove(PgId);
@@ -346,18 +428,73 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		}
 	}
 
-	private void deleteFromOctree(Vector<Hashtable<String, Object>> deletedRows, String filePath)
+	private void deleteWithIndex(Hashtable<String, Object> ColNameVal) throws DBAppException {
+		if (ColNameVal.containsKey(CKName) && getMatchingIndex(new String[] { CKName }) != null) {
+			RowAddress RowAdrs = SearchByCkWithIndex(ColNameVal.get(CKName));
+			if (RowAdrs == null)
+				return;
+			int PgId = RowAdrs.getPageId();
+			Page DelPg = LoadPage(PageFilePath.get(PgId));
+			Vector<Hashtable<String, Object>> deletedRows = DelPg.DelRows(ColNameVal, CKName, RowAdrs.getRowIndex());
+			deleteFromOctrees(deletedRows, DelPg.getFilePath());
+			if (DelPg.IsEmpty()) {
+				TablePages.remove(PgId);
+				MaxPage.remove(PgId);
+				MinPage.remove(PgId);
+				IsPgFull.remove(PgId);
+				new File(PageFilePath.get(PgId)).delete();
+				PageFilePath.remove(PgId);
+				DelPg = null;
+			} else {
+				UpTblData(DelPg);
+				DelPg = null;
+			}
+		} 
+		else {
+			OctreeDescription od =getBestMatch((String [])ColNameVal.keySet().toArray());
+			Octree oct = this.LoadOctree(od.getFilePath());
+			Hashtable<String, Object> searchTuple = new Hashtable<String, Object>();
+			for (String attribute : od.getAttributes()) {
+				Object value = ColNameVal.get(attribute);
+				if (value != null)
+					searchTuple.put(attribute, value);
+			}
+			ArrayList<String> filePaths=oct.search(searchTuple);
+			oct.UnLoadTree();
+			oct = null;
+			for (String pageFilePath:filePaths) {
+				Page DelPg = LoadPage(pageFilePath);
+				int PgId = DelPg.getPageId();
+				Vector<Hashtable<String, Object>> deletedRows = DelPg.DelRows(ColNameVal, CKName);
+				deleteFromOctrees(deletedRows, DelPg.getFilePath());
+				if (DelPg.IsEmpty()) {
+					TablePages.remove((Object)PgId);
+					MaxPage.remove(PgId);
+					MinPage.remove(PgId);
+					IsPgFull.remove(PgId);
+					new File(PageFilePath.get(PgId)).delete();
+					PageFilePath.remove(PgId);
+					DelPg = null;
+				} else {
+					UpTblData(DelPg);
+					DelPg = null;
+				}
+			}
+		}
+	}
+
+	private void deleteFromOctrees(Vector<Hashtable<String, Object>> deletedRows, String pageFilePath)
 			throws DBAppException {
 		for (Hashtable<String, Object> tuple : deletedRows) {
-			Hashtable<String, Object> deleteTuple = new Hashtable<String, Object>();
 			for (OctreeDescription od : octrees) {
+				Hashtable<String, Object> deleteTuple = new Hashtable<String, Object>();
 				for (String attribute : od.getAttributes()) {
 					Object value = tuple.get(attribute);
 					if (value != null)
 						deleteTuple.put(attribute, value);
 				}
 				Octree oct = this.LoadOctree(od.getFilePath());
-				oct.delete(deleteTuple, filePath);
+				oct.delete(deleteTuple, pageFilePath);
 				oct.UnLoadTree();
 				oct = null;
 			}
@@ -383,7 +520,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		this.updateMetaDataIndex(col0, col1, col2);
 	}
 
-	public Vector<OctreeDescription> getMatchingInex(String[] columns) {
+	private Vector<OctreeDescription> getMatchingIndex(String[] columns) {
 		Vector<OctreeDescription> result = new Vector<OctreeDescription>();
 		boolean flag = false;
 		for (OctreeDescription od : this.octrees)
@@ -402,7 +539,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		return result;
 	}
 
-	public OctreeDescription getBestMatch(String[] columns) {
+	private OctreeDescription getBestMatch(String[] columns) {
 		OctreeDescription bestMatch = null;
 		int maxCount = 0;
 		int count = 0;
