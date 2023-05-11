@@ -317,6 +317,14 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 	public Hashtable<Integer, String> getPageFilePath() {
 		return PageFilePath;
 	}
+	
+	public void createIndex (String [] columns ) {
+		
+		
+		
+		
+		
+	}
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -372,5 +380,6 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		}
 		return sb.toString();
 	}
+	
 
 }
