@@ -30,7 +30,7 @@ public class test implements ValidatorI {
 		maxValues.put("dob", V.tryParse("2000-12-31", htblColNameType.get("dob")));
 		maxValues.put("gpa", V.tryParse("5.0", htblColNameType.get("gpa")));
 
-		Octree o = new Octree("students2", "id", "dob", "gpa", maxValues, minValues);
+		Octree o = new Octree("students2", "id", "dob", "gpa", minValues,maxValues);
 		String FilePath = db.getCreatedTables().get("students");
 		Table table = db.LoadTable(FilePath);
 		table.ReadMetaData();

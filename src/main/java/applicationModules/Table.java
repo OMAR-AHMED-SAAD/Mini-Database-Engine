@@ -1,10 +1,13 @@
 package applicationModules;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.ObjectInputStream;
+import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -29,6 +32,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 	private transient Hashtable<String, String> ColumnNameMin;
 	private transient Hashtable<String, String> ColumnNameMax;
 	private Vector<String> creationOrder = new Vector<String>();
+	private Vector<OctreeDescription> Octrees = new Vector<OctreeDescription>();
 
 	public Table(String name) {
 		this.TblName = name;
@@ -47,7 +51,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		return RestoredPage;
 	}
 
-	public Octree LoadTree(String FilePath) {
+	public Octree LoadOctree(String FilePath) {
 		Octree RestoredOctree = null;
 		try {
 			ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(FilePath));
@@ -287,15 +291,119 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		}
 	}
 
-	public void validateCreateOctree(String[] strarrColName) {
+	public void createIndex(String[] columns) throws DBAppException {
+		String col0 = columns[0];
+		String col1 = columns[1];
+		String col2 = columns[2];
 
+		OctreeDescription od = new OctreeDescription(TblName, col0, col1, col2);
+		this.Octrees.add(od);
+		Hashtable<String, Object> min = new Hashtable<String, Object>();
+		Hashtable<String, Object> max = new Hashtable<String, Object>();
+		for (String s : columns) {
+			min.put(s, V.tryParse(ColumnNameMin.get(s), ColumnNameType.get(s)));
+			max.put(s, V.tryParse(ColumnNameMin.get(s), ColumnNameType.get(s)));
+		}
+		Octree o = new Octree(TblName, col0, col1, col2, min, max);
+		o.populate(this);
+		o.UnLoadTree();
+		this.updateMetaDataIndex(col0, col1, col2);
 	}
 
-	public void createOctree(String[] strarrColName) {
-		///create
-//		if( ! kjfjkffn.populate)
-//			delete octree and throw exception of update null values in table
-		
+	public Vector<OctreeDescription> getMatchingInex(String[] columns) {
+		Vector<OctreeDescription> result = new Vector<OctreeDescription>();
+		boolean flag = false;
+		for (OctreeDescription od : this.Octrees)
+			for (String existingAtt : od.attributes) {
+				for (String col : columns)
+					if (col.equalsIgnoreCase(existingAtt)) {
+						result.add(od);
+						flag = true;
+						break;
+					}
+				if (flag) {
+					flag = false;
+					break;
+				}
+			}
+		return result;
+	}
+
+	public OctreeDescription getBestMatch(String[] columns) {
+		OctreeDescription bestMatch = null;
+		int maxCount = 0;
+		int count = 0;
+		for (OctreeDescription od : Octrees) {
+			for (String existingAtt : od.attributes) {
+				for (String col : columns)
+					if (col.equalsIgnoreCase(existingAtt)) {
+						count++;
+					}
+			}
+			if (count > maxCount) {
+				maxCount = count;
+				bestMatch = od;
+			}
+			count = 0;
+		}
+		return bestMatch;
+	}
+
+	public void validateCreateIndex(String[] columns) throws DBAppException {
+		if (columns.length != 3)
+			throw new DBAppException("Cannot create octree for anyhing other than THREE!! columns");
+		String col0 = columns[0];
+		String col1 = columns[1];
+		String col2 = columns[2];
+		for (OctreeDescription octDesc : Octrees) {
+			String att0 = octDesc.attributes[0];
+			String att1 = octDesc.attributes[1];
+			String att2 = octDesc.attributes[2];
+			if (col0.equalsIgnoreCase(att0) || col0.equalsIgnoreCase(att1) || col0.equalsIgnoreCase(att2)
+					|| col1.equalsIgnoreCase(att0) || col1.equalsIgnoreCase(att1) || col1.equalsIgnoreCase(att2)
+					|| col2.equalsIgnoreCase(att0) || col2.equalsIgnoreCase(att1) || col2.equalsIgnoreCase(att2))
+				throw new DBAppException("Octree already exists for some column");
+		}
+		if (ColumnNameType.get(col0) == null || ColumnNameType.get(col1) == null || ColumnNameType.get(col2) == null)
+			throw new DBAppException("Cannot create octree for columns THAT DO NOT EXIST!!");
+	}
+
+	// need to test later on
+	public void updateMetaDataIndex(String col0, String col1, String col2) throws DBAppException {
+		String oldFilePath = "src/main/resources/metadata.csv";
+		String newFilePath = "src/main/resources/metadata2.csv";
+		try {
+			FileReader fileReader = new FileReader(oldFilePath);
+			BufferedReader bufferedreader = new BufferedReader(fileReader);
+			String line = bufferedreader.readLine();
+			FileWriter fw = new FileWriter(newFilePath, true);
+			BufferedWriter bw = new BufferedWriter(fw);
+			PrintWriter pw = new PrintWriter(bw);
+			while (line != null) {
+				String[] content = line.split(",");
+				if (content[0].equalsIgnoreCase(TblName) && (col0.equalsIgnoreCase(content[1])
+						|| col1.equalsIgnoreCase(content[1]) || col2.equalsIgnoreCase(content[1]))) {
+					content[4] = col0 + col1 + col2 + "index";
+					content[5] = "Octree";
+					StringBuffer sb = new StringBuffer();
+					for (String s : content)
+						sb.append(s).append(",");
+					sb.deleteCharAt(sb.length());
+					line = sb.toString();
+				}
+				pw.println(line);
+				line = bufferedreader.readLine();
+			}
+			bufferedreader.close();
+			pw.flush();
+			pw.close();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			throw new DBAppException();
+		}
+
+		new File(oldFilePath).delete();
+		new File(newFilePath).renameTo(new File(oldFilePath));
 	}
 
 	public Hashtable<String, String> getColumnNameType() {
@@ -316,14 +424,6 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 
 	public Hashtable<Integer, String> getPageFilePath() {
 		return PageFilePath;
-	}
-	
-	public void createIndex (String [] columns ) {
-		
-		
-		
-		
-		
 	}
 
 	public String toString() {
@@ -380,6 +480,5 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		}
 		return sb.toString();
 	}
-	
 
 }

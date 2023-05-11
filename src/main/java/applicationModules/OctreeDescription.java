@@ -10,7 +10,7 @@ import exceptions.DBAppException;
 public class OctreeDescription {
 	
 	private String FilePath;
-	private String[] attributes;
+	public String[] attributes; //ghayarha
 
 	
 	
@@ -22,15 +22,10 @@ public class OctreeDescription {
 		FilePath = "src/main/resources/Indices/" + tblName + A1 + A2 + A3 + ".bin";
 		
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	public String toString() {
+		StringBuffer sb=new StringBuffer();
+		sb.append("{").append(attributes[0]+",").append(attributes[1]+",").append(attributes[2]).append("}");
+		return sb.toString();
+	}
 	
 }

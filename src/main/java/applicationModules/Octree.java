@@ -23,8 +23,8 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 	private String[] attributes;
 	private int maxElements;
 
-	public Octree(String tblName, String A1, String A2, String A3, Hashtable<String, Object> max,
-			Hashtable<String, Object> min) throws DBAppException {
+	public Octree(String tblName, String A1, String A2, String A3, Hashtable<String, Object> min,
+			Hashtable<String, Object> max) throws DBAppException {
 		attributes = new String[3];
 		attributes[0] = A1;
 		attributes[1] = A2;
@@ -101,7 +101,8 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 						element.htblAttributes.get(attributes[1]));
 				int comparison3 = C.compareWNull(existingElement.htblAttributes.get(attributes[2]),
 						element.htblAttributes.get(attributes[2]));
-				if (comparison1 == 0 || comparison2 == 0 || comparison3 == 0) { //change to and if we don't want to support null values
+				if (comparison1 == 0 || comparison2 == 0 || comparison3 == 0) { // change to and if we don't want to
+																				// support null values
 					vec.add(element);
 					inserted = true;
 					return true;
@@ -164,8 +165,8 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 
 		return flag;
 	}
-	
-	//searches for all elements that matches & matches on null
+
+	// searches for all elements that matches & matches on null
 	public ArrayList<String> search(Hashtable<String, Object> tuple) throws DBAppException {
 		ArrayList<String> pagePaths = new ArrayList<>();
 		searchHelper(root, tuple, pagePaths);
@@ -204,9 +205,10 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 
 		return flag;
 	}
-	//deletes one element & matches on null
+
+	// deletes one element & matches on null
 	public void delete(Hashtable<String, Object> tuple, String filePath) throws DBAppException {
-		deleteHelper(root,tuple,filePath);
+		deleteHelper(root, tuple, filePath);
 	}
 
 	private void deleteHelper(Node node, Hashtable<String, Object> tuple, String filePath) throws DBAppException {
@@ -219,7 +221,7 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 							node.elements.remove(vec);
 						return;
 					}
-		}else {
+		} else {
 			for (Node child : node.children)
 				if (isRightNode(child, tuple)) {
 					deleteHelper(child, tuple, filePath);
@@ -228,20 +230,23 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 				}
 		}
 	}
+
 	// updates one element & matches null
-	public void updatePageRef(Hashtable<String, Object> tuple, String oldFilePath, String newFilePath) throws DBAppException {
-		updtPgRef(root,tuple, oldFilePath, newFilePath);
+	public void updatePageRef(Hashtable<String, Object> tuple, String oldFilePath, String newFilePath)
+			throws DBAppException {
+		updtPgRef(root, tuple, oldFilePath, newFilePath);
 	}
-	
-	private void updtPgRef(Node node,Hashtable<String, Object> tuple, String oldFilePath, String newFilePath) throws DBAppException {
+
+	private void updtPgRef(Node node, Hashtable<String, Object> tuple, String oldFilePath, String newFilePath)
+			throws DBAppException {
 		if (node.children == null) {
 			for (Vector<Element> vec : node.elements)
 				for (Element element : vec)
 					if (isRightElement(element, tuple) && element.pointer.equals(oldFilePath)) {
-						element.pointer=newFilePath;
+						element.pointer = newFilePath;
 						return;
 					}
-		}else {
+		} else {
 			for (Node child : node.children)
 				if (isRightNode(child, tuple)) {
 					updtPgRef(child, tuple, oldFilePath, newFilePath);
@@ -252,10 +257,9 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 	}
 
 	public String toString() {
-		
-		return root.toString(0)
-				+"\n"+ Element.count;//delete
-		
+
+		return root.toString(0) + "\n" + Element.count;// delete
+
 	}
 
 	public class Node implements Serializable {
@@ -316,23 +320,24 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 			}
 			return sb.toString();
 		}
+
 		public String toString() {
-			StringBuffer sb=new StringBuffer();
-			//sb.append("max"+getMax()).append("\n").append("min"+getMin());
-			//sb.append("\n");
-			if(this.elements!=null)
-			{
-			for(Vector<Element> vec:elements) {
-				for(Element e:vec) {
-				sb.append(e).append(" ");
-						sb.append("\n");}
+			StringBuffer sb = new StringBuffer();
+			// sb.append("max"+getMax()).append("\n").append("min"+getMin());
+			// sb.append("\n");
+			if (this.elements != null) {
+				for (Vector<Element> vec : elements) {
+					for (Element e : vec) {
+						sb.append(e).append(" ");
+						sb.append("\n");
+					}
+				}
 			}
-			}
-			if(this.children!=null) {
-				for(Node c:children)
+			if (this.children != null) {
+				for (Node c : children)
 					sb.append(c.toString());
 			}
-			
+
 			return sb.toString();
 		}
 
@@ -369,7 +374,8 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 		private static final long serialVersionUID = 1L;
 		Hashtable<String, Object> htblAttributes = new Hashtable<String, Object>();
 		String pointer;
-		static int count=0;//delete
+		static int count = 0;// delete
+
 		public Element(Hashtable<String, Object> att, String filePath) {
 			Enumeration<String> keys = att.keys();
 			while (keys.hasMoreElements()) {
@@ -380,7 +386,7 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 		}
 
 		public String toString() {
-			count++;//delete
+			count++;// delete
 			Object att1 = htblAttributes.get(attributes[0]);
 			Object att2 = htblAttributes.get(attributes[1]);
 			Object att3 = htblAttributes.get(attributes[2]);
@@ -392,7 +398,7 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 				att3 = new SimpleDateFormat("yyyy-MM-dd").format(att3);
 
 			return "Element{" + "att1=" + att1 + ", att2=" + att2 + ", att3=" + att3 + ", ptr='" + pointer.substring(25)
-					+ '\'' +'}';
+					+ '\'' + '}';
 		}
 	}
 }

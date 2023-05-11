@@ -167,7 +167,18 @@ public class DBApp implements ValidatorI {
 	}
 
 	public void createIndex(String strTableName, String[] strarrColName) throws DBAppException {
-
+		strTableName = strTableName.toLowerCase();
+		for(String s : strarrColName)
+			s.toLowerCase();
+		if (CreatedTables.get(strTableName) == null)
+			throw new DBAppException(strTableName + " does not exists");
+		String FilePath = CreatedTables.get(strTableName);
+		Table Table = LoadTable(FilePath);
+		Table.ReadMetaData();
+		Table.validateCreateIndex(strarrColName);
+		Table.createIndex(strarrColName);
+		UnLoadTable(Table, FilePath);
+		Table = null;
 	}
 
 	public void insertIntoTable(String strTableName, Hashtable<String, Object> htblColNameValue) throws DBAppException {
