@@ -31,7 +31,7 @@ public class Page implements Serializable, ComparatorI {
 	public Page(int id, String TblName) throws DBAppException {
 		PageId = id;
 		this.TblName = TblName;
-		FilePath = "src/main/DBFiles/Pages/" + this.TblName + "Page" + this.PageId + ".bin";
+		FilePath = "src/main/resources/Pages/" + this.TblName + "Page" + this.PageId + ".bin";
 		CurrRowCount = 0;
 		Properties Prop = new Properties();
 		try {

@@ -31,7 +31,7 @@ public class DBApp implements ValidatorI {
 
 	@SuppressWarnings("unchecked")
 	public void ReadCreatedTables() throws DBAppException {
-		String FilePath = "src/main/DBFiles/CreatedTables.bin";
+		String FilePath = "src/main/resources/CreatedTables.bin";
 		try {
 			ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(FilePath));
 			CreatedTables = (Hashtable<String, String>) objectInputStream.readObject();
@@ -47,7 +47,7 @@ public class DBApp implements ValidatorI {
 	}
 
 	public void WriteCreatedTables() throws DBAppException {
-		String FilePath = "src/main/DBFiles/CreatedTables.bin";
+		String FilePath = "src/main/resources/CreatedTables.bin";
 		try {
 			ObjectOutputStream ObjectOutputStream = new ObjectOutputStream(new FileOutputStream(FilePath));
 			ObjectOutputStream.writeObject(CreatedTables);
@@ -73,7 +73,7 @@ public class DBApp implements ValidatorI {
 			ValidateMetaData(htblColNameType, htblColNameMin, htblColNameMax);
 			AddMetaData(strTableName, strClusteringKeyColumn, htblColNameType, htblColNameMin, htblColNameMax);
 			Table newTable = new Table(strTableName);
-			String FilePath = "src/main/DBFiles/Tables/" + strTableName + ".bin";
+			String FilePath = "src/main/resources/Tables/" + strTableName + ".bin";
 			CreatedTables.put(strTableName, FilePath);
 			WriteCreatedTables();
 			UnLoadTable(newTable, FilePath);

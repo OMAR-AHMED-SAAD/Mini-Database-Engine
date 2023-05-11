@@ -31,7 +31,7 @@ public class test implements ValidatorI {
 		maxValues.put("gpa", V.tryParse("5.0", htblColNameType.get("gpa")));
 
 		Octree o = new Octree("students2", "id", "dob", "gpa", maxValues, minValues);
-		String FilePath = db.getCreatedTables().get("students2");
+		String FilePath = db.getCreatedTables().get("students");
 		Table table = db.LoadTable(FilePath);
 		table.ReadMetaData();
 		Hashtable<String, Object> row = new Hashtable<>();
@@ -52,11 +52,14 @@ public class test implements ValidatorI {
 //		tuple.put("dob", new Date(1994 - 1900, 12 - 1, 18));
 //		tuple.put("gpa", new Double(2.54));
 //		o.delete(o, tuple, "src/main/DBFiles/Pages/students2Page32.bin");
-		
-		o.updatePageRef(tuple, "src/main/DBFiles/Pages/students2Page32.bin", "src/main/DBFiles/Pages/ashdbjasb.bin");
-//		System.out.println(o.search(tuple));
 
+		// o.updatePageRef(tuple, "src/main/DBFiles/Pages/students2Page32.bin",
+		// "src/main/DBFiles/Pages/ashdbjasb.bin");
+//		System.out.println(o.search(tuple));
+		long x = System.currentTimeMillis();
 		System.out.println(o);
+		long y = System.currentTimeMillis();
+		System.out.println(y - x);
 	}
 
 //	public static void main(String[] args) throws DBAppException, IOException {
@@ -85,7 +88,7 @@ public class test implements ValidatorI {
 //	        maxValues.put("dob", "2000-12-31");
 //	        maxValues.put("gpa", "5.0");
 //
-//	       // db.createTable(tableName, "id", htblColNameType, minValues, maxValues);
+//	       db.createTable(tableName, "id", htblColNameType, minValues, maxValues);
 //        
 //	        BufferedReader studentsTable = new BufferedReader(new FileReader("src/main/resources/students_table 2.csv"));
 //	        String record;

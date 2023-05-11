@@ -22,7 +22,6 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 	private String FilePath;
 	private String[] attributes;
 	private int maxElements;
-	static int count=0;//delete
 
 	public Octree(String tblName, String A1, String A2, String A3, Hashtable<String, Object> max,
 			Hashtable<String, Object> min) throws DBAppException {
@@ -30,7 +29,7 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 		attributes[0] = A1;
 		attributes[1] = A2;
 		attributes[2] = A3;
-		FilePath = "src/main/DBFiles/Indices/" + tblName + A1 + A2 + A3 + ".bin";
+		FilePath = "src/main/resources/Indices/" + tblName + A1 + A2 + A3 + ".bin";
 		root = new Node(max, min);
 		Properties Prop = new Properties();
 		try {
@@ -102,10 +101,10 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 						element.htblAttributes.get(attributes[1]));
 				int comparison3 = C.compareWNull(existingElement.htblAttributes.get(attributes[2]),
 						element.htblAttributes.get(attributes[2]));
-				if (comparison1 == 0 || comparison2 == 0 || comparison3 == 0) {
+				if (comparison1 == 0 || comparison2 == 0 || comparison3 == 0) { //change to and if we don't want to support null values
 					vec.add(element);
 					inserted = true;
-					break;
+					return true;
 				}
 			}
 		}
@@ -255,7 +254,7 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 	public String toString() {
 		
 		return root.toString(0)
-				+"\n"+ count;//delete
+				+"\n"+ Element.count;//delete
 		
 	}
 
@@ -317,6 +316,25 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 			}
 			return sb.toString();
 		}
+		public String toString() {
+			StringBuffer sb=new StringBuffer();
+			//sb.append("max"+getMax()).append("\n").append("min"+getMin());
+			//sb.append("\n");
+			if(this.elements!=null)
+			{
+			for(Vector<Element> vec:elements) {
+				for(Element e:vec) {
+				sb.append(e).append(" ");
+						sb.append("\n");}
+			}
+			}
+			if(this.children!=null) {
+				for(Node c:children)
+					sb.append(c.toString());
+			}
+			
+			return sb.toString();
+		}
 
 		public String getMax() {
 			StringBuilder sb = new StringBuilder();
@@ -351,7 +369,7 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 		private static final long serialVersionUID = 1L;
 		Hashtable<String, Object> htblAttributes = new Hashtable<String, Object>();
 		String pointer;
-
+		static int count=0;//delete
 		public Element(Hashtable<String, Object> att, String filePath) {
 			Enumeration<String> keys = att.keys();
 			while (keys.hasMoreElements()) {
@@ -373,8 +391,8 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 			if (att3 instanceof Date)
 				att3 = new SimpleDateFormat("yyyy-MM-dd").format(att3);
 
-			return "Element{" + "att1=" + att1 + ", att2=" + att2 + ", att3=" + att3 + ", ptr='" + pointer.substring(23)
-					+ '\'' + '}';
+			return "Element{" + "att1=" + att1 + ", att2=" + att2 + ", att3=" + att3 + ", ptr='" + pointer.substring(25)
+					+ '\'' +'}';
 		}
 	}
 }
