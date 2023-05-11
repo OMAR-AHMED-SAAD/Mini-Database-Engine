@@ -32,7 +32,7 @@ public class tester2 {
 		Vector<OctreeDescription> result = new Vector<OctreeDescription>();
 		boolean flag = false;
 		for (OctreeDescription od : Octrees)
-			for (String existingAtt : od.attributes) {
+			for (String existingAtt : od.getAttributes()) {
 				for (String col : columns)
 					if (col.equalsIgnoreCase(existingAtt)) {
 						result.add(od);
@@ -52,7 +52,7 @@ public class tester2 {
 		int maxCount = 0;
 		int count = 0;
 		for (OctreeDescription od : Octrees) {
-			for (String existingAtt : od.attributes) {
+			for (String existingAtt : od.getAttributes()) {
 				for (String col : columns)
 					if (col.equalsIgnoreCase(existingAtt)) {
 						count++;

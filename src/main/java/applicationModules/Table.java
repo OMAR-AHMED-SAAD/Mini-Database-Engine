@@ -32,7 +32,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 	private transient Hashtable<String, String> ColumnNameMin;
 	private transient Hashtable<String, String> ColumnNameMax;
 	private Vector<String> creationOrder = new Vector<String>();
-	private Vector<OctreeDescription> Octrees = new Vector<OctreeDescription>();
+	private Vector<OctreeDescription> octrees = new Vector<OctreeDescription>();
 
 	public Table(String name) {
 		this.TblName = name;
@@ -201,6 +201,23 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		Pg = null;
 	}
 
+	private void OverFlowSolverOctree(Hashtable<String, Object> tuple, String oldFilePath, String newFilePath) throws DBAppException {
+		if (tuple == null)
+			return;
+		Hashtable<String, Object> searchTuple = new Hashtable<String, Object>();
+		for (OctreeDescription od : octrees) {
+			for (String attribute : od.getAttributes()) {
+				Object value = tuple.get(attribute);
+				if (value != null)
+					searchTuple.put(attribute, value);
+			}
+			Octree oct=this.LoadOctree(od.getFilePath());
+			oct.updatePageRef(searchTuple, oldFilePath, newFilePath);
+			oct.UnLoadTree();
+			oct=null;
+		}
+	}
+
 	private void OverflowSolver(Hashtable<String, Object> PgInstRes) throws DBAppException {
 		if (PgInstRes == null)
 			return;
@@ -297,7 +314,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		String col2 = columns[2];
 
 		OctreeDescription od = new OctreeDescription(TblName, col0, col1, col2);
-		this.Octrees.add(od);
+		this.octrees.add(od);
 		Hashtable<String, Object> min = new Hashtable<String, Object>();
 		Hashtable<String, Object> max = new Hashtable<String, Object>();
 		for (String s : columns) {
@@ -313,8 +330,8 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 	public Vector<OctreeDescription> getMatchingInex(String[] columns) {
 		Vector<OctreeDescription> result = new Vector<OctreeDescription>();
 		boolean flag = false;
-		for (OctreeDescription od : this.Octrees)
-			for (String existingAtt : od.attributes) {
+		for (OctreeDescription od : this.octrees)
+			for (String existingAtt : od.getAttributes()) {
 				for (String col : columns)
 					if (col.equalsIgnoreCase(existingAtt)) {
 						result.add(od);
@@ -333,8 +350,8 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		OctreeDescription bestMatch = null;
 		int maxCount = 0;
 		int count = 0;
-		for (OctreeDescription od : Octrees) {
-			for (String existingAtt : od.attributes) {
+		for (OctreeDescription od : octrees) {
+			for (String existingAtt : od.getAttributes()) {
 				for (String col : columns)
 					if (col.equalsIgnoreCase(existingAtt)) {
 						count++;
@@ -355,10 +372,10 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		String col0 = columns[0];
 		String col1 = columns[1];
 		String col2 = columns[2];
-		for (OctreeDescription octDesc : Octrees) {
-			String att0 = octDesc.attributes[0];
-			String att1 = octDesc.attributes[1];
-			String att2 = octDesc.attributes[2];
+		for (OctreeDescription octDesc : octrees) {
+			String att0 = octDesc.getAttributes()[0];
+			String att1 = octDesc.getAttributes()[1];
+			String att2 = octDesc.getAttributes()[2];
 			if (col0.equalsIgnoreCase(att0) || col0.equalsIgnoreCase(att1) || col0.equalsIgnoreCase(att2)
 					|| col1.equalsIgnoreCase(att0) || col1.equalsIgnoreCase(att1) || col1.equalsIgnoreCase(att2)
 					|| col2.equalsIgnoreCase(att0) || col2.equalsIgnoreCase(att1) || col2.equalsIgnoreCase(att2))
