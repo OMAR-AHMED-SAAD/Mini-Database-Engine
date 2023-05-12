@@ -1,16 +1,12 @@
 package applicationModules;
 
-import java.io.FileInputStream;
-import java.util.Hashtable;
-import java.util.Properties;
+import java.io.Serializable;
 
-import applicationModules.Octree.Node;
-import exceptions.DBAppException;
 
-public class OctreeDescription {
-	
+public class OctreeDescription implements Serializable {
+	private static final long serialVersionUID = 1L;
 	private String FilePath;
-	private String[] attributes; //ghayarha
+	private String[] attributes;
 
 	
 	

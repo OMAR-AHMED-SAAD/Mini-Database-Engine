@@ -42,7 +42,7 @@ public class DBApp implements ValidatorI {
 			WriteCreatedTables();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			throw new DBAppException();
+			throw new DBAppException(e.getMessage());
 		}
 	}
 
@@ -53,7 +53,7 @@ public class DBApp implements ValidatorI {
 			ObjectOutputStream.writeObject(CreatedTables);
 			ObjectOutputStream.close();
 		} catch (Exception e) {
-			throw new DBAppException();
+			throw new DBAppException(e.getMessage());
 		}
 	}
 
@@ -73,6 +73,8 @@ public class DBApp implements ValidatorI {
 			ValidateMetaData(htblColNameType, htblColNameMin, htblColNameMax);
 			AddMetaData(strTableName, strClusteringKeyColumn, htblColNameType, htblColNameMin, htblColNameMax);
 			Table newTable = new Table(strTableName);
+			for (String col : htblColNameType.keySet())
+				newTable.getCreationOrder().add(col);
 			String FilePath = "src/main/resources/Tables/" + strTableName + ".bin";
 			CreatedTables.put(strTableName, FilePath);
 			WriteCreatedTables();
@@ -107,18 +109,18 @@ public class DBApp implements ValidatorI {
 			ObjectOutputStream.writeObject(tbl);
 			ObjectOutputStream.close();
 		} catch (Exception e) {
-			throw new DBAppException();
+			throw new DBAppException(e.getMessage());
 		}
 	}
 
-	public Table LoadTable(String FilePath) {
+	public Table LoadTable(String FilePath) throws DBAppException {
 		Table RestoredTable = null;
 		try {
 			ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(FilePath));
 			RestoredTable = (Table) objectInputStream.readObject();
 			objectInputStream.close();
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new DBAppException(e.getMessage());
 		}
 		return RestoredTable;
 	}
@@ -152,7 +154,7 @@ public class DBApp implements ValidatorI {
 			fw = new FileWriter(FilePath, true);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			throw new DBAppException();
+			throw new DBAppException(e.getMessage());
 		}
 		BufferedWriter bw = new BufferedWriter(fw);
 		PrintWriter pw = new PrintWriter(bw);
@@ -168,7 +170,7 @@ public class DBApp implements ValidatorI {
 
 	public void createIndex(String strTableName, String[] strarrColName) throws DBAppException {
 		strTableName = strTableName.toLowerCase();
-		for(String s : strarrColName)
+		for (String s : strarrColName)
 			s.toLowerCase();
 		if (CreatedTables.get(strTableName) == null)
 			throw new DBAppException(strTableName + " does not exists");

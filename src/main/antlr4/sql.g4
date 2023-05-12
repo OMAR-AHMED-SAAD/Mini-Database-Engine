@@ -44,7 +44,23 @@ FROM: F R O M;
 
 AND: A N D;
 
-statement:insert|update|create_table|delete;
+INDEX: I N D E X;
+
+ON: O N;
+
+USING: U S I N G;
+
+OCTREE: O C T R E E;
+
+statement:insert|update|create_table|delete|create_index;
+
+create_index:CREATE INDEX index_name ON table_name index_columns USING OCTREE SEMICOL?;
+
+index_name: ID;
+
+index_columns: LPRAN index_column (COMMA index_column)* RPRAN;
+
+index_column: ID;
 
 create_table: CREATE TABLE table_name creation_columns SEMICOL?;
 

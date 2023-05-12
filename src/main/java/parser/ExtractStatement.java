@@ -1,4 +1,5 @@
 package parser;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +9,7 @@ public class ExtractStatement extends sqlBaseVisitor<Void> {
 	private List<String> creationColumnNames;
 	private List<String> creationDatatypes;
 	private String primaryKey;
+	private List<String> indexColumnNames;
 	private List<String> insertionColumnNames;
 	private List<String> insertionValues;
 	private List<String> updateColumnNames;
@@ -23,6 +25,7 @@ public class ExtractStatement extends sqlBaseVisitor<Void> {
 		creationColumnNames = new ArrayList<String>();
 		creationDatatypes = new ArrayList<String>();
 		primaryKey = "";
+		indexColumnNames = new ArrayList<String>();
 		insertionValues = new ArrayList<String>();
 		insertionColumnNames = new ArrayList<String>();
 		updateColumnNames = new ArrayList<String>();
@@ -66,6 +69,15 @@ public class ExtractStatement extends sqlBaseVisitor<Void> {
 	}
 
 	@Override
+	public Void visitCreate_index(sqlParser.Create_indexContext ctx) {
+		statementType = "createIndex";
+		return visitChildren(ctx);
+	}
+	@Override public Void visitIndex_column(sqlParser.Index_columnContext ctx) { 
+		indexColumnNames.add(ctx.getText());
+		return visitChildren(ctx); }
+
+	@Override
 	public Void visitUpdate(sqlParser.UpdateContext ctx) {
 		statementType = "update";
 		return visitChildren(ctx);
@@ -79,9 +91,9 @@ public class ExtractStatement extends sqlBaseVisitor<Void> {
 
 	@Override
 	public Void visitUpdate_value(sqlParser.Update_valueContext ctx) {
-		String s=ctx.getText();
-		if(s.startsWith("'")||s.startsWith("\""))
-			s=s.substring(1, s.length()-1);
+		String s = ctx.getText();
+		if (s.startsWith("'") || s.startsWith("\""))
+			s = s.substring(1, s.length() - 1);
 		updateValues.add(s);
 		return visitChildren(ctx);
 	}
@@ -94,9 +106,9 @@ public class ExtractStatement extends sqlBaseVisitor<Void> {
 
 	@Override
 	public Void visitUpdate_condition_value(sqlParser.Update_condition_valueContext ctx) {
-		String s=ctx.getText();
-		if(s.startsWith("'")||s.startsWith("\""))
-			s=s.substring(1, s.length()-1);
+		String s = ctx.getText();
+		if (s.startsWith("'") || s.startsWith("\""))
+			s = s.substring(1, s.length() - 1);
 		updateConditionValue = s;
 		return visitChildren(ctx);
 	}
@@ -115,9 +127,9 @@ public class ExtractStatement extends sqlBaseVisitor<Void> {
 
 	@Override
 	public Void visitDelete_condition_value(sqlParser.Delete_condition_valueContext ctx) {
-		String s=ctx.getText();
-		if(s.startsWith("'")||s.startsWith("\""))
-			s=s.substring(1, s.length()-1);
+		String s = ctx.getText();
+		if (s.startsWith("'") || s.startsWith("\""))
+			s = s.substring(1, s.length() - 1);
 		deleteValues.add(s);
 		return visitChildren(ctx);
 	}
@@ -130,9 +142,9 @@ public class ExtractStatement extends sqlBaseVisitor<Void> {
 
 	@Override
 	public Void visitValue(sqlParser.ValueContext ctx) {
-		String s=ctx.getText();
-		if(s.startsWith("'")||s.startsWith("\""))
-			s=s.substring(1, s.length()-1);
+		String s = ctx.getText();
+		if (s.startsWith("'") || s.startsWith("\""))
+			s = s.substring(1, s.length() - 1);
 		insertionValues.add(s);
 		return super.visitValue(ctx);
 	}
@@ -196,6 +208,10 @@ public class ExtractStatement extends sqlBaseVisitor<Void> {
 
 	public List<String> getDeleteValues() {
 		return deleteValues;
+	}
+
+	public List<String> getIndexColumnNames() {
+		return indexColumnNames;
 	}
 
 }

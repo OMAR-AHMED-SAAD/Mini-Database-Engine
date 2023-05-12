@@ -36,7 +36,7 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 			FileInputStream inputStream = new FileInputStream("src/main/resources/DBApp.config");
 			Prop.load(inputStream);
 		} catch (Exception e) {
-			throw new DBAppException();
+			throw new DBAppException(e.getMessage());
 		}
 		this.maxElements = Integer.parseInt(Prop.getProperty("MaximumEntriesinOctreeNode"));
 
@@ -48,7 +48,7 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 			ObjectOutputStream.writeObject(this);
 			ObjectOutputStream.close();
 		} catch (Exception e) {
-			throw new DBAppException();
+			throw new DBAppException(e.getMessage());
 		}
 	}
 

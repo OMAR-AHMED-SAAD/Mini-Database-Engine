@@ -394,3 +394,14 @@ public class looojiiiii {
 //		o.split(o.root);
 //		System.out.println(o);
 //	}
+
+
+
+
+//public static void main(String[] args) throws DBAppException {
+//DBApp db = new DBApp();
+//db.init();
+//// db.parseSQL(new StringBuffer("CREATE TABLE employees2 ( id INT, name VARCHAR(50), age INT, salary DOUBLE(6,2), dob DATE,PRIMARY KEY(id));"));
+////db.parseSQL(new StringBuffer("CREATE INDEX idx_employees ON employees2 (id,salary,dob) USING OCTREE;"));
+//
+//}

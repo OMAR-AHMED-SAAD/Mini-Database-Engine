@@ -45,6 +45,8 @@ public class SQLParserAPI implements ValidatorI {
 				return sqlCreate(visitor);
 			case "delete":
 				return sqlDelete(visitor);
+			case "createIndex":
+				return sqlCreateIndex(visitor);
 			default:
 				throw new DBAppException("INVALID STATEMENT");
 			}
@@ -206,6 +208,16 @@ public class SQLParserAPI implements ValidatorI {
 		db.UnLoadTable(table, FilePath);
 		db.updateTable(tableName, pkValue, NameValue);
 		System.out.println("executed successfully");
+		return null;
+	}
+	
+	private Void sqlCreateIndex(ExtractStatement visitor) throws DBAppException {
+		String tableName = visitor.getTableName();
+		List<String> columnNames = visitor.getIndexColumnNames();
+		if (db.getCreatedTables().get(tableName) == null)
+			throw new DBAppException(tableName + " does not exists");
+				db.createIndex(tableName, columnNames.toArray(new String[columnNames.size()]));
+				System.out.println("executed successfully");
 		return null;
 	}
 

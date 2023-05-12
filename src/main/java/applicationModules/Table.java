@@ -93,7 +93,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 			bufferedreader.close();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			throw new DBAppException();
+			throw new DBAppException(e.getMessage());
 		}
 	}
 
@@ -355,7 +355,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 	// need to test later on
 	private void updateOctrees(Hashtable<String, Object> oldTuple, Hashtable<String, Object> newTuple,
 			Hashtable<String, Object> updateValues, String pageFilePath) throws DBAppException {
-		Vector<OctreeDescription> updatedOctrees = this.getMatchingIndex((String[]) updateValues.keySet().toArray());
+		Vector<OctreeDescription> updatedOctrees = this.getMatchingIndex(updateValues.keySet().toArray(new String[updateValues.keySet().size()]));
 		for (OctreeDescription od : updatedOctrees) {
 			Hashtable<String, Object> deleteTuple = new Hashtable<String, Object>();
 			Hashtable<String, Object> insertTuple = new Hashtable<String, Object>();
@@ -378,7 +378,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 	}
 	// need to test later on
 	public void DelFromTbl(Hashtable<String, Object> ColNameVal) throws DBAppException {
-		Vector<OctreeDescription> existingOctrees = this.getMatchingIndex((String[]) ColNameVal.keySet().toArray());
+		Vector<OctreeDescription> existingOctrees = this.getMatchingIndex(ColNameVal.keySet().toArray(new String[ColNameVal.keySet().size()]));
 		if (existingOctrees.size() == 0)
 			deleteWithoutIndex(ColNameVal);
 		else
@@ -427,7 +427,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 			}
 		}
 	}
-
+	// need to test later on
 	private void deleteWithIndex(Hashtable<String, Object> ColNameVal) throws DBAppException {
 		if (ColNameVal.containsKey(CKName) && getMatchingIndex(new String[] { CKName }) != null) {
 			RowAddress RowAdrs = SearchByCkWithIndex(ColNameVal.get(CKName));
@@ -449,9 +449,9 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 				UpTblData(DelPg);
 				DelPg = null;
 			}
-		} 
+		}
 		else {
-			OctreeDescription od =getBestMatch((String [])ColNameVal.keySet().toArray());
+			OctreeDescription od =getBestMatch(ColNameVal.keySet().toArray(new String[ColNameVal.keySet().size()]));
 			Octree oct = this.LoadOctree(od.getFilePath());
 			Hashtable<String, Object> searchTuple = new Hashtable<String, Object>();
 			for (String attribute : od.getAttributes()) {
@@ -572,7 +572,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 			if (col0.equalsIgnoreCase(att0) || col0.equalsIgnoreCase(att1) || col0.equalsIgnoreCase(att2)
 					|| col1.equalsIgnoreCase(att0) || col1.equalsIgnoreCase(att1) || col1.equalsIgnoreCase(att2)
 					|| col2.equalsIgnoreCase(att0) || col2.equalsIgnoreCase(att1) || col2.equalsIgnoreCase(att2))
-				throw new DBAppException("Octree already exists for some column");
+				throw new DBAppException("Octree already exists on one of the specified columns");
 		}
 		if (ColumnNameType.get(col0) == null || ColumnNameType.get(col1) == null || ColumnNameType.get(col2) == null)
 			throw new DBAppException("Cannot create octree for columns THAT DO NOT EXIST!!");
@@ -598,7 +598,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 					StringBuffer sb = new StringBuffer();
 					for (String s : content)
 						sb.append(s).append(",");
-					sb.deleteCharAt(sb.length());
+					sb.deleteCharAt(sb.length()-1);
 					line = sb.toString();
 				}
 				pw.println(line);
@@ -609,7 +609,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 			pw.close();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			throw new DBAppException();
+			throw new DBAppException(e.getMessage());
 		}
 
 		new File(oldFilePath).delete();

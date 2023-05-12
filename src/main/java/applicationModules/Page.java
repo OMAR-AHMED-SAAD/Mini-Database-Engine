@@ -38,7 +38,7 @@ public class Page implements Serializable, ComparatorI {
 			FileInputStream inputStream = new FileInputStream("src/main/resources/DBApp.config");
 			Prop.load(inputStream);
 		} catch (Exception e) {
-			throw new DBAppException();
+			throw new DBAppException(e.getMessage());
 		}
 		this.MaxRowCount = Integer.parseInt(Prop.getProperty("MaximumRowsCountinTablePage"));
 
@@ -50,7 +50,7 @@ public class Page implements Serializable, ComparatorI {
 			ObjectOutputStream.writeObject(this);
 			ObjectOutputStream.close();
 		} catch (Exception e) {
-			throw new DBAppException();
+			throw new DBAppException(e.getMessage());
 		}
 	}
 
