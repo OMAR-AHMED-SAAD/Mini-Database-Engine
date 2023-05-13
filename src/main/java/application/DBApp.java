@@ -230,12 +230,15 @@ public class DBApp implements ValidatorI {
 		String frstTblName=arrSQLTerms[0].get_strTableName();
 		if (CreatedTables.get(frstTblName) == null)
 			throw new DBAppException(arrSQLTerms[0].get_strTableName() + " does not exists");
+		if((arrSQLTerms.length)-(strarrOperators.length)!=1)
+			throw new DBAppException("Length of the terms and operators are incompatible");
+		String FilePath = CreatedTables.get(frstTblName);
+		Table Table = LoadTable(FilePath);
+		Table.ReadMetaData();
 		for(SQLTerm term:arrSQLTerms) {
 			String currTblName=term.get_strTableName();
 			if((currTblName.equals(frstTblName))!=true)
 				throw new DBAppException("Cannot select from multiple tables at once");
-			String FilePath = CreatedTables.get(currTblName);
-			Table Table = LoadTable(FilePath);
 			String currColName=term.get_strColumnName();
 			if(Table.getColumnNameType().get(currColName)==null)
 				throw new DBAppException("Column name doesn't exist for table "+ currTblName);
@@ -243,14 +246,13 @@ public class DBApp implements ValidatorI {
 			V.ValidateBounds(currTblName, term.get_objValue(), Table.getColumnNameType(), Table.getColumnNameMin(),
 					Table.getColumnNameMax());			
 		}
-		if((arrSQLTerms.length)-(strarrOperators.length)!=1)
-			throw new DBAppException("Length of the terms and operators are incompatible");
-
+		UnLoadTable(Table, FilePath);
+		Table = null;
 	}
 
 	@SuppressWarnings("rawtypes")
 	public Iterator selectFromTable(SQLTerm[] arrSQLTerms, String[] strarrOperators) throws DBAppException {
-
+		validateSelect(arrSQLTerms,strarrOperators);
 		return null;
 	}
 

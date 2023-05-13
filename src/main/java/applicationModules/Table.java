@@ -245,7 +245,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		}
 	}
 
-//needs testing
+	// needs testing
 	private void OverFlowSolverOctree(Hashtable<String, Object> tuple, String oldFilePath, String newFilePath)
 			throws DBAppException {
 		if (tuple == null)
@@ -295,6 +295,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 				return new RowAddress(PgId, RowId);
 		}
 	}
+
 	// need to test later on
 	private RowAddress SearchByCkWithIndex(Object CkValObj) throws DBAppException {
 		Boolean IsPgFound = false;
@@ -320,6 +321,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 				return new RowAddress(PgId, RowId);
 		}
 	}
+
 	// need to test later on
 	public void UpdateTbl(String CKVal, Hashtable<String, Object> ColNameVal) throws DBAppException {
 		Vector<OctreeDescription> existingOctrees = this.getMatchingIndex(new String[] { CKName });
@@ -340,6 +342,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		updatePg.UnLoadPage();
 		updatePg = null;
 	}
+
 	// need to test later on
 	private void updateWithIndex(String CKVal, Hashtable<String, Object> ColNameVal) throws DBAppException {
 		RowAddress RowAdrs = SearchByCkWithIndex(V.tryParse(CKVal, ColumnNameType.get(CKName)));
@@ -352,10 +355,12 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		updatePg.UnLoadPage();
 		updatePg = null;
 	}
+
 	// need to test later on
 	private void updateOctrees(Hashtable<String, Object> oldTuple, Hashtable<String, Object> newTuple,
 			Hashtable<String, Object> updateValues, String pageFilePath) throws DBAppException {
-		Vector<OctreeDescription> updatedOctrees = this.getMatchingIndex(updateValues.keySet().toArray(new String[updateValues.keySet().size()]));
+		Vector<OctreeDescription> updatedOctrees = this
+				.getMatchingIndex(updateValues.keySet().toArray(new String[updateValues.keySet().size()]));
 		for (OctreeDescription od : updatedOctrees) {
 			Hashtable<String, Object> deleteTuple = new Hashtable<String, Object>();
 			Hashtable<String, Object> insertTuple = new Hashtable<String, Object>();
@@ -376,9 +381,11 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		}
 
 	}
+
 	// need to test later on
 	public void DelFromTbl(Hashtable<String, Object> ColNameVal) throws DBAppException {
-		Vector<OctreeDescription> existingOctrees = this.getMatchingIndex(ColNameVal.keySet().toArray(new String[ColNameVal.keySet().size()]));
+		Vector<OctreeDescription> existingOctrees = this
+				.getMatchingIndex(ColNameVal.keySet().toArray(new String[ColNameVal.keySet().size()]));
 		if (existingOctrees.size() == 0)
 			deleteWithoutIndex(ColNameVal);
 		else
@@ -427,6 +434,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 			}
 		}
 	}
+
 	// need to test later on
 	private void deleteWithIndex(Hashtable<String, Object> ColNameVal) throws DBAppException {
 		if (ColNameVal.containsKey(CKName) && getMatchingIndex(new String[] { CKName }) != null) {
@@ -449,9 +457,8 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 				UpTblData(DelPg);
 				DelPg = null;
 			}
-		}
-		else {
-			OctreeDescription od =getBestMatch(ColNameVal.keySet().toArray(new String[ColNameVal.keySet().size()]));
+		} else {
+			OctreeDescription od = getBestMatch(ColNameVal.keySet().toArray(new String[ColNameVal.keySet().size()]));
 			Octree oct = this.LoadOctree(od.getFilePath());
 			Hashtable<String, Object> searchTuple = new Hashtable<String, Object>();
 			for (String attribute : od.getAttributes()) {
@@ -459,16 +466,16 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 				if (value != null)
 					searchTuple.put(attribute, value);
 			}
-			ArrayList<String> filePaths=oct.search(searchTuple);
+			ArrayList<String> filePaths = oct.search(searchTuple);
 			oct.UnLoadTree();
 			oct = null;
-			for (String pageFilePath:filePaths) {
+			for (String pageFilePath : filePaths) {
 				Page DelPg = LoadPage(pageFilePath);
 				int PgId = DelPg.getPageId();
 				Vector<Hashtable<String, Object>> deletedRows = DelPg.DelRows(ColNameVal, CKName);
 				deleteFromOctrees(deletedRows, DelPg.getFilePath());
 				if (DelPg.IsEmpty()) {
-					TablePages.remove((Object)PgId);
+					TablePages.remove((Object) PgId);
 					MaxPage.remove(PgId);
 					MinPage.remove(PgId);
 					IsPgFull.remove(PgId);
@@ -578,7 +585,6 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 			throw new DBAppException("Cannot create octree for columns THAT DO NOT EXIST!!");
 	}
 
-	// need to test later on
 	public void updateMetaDataIndex(String col0, String col1, String col2) throws DBAppException {
 		String oldFilePath = "src/main/resources/metadata.csv";
 		String newFilePath = "src/main/resources/metadata2.csv";
@@ -598,7 +604,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 					StringBuffer sb = new StringBuffer();
 					for (String s : content)
 						sb.append(s).append(",");
-					sb.deleteCharAt(sb.length()-1);
+					sb.deleteCharAt(sb.length() - 1);
 					line = sb.toString();
 				}
 				pw.println(line);
@@ -614,6 +620,11 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 
 		new File(oldFilePath).delete();
 		new File(newFilePath).renameTo(new File(oldFilePath));
+	}
+
+	public Vector<Hashtable<String, Object>> selectLinear(String colName, Object colValue,String operator) {
+		return null;
+
 	}
 
 	public Hashtable<String, String> getColumnNameType() {
@@ -634,6 +645,14 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 
 	public Hashtable<Integer, String> getPageFilePath() {
 		return PageFilePath;
+	}
+
+	public Hashtable<String, String> getColumnNameMin() {
+		return ColumnNameMin;
+	}
+
+	public Hashtable<String, String> getColumnNameMax() {
+		return ColumnNameMax;
 	}
 
 	public String toString() {
@@ -689,14 +708,6 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 			}
 		}
 		return sb.toString();
-	}
-
-	public Hashtable<String, String> getColumnNameMin() {
-		return ColumnNameMin;
-	}
-
-	public Hashtable<String, String> getColumnNameMax() {
-		return ColumnNameMax;
 	}
 
 }
