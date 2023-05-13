@@ -170,8 +170,8 @@ public class DBApp implements ValidatorI {
 
 	public void createIndex(String strTableName, String[] strarrColName) throws DBAppException {
 		strTableName = strTableName.toLowerCase();
-		for (String s : strarrColName)
-			s.toLowerCase();
+		for (int i=0;i<strarrColName.length;i++)
+			strarrColName[i]=strarrColName[i].toLowerCase();
 		if (CreatedTables.get(strTableName) == null)
 			throw new DBAppException(strTableName + " does not exists");
 		String FilePath = CreatedTables.get(strTableName);

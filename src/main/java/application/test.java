@@ -48,7 +48,11 @@ public class test {
 		//StringBuffer delete6=new StringBuffer("delete From Club");
 		//db.parseSQL(delete5);
 		//db.parseSQL(delete6);
+		String [] strarrColName=new String [] {"AAAAA","FGGF","FFFGFG"};
 		
+		for (int i=0;i<strarrColName.length;i++)
+			strarrColName[i]=strarrColName[i].toLowerCase();
+		System.out.println(strarrColName[0]);
 		
 	}
 }
