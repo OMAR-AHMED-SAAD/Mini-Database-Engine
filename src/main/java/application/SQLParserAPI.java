@@ -1,6 +1,7 @@
 package application;
 
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -47,6 +48,8 @@ public class SQLParserAPI implements ValidatorI {
 				return sqlDelete(visitor);
 			case "createIndex":
 				return sqlCreateIndex(visitor);
+			case "select":
+				return sqlSelect(visitor);
 			default:
 				throw new DBAppException("INVALID STATEMENT");
 			}
@@ -210,15 +213,42 @@ public class SQLParserAPI implements ValidatorI {
 		System.out.println("executed successfully");
 		return null;
 	}
-	
+
 	private Void sqlCreateIndex(ExtractStatement visitor) throws DBAppException {
 		String tableName = visitor.getTableName();
 		List<String> columnNames = visitor.getIndexColumnNames();
 		if (db.getCreatedTables().get(tableName) == null)
 			throw new DBAppException(tableName + " does not exists");
-				db.createIndex(tableName, columnNames.toArray(new String[columnNames.size()]));
-				System.out.println("executed successfully");
+		db.createIndex(tableName, columnNames.toArray(new String[columnNames.size()]));
+		System.out.println("executed successfully");
 		return null;
 	}
 
+	private Iterator sqlSelect(ExtractStatement visitor) throws DBAppException {
+		String tableName = visitor.getTableName();
+		// System.out.println(visitor.getSelectSqlTerms());
+		// System.out.println(visitor.getSelectOperators());
+		SQLTerm[] arrSQLTerms = visitor.getSelectSqlTerms().toArray(new SQLTerm[visitor.getSelectSqlTerms().size()]);
+		String[] strarrOperators = visitor.getSelectOperators()
+				.toArray(new String[visitor.getSelectOperators().size()]);
+		if (db.getCreatedTables().get(tableName) == null)
+			throw new DBAppException(tableName + " does not exists");
+		String FilePath = db.getCreatedTables().get(tableName);
+		Table table = db.LoadTable(FilePath);
+		table.ReadMetaData();
+		for (SQLTerm sqlterm : arrSQLTerms) {
+			String type = table.getColumnNameType().get(sqlterm.get_strColumnName());
+			if (type == null)
+				throw new DBAppException(sqlterm.get_strColumnName() + " does not exist in " + tableName);
+			else
+				sqlterm.set_objValue(V.tryParse(sqlterm.get_objValue().toString(), type));
+		}
+		db.UnLoadTable(table, FilePath);
+		return db.selectFromTable(arrSQLTerms, strarrOperators);
+
+	}
+
+//	public static void main(String[] args) throws DBAppException {
+//		new SQLParserAPI(new DBApp()).sqlExecuteParse("SElect * from student where name = 'john' and age>=20 or id=50;");
+//	}
 }

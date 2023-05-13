@@ -631,7 +631,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 			Vector<Hashtable<String, Object>> rows = currPg.getVecPage();
 			for(Hashtable<String,Object> currRow: rows) {
 				Object currColValue=currRow.get(colName);
-				if(C.compareWithOperator(colValue,currColValue,operator)==true)
+				if(C.compareWithOperator(currColValue,colValue,operator)==true)
 					Result.add(currRow);
 			}
 			currPg.UnLoadPage();

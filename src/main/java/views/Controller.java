@@ -3,13 +3,25 @@ package views;
 import java.awt.Color;
 
 import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Vector;
+
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+
 import application.DBApp;
 import applicationModules.Table;
 import exceptions.DBAppException;
+import parser.ExtractStatement;
+import parser.sqlLexer;
+import parser.sqlParser;
 
 public class Controller {
 	private DBApp db;
@@ -86,11 +98,37 @@ public class Controller {
 		changed = true;
 		StringBuffer sb = new StringBuffer(s);
 		try {
-			if (db.parseSQL(sb) == null) {
+			Iterator<Hashtable<String, Object>> iter = db.parseSQL(sb);
+			if (iter == null) {
 				view.consoleJPanel.setForeground(Color.GREEN);
 				view.consoleJPanel.setText(" " + s + "\nexecuted succesfully");
 			} else {
 				// print iterator result of select statement
+				view.consoleJPanel.setForeground(Color.white);
+				sb = new StringBuffer();
+				CharStream cs = CharStreams.fromString(s);
+				sqlLexer lexer = new sqlLexer(cs);
+				CommonTokenStream tokens = new CommonTokenStream(lexer);
+				sqlParser parser = new sqlParser(tokens);
+				ExtractStatement es = new ExtractStatement();
+				es.visit(parser.statement());
+				String tableName = es.getTableName();
+				String FilePath = db.getCreatedTables().get(tableName);
+				Table table = db.LoadTable(FilePath);
+				table.ReadMetaData();
+				Vector<String> headers = table.getCreationOrder();
+				db.UnLoadTable(table, FilePath);
+				while (iter.hasNext()) {
+					
+				Hashtable<String, Object> hash=iter.next();;
+				sb.append(hash);
+				}
+					
+				//	Hashtable<String, Object>hash=iter.next();
+						//sb.append(iter.next()).append("/n");
+
+				view.consoleJPanel.setText(sb.toString());
+
 			}
 		} catch (DBAppException e) {
 			// TODO Auto-generated catch block

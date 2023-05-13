@@ -44,6 +44,10 @@ FROM: F R O M;
 
 AND: A N D;
 
+OR: O R;
+
+XOR: X O R;
+
 INDEX: I N D E X;
 
 ON: O N;
@@ -52,7 +56,23 @@ USING: U S I N G;
 
 OCTREE: O C T R E E;
 
-statement:insert|update|create_table|delete|create_index;
+SELECT: S E L E C T;
+
+statement:insert|update|create_table|delete|create_index|select;
+
+select: SELECT STAR FROM table_name WHERE select_conditions? SEMICOL?;
+
+select_conditions: select_condition (operator select_condition)*;
+
+operator: AND|OR|XOR;
+
+select_condition: select_condition_name oper select_condition_value;
+
+select_condition_name:column_name;
+
+select_condition_value:value;
+
+oper: EQUAL|SMALLER|GREATER|SMALLERE|GREATERE|NOTEQUAL;
 
 create_index:CREATE INDEX index_name ON table_name index_columns USING OCTREE SEMICOL?;
 
@@ -138,11 +158,23 @@ DOUBLE_QUOTE:'"';
 
 EQUAL: '=';
 
+SMALLER: '<';
+
+GREATER: '>';
+
+SMALLERE: '<=';
+
+GREATERE: '>=';
+
+NOTEQUAL: '!=';
+
 LPRAN: '(';
 
 RPRAN:')';
 
 COMMA:',';
+
+STAR: '*';
 
 WS: [ \t\r\n]+ -> skip;
 
@@ -172,4 +204,3 @@ fragment W: [wW];
 fragment X: [xX];
 fragment Y: [yY];
 fragment Z: [zZ];
-

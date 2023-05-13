@@ -13,9 +13,14 @@ public class SQLTerm {
 	private Object _objValue;
 	private static final ArrayList<String> operators = new ArrayList<>(Arrays.asList("<", ">", ">=", "<=", "=", "="));
 
-	public SQLTerm(String _strTableName, String _strColumnName, String _strOperator, Object _objValue) throws DBAppException {
-		if(!operators.contains(_strOperator))
-			throw new DBAppException("Invalid operator "+ _strOperator + " only valid operators are  >, >=, <, <=, != or = ");
+	public SQLTerm() {
+	}
+
+	public SQLTerm(String _strTableName, String _strColumnName, String _strOperator, Object _objValue)
+			throws DBAppException {
+		if (!operators.contains(_strOperator))
+			throw new DBAppException(
+					"Invalid operator " + _strOperator + " only valid operators are  >, >=, <, <=, != or = ");
 		this._strTableName = _strTableName.toLowerCase();
 		this._strColumnName = _strColumnName.toLowerCase();
 		this._strOperator = _strOperator;
@@ -54,4 +59,11 @@ public class SQLTerm {
 	public void set_objValue(Object _objValue) {
 		this._objValue = _objValue;
 	}
+
+	@Override
+	public String toString() {
+		return "SQLTerm{" + " TableName = " + _strTableName+ ", ColumnName = " + _strColumnName 
+				+ ", Operator = '" + _strOperator + '\'' + ", Value = " + _objValue + '}';
+	}
+
 }

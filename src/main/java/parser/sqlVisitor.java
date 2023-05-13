@@ -19,6 +19,48 @@ public interface sqlVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStatement(sqlParser.StatementContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link sqlParser#select}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSelect(sqlParser.SelectContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link sqlParser#select_conditions}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSelect_conditions(sqlParser.Select_conditionsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link sqlParser#operator}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOperator(sqlParser.OperatorContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link sqlParser#select_condition}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSelect_condition(sqlParser.Select_conditionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link sqlParser#select_condition_name}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSelect_condition_name(sqlParser.Select_condition_nameContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link sqlParser#select_condition_value}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSelect_condition_value(sqlParser.Select_condition_valueContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link sqlParser#oper}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOper(sqlParser.OperContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link sqlParser#create_index}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

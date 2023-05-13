@@ -1,5 +1,9 @@
 package application;
 
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Vector;
+
 import exceptions.DBAppException;
 
 public class test {
@@ -53,6 +57,29 @@ public class test {
 		for (int i=0;i<strarrColName.length;i++)
 			strarrColName[i]=strarrColName[i].toLowerCase();
 		System.out.println(strarrColName[2]);
+		
+		
+		Vector<Hashtable<String, Object>> lol=new Vector<>();
+		Hashtable<String, Object> one=new Hashtable<>();
+		one.put("lol", 2);
+		one.put("lol", "22");
+		lol.add(one);
+		Hashtable<String, Object> two=new Hashtable<>();
+		two.put("lol", 2);
+		two.put("lol", "22");
+		
+		//System.out.println(lol.contains(two));
+		
+		ArrayList<String> a=new ArrayList<>();
+//		a.add("kkf");
+//		a.add("kk-tjoif");
+//		a.add("kktjrtf");
+//		a.add(0, "Fkmlkf");
+		//System.out.println(a.get(0));
+		Object o="kdjkl";
+		String x=o.toString();
+		System.out.println(o.getClass());
+		
 		
 	}
 }

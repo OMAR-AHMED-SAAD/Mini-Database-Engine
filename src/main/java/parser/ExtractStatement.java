@@ -3,6 +3,8 @@ package parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import application.SQLTerm;
+
 public class ExtractStatement extends sqlBaseVisitor<Void> {
 	private String statementType;
 	private String tableName;
@@ -18,6 +20,11 @@ public class ExtractStatement extends sqlBaseVisitor<Void> {
 	private String updateConditionValue;
 	private List<String> deleteColumnNames;
 	private List<String> deleteValues;
+	private List<SQLTerm> selectSqlTerms;
+	private int countSelectColumnNames = 0;
+	private int countSelectColumnOperators = 0;
+	private int countSelectColumnValues = 0;
+	private List<String> selectOperators;
 
 	public ExtractStatement() {
 		statementType = "";
@@ -34,6 +41,8 @@ public class ExtractStatement extends sqlBaseVisitor<Void> {
 		updateConditionValue = "";
 		deleteColumnNames = new ArrayList<String>();
 		deleteValues = new ArrayList<String>();
+		selectSqlTerms = new ArrayList<SQLTerm>();
+		selectOperators = new ArrayList<String>();
 	}
 
 	@Override
@@ -42,6 +51,69 @@ public class ExtractStatement extends sqlBaseVisitor<Void> {
 		tableName = ctx.getText();
 		// Visit the children of the node
 		return super.visitTable_name(ctx);
+	}
+
+	@Override
+	public Void visitSelect(sqlParser.SelectContext ctx) {
+		statementType = "select";
+		return visitChildren(ctx);
+	}
+
+	@Override
+	public Void visitOperator(sqlParser.OperatorContext ctx) {
+		selectOperators.add(ctx.getText());
+		return visitChildren(ctx);
+	}
+
+	@Override
+	public Void visitSelect_condition_name(sqlParser.Select_condition_nameContext ctx) {
+		if (countSelectColumnNames < selectSqlTerms.size()) {
+			SQLTerm temp = selectSqlTerms.get(countSelectColumnNames);
+			temp.set_strColumnName(ctx.getText());
+			//temp.set_strTableName(tableName);
+		} else {
+			SQLTerm term = new SQLTerm();
+			term.set_strColumnName(ctx.getText());
+			term.set_strTableName(tableName);
+			selectSqlTerms.add(countSelectColumnNames, term);
+		}
+		countSelectColumnNames++;
+		return visitChildren(ctx);
+	}
+
+	@Override
+	public Void visitSelect_condition_value(sqlParser.Select_condition_valueContext ctx) {
+		String value=ctx.getText();
+		if (value.startsWith("'") || value.startsWith("\""))
+			value = value.substring(1, value.length() - 1);
+		if (countSelectColumnValues < selectSqlTerms.size()) {
+			SQLTerm temp = selectSqlTerms.get(countSelectColumnValues);
+			temp.set_objValue(value);
+			//temp.set_strTableName(tableName);
+		} else {
+			SQLTerm term = new SQLTerm();
+			term.set_objValue(value);
+			term.set_strTableName(tableName);
+			selectSqlTerms.add(countSelectColumnValues, term);
+		}
+		countSelectColumnValues++;
+		return visitChildren(ctx);
+	}
+
+	@Override
+	public Void visitOper(sqlParser.OperContext ctx) {
+		if (countSelectColumnOperators < selectSqlTerms.size()) {
+			SQLTerm temp = selectSqlTerms.get(countSelectColumnOperators);
+			temp.set_strOperator(ctx.getText());
+			//temp.set_strTableName(tableName);
+		} else {
+			SQLTerm term = new SQLTerm();
+			term.set_strOperator(ctx.getText());
+			term.set_strTableName(tableName);
+			selectSqlTerms.add(countSelectColumnOperators, term);
+		}
+		countSelectColumnOperators++;
+		return visitChildren(ctx);
 	}
 
 	@Override
@@ -73,9 +145,12 @@ public class ExtractStatement extends sqlBaseVisitor<Void> {
 		statementType = "createIndex";
 		return visitChildren(ctx);
 	}
-	@Override public Void visitIndex_column(sqlParser.Index_columnContext ctx) { 
+
+	@Override
+	public Void visitIndex_column(sqlParser.Index_columnContext ctx) {
 		indexColumnNames.add(ctx.getText());
-		return visitChildren(ctx); }
+		return visitChildren(ctx);
+	}
 
 	@Override
 	public Void visitUpdate(sqlParser.UpdateContext ctx) {
@@ -212,6 +287,14 @@ public class ExtractStatement extends sqlBaseVisitor<Void> {
 
 	public List<String> getIndexColumnNames() {
 		return indexColumnNames;
+	}
+
+	public List<SQLTerm> getSelectSqlTerms() {
+		return selectSqlTerms;
+	}
+
+	public List<String> getSelectOperators() {
+		return selectOperators;
 	}
 
 }

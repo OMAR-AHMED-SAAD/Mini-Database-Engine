@@ -17,10 +17,11 @@ import java.util.Set;
 import java.util.Vector;
 
 import applicationModules.Table;
+import basicTools.ComparatorI;
 import basicTools.ValidatorI;
 import exceptions.DBAppException;
 
-public class DBApp implements ValidatorI {
+public class DBApp implements ValidatorI, ComparatorI {
 	private Hashtable<String, String> CreatedTables;
 
 	public void init() {
@@ -268,8 +269,6 @@ public class DBApp implements ValidatorI {
 		table.ReadMetaData();
 		Vector<Hashtable<String, Object>> resultSet = table.selectLinear(arrSQLTerms[termCount].get_strColumnName(),
 				arrSQLTerms[termCount].get_objValue(), arrSQLTerms[termCount].get_strOperator());
-		UnLoadTable(table, tableFilePath);
-		table = null;
 		termCount++;
 		while (operCount < strarrOperators.length) {
 			switch (strarrOperators[operCount++]) {
@@ -277,32 +276,54 @@ public class DBApp implements ValidatorI {
 				resultSet = andOperator(resultSet, arrSQLTerms[termCount++]);
 				break;
 			case "or":
-				resultSet = orOperator(resultSet, arrSQLTerms[termCount++]);
+				resultSet = orOperator(resultSet, arrSQLTerms[termCount++], table);
 				break;
 			case "xor":
-				resultSet = xorOperator(resultSet, arrSQLTerms[termCount++]);
+				resultSet = xorOperator(resultSet, arrSQLTerms[termCount++], table);
 				break;
 			}
 		}
-
+		UnLoadTable(table, tableFilePath);
+		table = null;
 		return resultSet.iterator();
 	}
 
-	private Vector<Hashtable<String, Object>> andOperator(Vector<Hashtable<String, Object>> middleResult,
-			SQLTerm term) {
-		return null;
+	private Vector<Hashtable<String, Object>> andOperator(Vector<Hashtable<String, Object>> middleResult, SQLTerm term)
+			throws DBAppException {
+		Vector<Hashtable<String, Object>> result = new Vector<>();
+		for (Hashtable<String, Object> row : middleResult) {
+			Object colValue = row.get(term.get_strColumnName());
+			if (C.compareWithOperator(colValue, term.get_objValue(), term.get_strOperator()) == true)
+				result.add(row);
+		}
+		return result;
+	}
+
+	private Vector<Hashtable<String, Object>> orOperator(Vector<Hashtable<String, Object>> middleResult, SQLTerm term,
+			Table table) throws DBAppException {
+		Vector<Hashtable<String, Object>> result = middleResult;
+		Vector<Hashtable<String, Object>> middleResult2 = table.selectLinear(term.get_strColumnName(),
+				term.get_objValue(), term.get_strOperator());
+		for (Hashtable<String, Object> row : middleResult2) {
+			if (!result.contains(row))
+				result.add(row);
+		}
+		return result;
 
 	}
 
-	private Vector<Hashtable<String, Object>> orOperator(Vector<Hashtable<String, Object>> middleResult, SQLTerm term) {
-		return null;
-
-	}
-
-	private Vector<Hashtable<String, Object>> xorOperator(Vector<Hashtable<String, Object>> middleResult,
-			SQLTerm term) {
-		return null;
-
+	private Vector<Hashtable<String, Object>> xorOperator(Vector<Hashtable<String, Object>> middleResult, SQLTerm term,
+			Table table) throws DBAppException {
+		Vector<Hashtable<String, Object>> result= new Vector<Hashtable<String, Object>>();
+        Vector<Hashtable<String, Object>> intermediate= table.selectLinear(term.get_strColumnName(),
+                term.get_objValue(),term.get_strOperator());
+        for(Hashtable<String, Object> row:middleResult)
+            if(!intermediate.contains(row))
+                result.add(row);
+        for(Hashtable<String, Object> row:intermediate)
+            if(!middleResult.contains(row))
+                result.add(row);
+        return result;
 	}
 
 	@SuppressWarnings("rawtypes")
