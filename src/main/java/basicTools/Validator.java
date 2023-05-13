@@ -55,10 +55,10 @@ public class Validator implements ComparatorI {
 		}
 	}
 
-	public void ValidateBounds(String Key, Object Obj, Hashtable<String, String> ColumnNameType,
+	public void ValidateBounds(String colName, Object Obj, Hashtable<String, String> ColumnNameType,
 			Hashtable<String, String> ColumnNameMin, Hashtable<String, String> ColumnNameMax) throws DBAppException {
-		Object Min = tryParse(ColumnNameMin.get(Key), ColumnNameType.get(Key));
-		Object Max = tryParse(ColumnNameMax.get(Key), ColumnNameType.get(Key));
+		Object Min = tryParse(ColumnNameMin.get(colName), ColumnNameType.get(colName));
+		Object Max = tryParse(ColumnNameMax.get(colName), ColumnNameType.get(colName));
 		if (C.compare(Obj, Min) < 0 || C.compare(Obj, Max) > 0)
 			throw new DBAppException(Obj.toString() + " Entry causes Bounds Violation");
 	}
