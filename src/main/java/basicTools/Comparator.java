@@ -16,9 +16,10 @@ public class Comparator {
 		else
 			throw new DBAppException("Comparing two incompatible types");
 	}
+
 //partial null support return not equal whenever one of the values is null
 	public int compareWNull(Object One, Object Two) throws DBAppException {
-		if (One==null || Two==null)
+		if (One == null || Two == null)
 			return -1;
 		if (One instanceof java.lang.Integer && Two instanceof java.lang.Integer)
 			return ((java.lang.Integer) One).compareTo((java.lang.Integer) Two);
@@ -31,7 +32,8 @@ public class Comparator {
 		else
 			throw new DBAppException("Comparing two incompatible types");
 	}
-	//full null support
+
+	// full null support
 	public int compareNullSupport(Object One, Object Two) throws DBAppException {
 		if (One == null && Two == null)
 			return 0;
@@ -47,5 +49,31 @@ public class Comparator {
 			return ((java.lang.Double) One).compareTo((java.lang.Double) Two);
 		else
 			throw new DBAppException("Comparing two incompatible types");
+	}
+
+	public boolean compareWithOperator(Object one, Object two, String operator) throws DBAppException {
+		if (one == null || two == null)
+			return false;
+		switch (operator) {
+		case "=":
+			if (compare(one, two) == 0)
+				return true;
+		case ">":
+			if (compare(one, two) > 0)
+				return true;
+		case "<":
+			if (compare(one, two) < 0)
+				return true;
+		case ">=":
+			if (compare(one, two) >= 0)
+				return true;
+		case "<=":
+			if (compare(one, two) <= 0)
+				return true;
+		case "!=":
+			if (compare(one, two) != 0)
+				return true;
+		}
+		return false;
 	}
 }
