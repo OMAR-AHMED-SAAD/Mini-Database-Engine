@@ -52,7 +52,7 @@ public class test {
 		
 		for (int i=0;i<strarrColName.length;i++)
 			strarrColName[i]=strarrColName[i].toLowerCase();
-		System.out.println(strarrColName[0]);
+		System.out.println(strarrColName[2]);
 		
 	}
 }

@@ -9,10 +9,12 @@ import java.io.FileWriter;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.io.ObjectInputStream;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Vector;
 
 import applicationModules.Table;
 import basicTools.ValidatorI;
@@ -170,8 +172,8 @@ public class DBApp implements ValidatorI {
 
 	public void createIndex(String strTableName, String[] strarrColName) throws DBAppException {
 		strTableName = strTableName.toLowerCase();
-		for (int i=0;i<strarrColName.length;i++)
-			strarrColName[i]=strarrColName[i].toLowerCase();
+		for (int i = 0; i < strarrColName.length; i++)
+			strarrColName[i] = strarrColName[i].toLowerCase();
 		if (CreatedTables.get(strTableName) == null)
 			throw new DBAppException(strTableName + " does not exists");
 		String FilePath = CreatedTables.get(strTableName);
@@ -225,35 +227,82 @@ public class DBApp implements ValidatorI {
 		UnLoadTable(Table, FilePath);
 		Table = null;
 	}
-	
-	private void validateSelect (SQLTerm[] arrSQLTerms, String[] strarrOperators) throws DBAppException {
-		String frstTblName=arrSQLTerms[0].get_strTableName();
+
+	private void validateSelect(SQLTerm[] arrSQLTerms, String[] strarrOperators) throws DBAppException {
+		String frstTblName = arrSQLTerms[0].get_strTableName();
 		if (CreatedTables.get(frstTblName) == null)
 			throw new DBAppException(arrSQLTerms[0].get_strTableName() + " does not exists");
-		if((arrSQLTerms.length)-(strarrOperators.length)!=1)
+		if ((arrSQLTerms.length) - (strarrOperators.length) != 1)
 			throw new DBAppException("Length of the terms and operators are incompatible");
-		String FilePath = CreatedTables.get(frstTblName);
-		Table Table = LoadTable(FilePath);
-		Table.ReadMetaData();
-		for(SQLTerm term:arrSQLTerms) {
-			String currTblName=term.get_strTableName();
-			if((currTblName.equals(frstTblName))!=true)
+		for (String operator : strarrOperators)
+			if ((!operator.equals("and")) || (!operator.equals("or")) || (!operator.equals("xor")))
+				throw new DBAppException(operator + " is not supported only supported opearators are AND,OR and XOR");
+		String filePath = CreatedTables.get(frstTblName);
+		Table table = LoadTable(filePath);
+		table.ReadMetaData();
+		for (SQLTerm term : arrSQLTerms) {
+			String currTblName = term.get_strTableName();
+			if ((currTblName.equals(frstTblName)) != true)
 				throw new DBAppException("Cannot select from multiple tables at once");
-			String currColName=term.get_strColumnName();
-			if(Table.getColumnNameType().get(currColName)==null)
-				throw new DBAppException("Column name doesn't exist for table "+ currTblName);
-			V.ValidateObjectType(term.get_objValue(), Table.getColumnNameType().get(currColName));
-			V.ValidateBounds(currTblName, term.get_objValue(), Table.getColumnNameType(), Table.getColumnNameMin(),
-					Table.getColumnNameMax());			
+			String currColName = term.get_strColumnName();
+			if (table.getColumnNameType().get(currColName) == null)
+				throw new DBAppException("Column name doesn't exist for table " + currTblName);
+			V.ValidateObjectType(term.get_objValue(), table.getColumnNameType().get(currColName));
+			V.ValidateBounds(currColName, term.get_objValue(), table.getColumnNameType(), table.getColumnNameMin(),
+					table.getColumnNameMax());
 		}
-		UnLoadTable(Table, FilePath);
-		Table = null;
+		UnLoadTable(table, filePath);
+		table = null;
 	}
 
 	@SuppressWarnings("rawtypes")
 	public Iterator selectFromTable(SQLTerm[] arrSQLTerms, String[] strarrOperators) throws DBAppException {
-		validateSelect(arrSQLTerms,strarrOperators);
+		for (int i = 0; i < strarrOperators.length; i++)
+			strarrOperators[i] = strarrOperators[i].toLowerCase();
+		validateSelect(arrSQLTerms, strarrOperators);
+		int termCount = 0;
+		int operCount = 0;
+		String tableName = arrSQLTerms[termCount].get_strTableName();
+		String tableFilePath = CreatedTables.get(tableName);
+		Table table = LoadTable(tableFilePath);
+		table.ReadMetaData();
+		Vector<Hashtable<String, Object>> resultSet = table.selectLinear(arrSQLTerms[termCount].get_strColumnName(),
+				arrSQLTerms[termCount].get_objValue(), arrSQLTerms[termCount].get_strOperator());
+		UnLoadTable(table, tableFilePath);
+		table = null;
+		termCount++;
+		while (operCount < strarrOperators.length) {
+			switch (strarrOperators[operCount++]) {
+			case "and":
+				resultSet = andOperator(resultSet, arrSQLTerms[termCount++]);
+				break;
+			case "or":
+				resultSet = orOperator(resultSet, arrSQLTerms[termCount++]);
+				break;
+			case "xor":
+				resultSet = xorOperator(resultSet, arrSQLTerms[termCount++]);
+				break;
+			}
+		}
+
+		return resultSet.iterator();
+	}
+
+	private Vector<Hashtable<String, Object>> andOperator(Vector<Hashtable<String, Object>> middleResult,
+			SQLTerm term) {
 		return null;
+
+	}
+
+	private Vector<Hashtable<String, Object>> orOperator(Vector<Hashtable<String, Object>> middleResult, SQLTerm term) {
+		return null;
+
+	}
+
+	private Vector<Hashtable<String, Object>> xorOperator(Vector<Hashtable<String, Object>> middleResult,
+			SQLTerm term) {
+		return null;
+
 	}
 
 	@SuppressWarnings("rawtypes")
