@@ -622,9 +622,23 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		new File(newFilePath).renameTo(new File(oldFilePath));
 	}
 
-	public Vector<Hashtable<String, Object>> selectLinear(String colName, Object colValue,String operator) {
-		return null;
-
+	//test later on
+	public Vector<Hashtable<String, Object>> selectLinear(String colName, Object colValue, String operator) throws DBAppException {
+		Vector<Hashtable<String, Object>> Result= new Vector<Hashtable<String, Object>>();
+		for (int Index = 0; Index < TablePages.size(); Index++) {
+			int PgId = TablePages.get(Index);
+			Page currPg = LoadPage(PageFilePath.get(PgId));
+			Vector<Hashtable<String, Object>> rows = currPg.getVecPage();
+			for(Hashtable<String,Object> currRow: rows) {
+				Object currColValue=currRow.get(colName);
+				if(C.compareWithOperator(colValue,currColValue,operator)==true)
+					Result.add(currRow);
+			}
+			currPg.UnLoadPage();
+			currPg=null;
+		}
+		
+		return Result;
 	}
 
 	public Hashtable<String, String> getColumnNameType() {
