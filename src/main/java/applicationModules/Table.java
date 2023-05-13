@@ -691,4 +691,12 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		return sb.toString();
 	}
 
+	public Hashtable<String, String> getColumnNameMin() {
+		return ColumnNameMin;
+	}
+
+	public Hashtable<String, String> getColumnNameMax() {
+		return ColumnNameMax;
+	}
+
 }
