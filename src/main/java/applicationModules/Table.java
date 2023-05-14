@@ -673,20 +673,16 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		Octree oct = this.LoadOctree(od.getFilePath());
 		ArrayList<String> octreeAtt = new ArrayList<>(Arrays.asList(od.getAttributes()));
 		SQLTerm[] searchTerms = new SQLTerm[3];
-		SQLTerm[] remainingTerms = new SQLTerm[sqlTerms.length-3];
 		int i = 0;
-		int j = 0;
 		for (SQLTerm term : sqlTerms)
 			if (octreeAtt.contains(term.get_strColumnName()))
 				searchTerms[i++] = term;
-			else
-				remainingTerms[j++] = term;
 		ArrayList<String> pagePaths = oct.searchRange(searchTerms);
 		for (String pagePath : pagePaths) {
 			Page currPg = LoadPage(pagePath);
 			Vector<Hashtable<String, Object>> rows = currPg.getVecPage();
 			for (Hashtable<String, Object> currRow : rows) {
-				for (SQLTerm term : remainingTerms) {
+				for (SQLTerm term : sqlTerms) {
 					Object colValue = term.get_objValue();
 					String colName = term.get_strColumnName();
 					Object currColValue = currRow.get(colName);
