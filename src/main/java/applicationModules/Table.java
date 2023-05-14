@@ -14,6 +14,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import application.SQLTerm;
 import applicationModules.Octree.Element;
 import basicTools.ComparatorI;
 import basicTools.RowAddress;
@@ -566,6 +567,28 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		return bestMatch;
 	}
 
+	private OctreeDescription getFullMatch(String[] columns) {
+		OctreeDescription bestMatch = null;
+		int maxCount = 0;
+		int count = 0;
+		for (OctreeDescription od : octrees) {
+			for (String existingAtt : od.getAttributes()) {
+				for (String col : columns)
+					if (col.equalsIgnoreCase(existingAtt)) {
+						count++;
+					}
+			}
+			if (count > maxCount) {
+				maxCount = count;
+				bestMatch = od;
+			}
+			count = 0;
+		}
+		if (count == 3)
+			return bestMatch;
+		return null;
+	}
+
 	public void validateCreateIndex(String[] columns) throws DBAppException {
 		if (columns.length != 3)
 			throw new DBAppException("Cannot create octree for anyhing other than THREE!! columns");
@@ -622,23 +645,29 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		new File(newFilePath).renameTo(new File(oldFilePath));
 	}
 
-	//test later on
-	public Vector<Hashtable<String, Object>> selectLinear(String colName, Object colValue, String operator) throws DBAppException {
-		Vector<Hashtable<String, Object>> Result= new Vector<Hashtable<String, Object>>();
+	// test later on
+	public Vector<Hashtable<String, Object>> selectLinear(String colName, Object colValue, String operator)
+			throws DBAppException {
+		Vector<Hashtable<String, Object>> Result = new Vector<Hashtable<String, Object>>();
 		for (int Index = 0; Index < TablePages.size(); Index++) {
 			int PgId = TablePages.get(Index);
 			Page currPg = LoadPage(PageFilePath.get(PgId));
 			Vector<Hashtable<String, Object>> rows = currPg.getVecPage();
-			for(Hashtable<String,Object> currRow: rows) {
-				Object currColValue=currRow.get(colName);
-				if(C.compareWithOperator(currColValue,colValue,operator)==true)
+			for (Hashtable<String, Object> currRow : rows) {
+				Object currColValue = currRow.get(colName);
+				if (C.compareWithOperator(currColValue, colValue, operator) == true)
 					Result.add(currRow);
 			}
 			currPg.UnLoadPage();
-			currPg=null;
+			currPg = null;
 		}
-		
+
 		return Result;
+	}
+
+	public Vector<Hashtable<String, Object>> selectWith(SQLTerm[] sqlTerms, OctreeDescription od)
+			throws DBAppException {
+		return null;
 	}
 
 	public Hashtable<String, String> getColumnNameType() {

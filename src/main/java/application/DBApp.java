@@ -261,6 +261,17 @@ public class DBApp implements ValidatorI, ComparatorI {
 		for (int i = 0; i < strarrOperators.length; i++)
 			strarrOperators[i] = strarrOperators[i].toLowerCase();
 		validateSelect(arrSQLTerms, strarrOperators);
+
+		// check either to use linear or with index here
+		if (true) {
+			return selectFromTableIndex(arrSQLTerms, strarrOperators);
+		}
+		return selectFromTableLinear(arrSQLTerms, strarrOperators);
+
+
+	}
+
+	private Iterator selectFromTableLinear(SQLTerm[] arrSQLTerms, String[] strarrOperators) throws DBAppException {
 		int termCount = 0;
 		int operCount = 0;
 		String tableName = arrSQLTerms[termCount].get_strTableName();
@@ -286,6 +297,10 @@ public class DBApp implements ValidatorI, ComparatorI {
 		UnLoadTable(table, tableFilePath);
 		table = null;
 		return resultSet.iterator();
+	}
+
+	private Iterator selectFromTableIndex(SQLTerm[] arrSQLTerms, String[] strarrOperators) throws DBAppException {
+		return null;
 	}
 
 	private Vector<Hashtable<String, Object>> andOperator(Vector<Hashtable<String, Object>> middleResult, SQLTerm term)
@@ -314,16 +329,16 @@ public class DBApp implements ValidatorI, ComparatorI {
 
 	private Vector<Hashtable<String, Object>> xorOperator(Vector<Hashtable<String, Object>> middleResult, SQLTerm term,
 			Table table) throws DBAppException {
-		Vector<Hashtable<String, Object>> result= new Vector<Hashtable<String, Object>>();
-        Vector<Hashtable<String, Object>> intermediate= table.selectLinear(term.get_strColumnName(),
-                term.get_objValue(),term.get_strOperator());
-        for(Hashtable<String, Object> row:middleResult)
-            if(!intermediate.contains(row))
-                result.add(row);
-        for(Hashtable<String, Object> row:intermediate)
-            if(!middleResult.contains(row))
-                result.add(row);
-        return result;
+		Vector<Hashtable<String, Object>> result = new Vector<Hashtable<String, Object>>();
+		Vector<Hashtable<String, Object>> intermediate = table.selectLinear(term.get_strColumnName(),
+				term.get_objValue(), term.get_strOperator());
+		for (Hashtable<String, Object> row : middleResult)
+			if (!intermediate.contains(row))
+				result.add(row);
+		for (Hashtable<String, Object> row : intermediate)
+			if (!middleResult.contains(row))
+				result.add(row);
+		return result;
 	}
 
 	@SuppressWarnings("rawtypes")

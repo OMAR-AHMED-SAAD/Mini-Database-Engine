@@ -12,6 +12,7 @@ import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Vector;
 
+import application.SQLTerm;
 import basicTools.ComparatorI;
 import basicTools.GetMidI;
 import exceptions.DBAppException;
@@ -102,7 +103,8 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 				int comparison3 = C.compareWNull(existingElement.htblAttributes.get(attributes[2]),
 						element.htblAttributes.get(attributes[2]));
 				if (comparison1 == 0 || comparison2 == 0 || comparison3 == 0) { // change to and if we don't want to
-																				// support null values & throw exception in table
+																				// support null values & throw exception
+																				// in table
 					vec.add(element);
 					inserted = true;
 					return true;
@@ -254,6 +256,12 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 						break;
 				}
 		}
+	}
+
+	public ArrayList<String> searchRange(SQLTerm[] sqlterms) throws DBAppException {
+		ArrayList<String> pagePaths = new ArrayList<>();
+		
+		return pagePaths;
 	}
 
 	public String toString() {
