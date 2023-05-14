@@ -60,7 +60,7 @@ SELECT: S E L E C T;
 
 statement:insert|update|create_table|delete|create_index|select;
 
-select: SELECT STAR FROM table_name WHERE select_conditions? SEMICOL?;
+select: SELECT STAR FROM table_name WHERE select_conditions? SEMICOL? EOF;
 
 select_conditions: select_condition (operator select_condition)*;
 
@@ -74,7 +74,7 @@ select_condition_value:value;
 
 oper: EQUAL|SMALLER|GREATER|SMALLERE|GREATERE|NOTEQUAL;
 
-create_index:CREATE INDEX index_name ON table_name index_columns USING OCTREE SEMICOL?;
+create_index:CREATE INDEX index_name ON table_name index_columns USING OCTREE SEMICOL? EOF;
 
 index_name: ID;
 
@@ -82,7 +82,7 @@ index_columns: LPRAN index_column (COMMA index_column)* RPRAN;
 
 index_column: ID;
 
-create_table: CREATE TABLE table_name creation_columns SEMICOL?;
+create_table: CREATE TABLE table_name creation_columns SEMICOL? EOF;
 
 creation_columns: LPRAN creation_column (COMMA creation_column)* COMMA PRIMARY KEY LPRAN pk RPRAN RPRAN;
  
@@ -96,7 +96,7 @@ data_type:integer (LPRAN INTEG RPRAN)? | VARCHAR LPRAN INTEG RPRAN | DOUBLE LPRA
 
 integer: INT | INTEGER;
 
-update : UPDATE table_name SET update_list WHERE update_condition SEMICOL?;
+update : UPDATE table_name SET update_list WHERE update_condition SEMICOL? EOF;
 
 update_list: update_item (COMMA update_item)*;
 
@@ -112,7 +112,7 @@ update_condition_name:column_name;
 
 update_condition_value:value;
 
-delete: DELETE FROM table_name (WHERE delete_conditions)? SEMICOL?;
+delete: DELETE FROM table_name (WHERE delete_conditions)? SEMICOL? EOF;
 
 delete_conditions: delete_condition (AND delete_condition)*;
 
@@ -122,7 +122,7 @@ delete_condition_name:column_name;
 
 delete_condition_value:value;
 
-insert: INSERT INTO table_name column_list? values_clause SEMICOL?;
+insert: INSERT INTO table_name column_list? values_clause SEMICOL? EOF;
 
 column_list: LPRAN column_name (COMMA column_name)* RPRAN;
 
