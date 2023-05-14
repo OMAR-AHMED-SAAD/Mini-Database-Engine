@@ -311,11 +311,6 @@ public class DBApp implements ValidatorI, ComparatorI {
 		return resultSet.iterator();
 	}
 
-	private Iterator selectFromTableIndex(SQLTerm[] arrSQLTerms, String[] strarrOperators) throws DBAppException {
-
-		return null;
-	}
-
 	private Vector<Hashtable<String, Object>> andOperator(Vector<Hashtable<String, Object>> middleResult, SQLTerm term)
 			throws DBAppException {
 		Vector<Hashtable<String, Object>> result = new Vector<>();

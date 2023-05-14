@@ -673,7 +673,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		Octree oct = this.LoadOctree(od.getFilePath());
 		ArrayList<String> octreeAtt = new ArrayList<>(Arrays.asList(od.getAttributes()));
 		SQLTerm[] searchTerms = new SQLTerm[3];
-		SQLTerm[] remainingTerms = new SQLTerm[3];
+		SQLTerm[] remainingTerms = new SQLTerm[sqlTerms.length-3];
 		int i = 0;
 		int j = 0;
 		for (SQLTerm term : sqlTerms)
@@ -686,7 +686,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 			Page currPg = LoadPage(pagePath);
 			Vector<Hashtable<String, Object>> rows = currPg.getVecPage();
 			for (Hashtable<String, Object> currRow : rows) {
-				for (SQLTerm term : sqlTerms) {
+				for (SQLTerm term : remainingTerms) {
 					Object colValue = term.get_objValue();
 					String colName = term.get_strColumnName();
 					Object currColValue = currRow.get(colName);
