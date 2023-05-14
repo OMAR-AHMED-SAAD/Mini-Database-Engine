@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.Vector;
 
+import applicationModules.OctreeDescription;
 import applicationModules.Table;
 import basicTools.ComparatorI;
 import basicTools.ValidatorI;
@@ -256,18 +257,33 @@ public class DBApp implements ValidatorI, ComparatorI {
 		table = null;
 	}
 
+	//test later on
 	@SuppressWarnings("rawtypes")
 	public Iterator selectFromTable(SQLTerm[] arrSQLTerms, String[] strarrOperators) throws DBAppException {
-		for (int i = 0; i < strarrOperators.length; i++)
-			strarrOperators[i] = strarrOperators[i].toLowerCase();
 		validateSelect(arrSQLTerms, strarrOperators);
+		boolean allAnd = true;
+		Table table = LoadTable(CreatedTables.get(arrSQLTerms[0].get_strTableName()));
+		table.ReadMetaData();
+		String[] colNames = new String[arrSQLTerms.length];
+
+		for (int i = 0; i < strarrOperators.length; i++) {
+			strarrOperators[i] = strarrOperators[i].toLowerCase();
+			if (!strarrOperators[i].equals("and"))
+				allAnd = false;
+		}
+
+		for (int i = 0; i < arrSQLTerms.length; i++)
+			colNames[i] = arrSQLTerms[i].get_strColumnName();
+
+		OctreeDescription od = table.getFullMatch(colNames);
 
 		// check either to use linear or with index here
-		if (true) {
+
+		if (allAnd && od != null) {
+//			resultSet.iterator()
 			return selectFromTableIndex(arrSQLTerms, strarrOperators);
 		}
 		return selectFromTableLinear(arrSQLTerms, strarrOperators);
-
 
 	}
 
@@ -300,6 +316,7 @@ public class DBApp implements ValidatorI, ComparatorI {
 	}
 
 	private Iterator selectFromTableIndex(SQLTerm[] arrSQLTerms, String[] strarrOperators) throws DBAppException {
+
 		return null;
 	}
 
