@@ -10,6 +10,7 @@ import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -665,31 +666,39 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		return Result;
 	}
 
-	//testLaterOn
+	// testLaterOn
 	public Vector<Hashtable<String, Object>> selectWithIndex(SQLTerm[] sqlTerms, OctreeDescription od)
 			throws DBAppException {
-		Vector<Hashtable<String, Object>> Result = new Vector<Hashtable<String, Object>>();
+		Vector<Hashtable<String, Object>> result = new Vector<Hashtable<String, Object>>();
 		Octree oct = this.LoadOctree(od.getFilePath());
-		String[]OctAtt=od.getAttributes();
-		ArrayList<String> pagePaths=oct.searchRange(sqlTerms);
-		for(String pagePath:pagePaths) {
+		ArrayList<String> octreeAtt = new ArrayList<>(Arrays.asList(od.getAttributes()));
+		SQLTerm[] searchTerms = new SQLTerm[3];
+		SQLTerm[] remainingTerms = new SQLTerm[3];
+		int i = 0;
+		int j = 0;
+		for (SQLTerm term : sqlTerms)
+			if (octreeAtt.contains(term.get_strColumnName()))
+				searchTerms[i++] = term;
+			else
+				remainingTerms[j++] = term;
+		ArrayList<String> pagePaths = oct.searchRange(searchTerms);
+		for (String pagePath : pagePaths) {
 			Page currPg = LoadPage(pagePath);
 			Vector<Hashtable<String, Object>> rows = currPg.getVecPage();
 			for (Hashtable<String, Object> currRow : rows) {
-				for(SQLTerm term:sqlTerms) {
-					Object colValue=term.get_objValue();
-					String colName=term.get_strColumnName();
+				for (SQLTerm term : sqlTerms) {
+					Object colValue = term.get_objValue();
+					String colName = term.get_strColumnName();
 					Object currColValue = currRow.get(colName);
-					String operator=term.get_strOperator();
+					String operator = term.get_strOperator();
 					if (C.compareWithOperator(currColValue, colValue, operator) == true)
-						Result.add(currRow);
+						result.add(currRow);
 				}
 			}
 			currPg.UnLoadPage();
 			currPg = null;
 		}
-		
-		return null;
+		return result;
 	}
 
 	public Hashtable<String, String> getColumnNameType() {

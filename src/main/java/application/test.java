@@ -1,6 +1,7 @@
 package application;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -69,17 +70,17 @@ public class test {
 		two.put("lol", "22");
 		
 		//System.out.println(lol.contains(two));
-		
-		ArrayList<String> a=new ArrayList<>();
+		String [] ex= {"1","2"};
+		ArrayList<String> a=new ArrayList<>(Arrays.asList(ex));
 //		a.add("kkf");
 //		a.add("kk-tjoif");
 //		a.add("kktjrtf");
 //		a.add(0, "Fkmlkf");
 		//System.out.println(a.get(0));
-		Object o="kdjkl";
-		String x=o.toString();
-		System.out.println(o.getClass());
-		
+//		Object o="kdjkl";
+//		String x=o.toString();
+//		System.out.println(o.getClass());
+		System.out.println(a);
 		
 	}
 }
