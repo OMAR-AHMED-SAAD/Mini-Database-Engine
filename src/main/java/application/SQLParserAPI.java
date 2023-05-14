@@ -249,7 +249,7 @@ public class SQLParserAPI implements ValidatorI {
 
 	}
 
-	public static void main(String[] args) throws DBAppException {
-		new SQLParserAPI(new DBApp()).sqlExecuteParse("SElect * from student where name = 'john' and age>=20 or id=50 xor a>20");
-	}
+//	public static void main(String[] args) throws DBAppException {
+//		new SQLParserAPI(new DBApp()).sqlExecuteParse("SElect * from student where name = 'john' and age>=20 or id=50 xor a>20");
+//	}
 }

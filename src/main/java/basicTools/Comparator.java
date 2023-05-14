@@ -51,7 +51,12 @@ public class Comparator {
 			throw new DBAppException("Comparing two incompatible types");
 	}
 
+	// check this later
 	public boolean compareWithOperator(Object one, Object two, String operator) throws DBAppException {
+		if (one == null && two == null && operator == "=")
+			return true;
+		if (one != null && two == null && operator == "!=")
+			return true;
 		if (one == null || two == null)
 			return false;
 		switch (operator) {
@@ -72,6 +77,31 @@ public class Comparator {
 				return true;
 		case "!=":
 			if (compare(one, two) != 0)
+				return true;
+		}
+		return false;
+	}
+//test this later
+	public boolean compareWithOperator(Object min, Object max, String operator, Object value, boolean isMaxIncluded)
+			throws DBAppException {
+		switch (operator) {
+		case "=":
+			if ((compare(min, value) <= 0 && compare(min, value) >= 0 && isMaxIncluded)
+					|| (compare(min, value) <= 0 && compare(min, value) > 0))
+				return true;
+		case ">":
+			if (compare(max, value) > 0)
+				return true;
+		case "<":
+			if (compare(min, value) < 0)
+				return true;
+		case ">=":
+			if ((compare(max, value) > 0)||(compare(max, value) >=0 && isMaxIncluded))
+				return true;
+		case "<=":
+			if (compare(min, value) <= 0)
+				return true;
+		case "!=":
 				return true;
 		}
 		return false;

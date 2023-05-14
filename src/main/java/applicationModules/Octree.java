@@ -258,10 +258,47 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 		}
 	}
 
+	// search with support for range queries
 	public ArrayList<String> searchRange(SQLTerm[] sqlterms) throws DBAppException {
 		ArrayList<String> pagePaths = new ArrayList<>();
-		
+		searchRangeHelper(root, sqlterms, pagePaths);
 		return pagePaths;
+	}
+
+	private void searchRangeHelper(Node node, SQLTerm[] sqlterms, ArrayList<String> pagePaths) throws DBAppException {
+		if (node.children == null) {
+			for (Vector<Element> vec : node.elements)
+				for (Element element : vec)
+					if (isRightElement(element, sqlterms))
+						pagePaths.add(element.pointer);
+		} else
+			for (Node child : node.children)
+				if (isRightNode(child, sqlterms))
+					searchRangeHelper(child, sqlterms, pagePaths);
+	}
+
+	private boolean isRightNode(Node node, SQLTerm[] sqlterms) throws DBAppException {
+		boolean result = true;
+		for (SQLTerm term : sqlterms) {
+			Object min = node.min.get(term.get_strColumnName());
+			Object max = node.max.get(term.get_strColumnName());
+			boolean isMAxIncluded = max.equals(root.max.get(term.get_strColumnName()));
+			boolean comparison = C.compareWithOperator(min, max, term.get_strOperator(), term.get_objValue(),
+					isMAxIncluded);
+			result &= comparison;
+		}
+		return result;
+	}
+
+	public boolean isRightElement(Element element, SQLTerm[] sqlterms) throws DBAppException {
+		boolean result = true;
+		for (SQLTerm term : sqlterms) {
+			Object currvalue = element.htblAttributes.get(term.get_strColumnName());
+			boolean comparison = C.compareWithOperator(currvalue, term.get_objValue(), term.get_strOperator());
+			result &= comparison;
+		}
+		return result;
+
 	}
 
 	public String toString() {
@@ -312,8 +349,8 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 						sb.append("null\n");
 					} else {
 						sb.append("\n");
-						sb.append(getIndent(level + 1)).append("Min: ").append(children[i].getMin()).append("\n");
-						sb.append(getIndent(level + 1)).append("Max: ").append(children[i].getMax()).append("\n");
+						sb.append(getIndent(level + 1)).append("Min: ").append(children[i].printMin()).append("\n");
+						sb.append(getIndent(level + 1)).append("Max: ").append(children[i].printMax()).append("\n");
 						sb.append(children[i].toString(level + 1));
 					}
 				}
@@ -349,7 +386,7 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 			return sb.toString();
 		}
 
-		public String getMax() {
+		public String printMax() {
 			StringBuilder sb = new StringBuilder();
 			sb.append("{");
 			for (String attribute : attributes) {
@@ -363,7 +400,7 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 			return sb.toString();
 		}
 
-		public String getMin() {
+		public String printMin() {
 			StringBuilder sb = new StringBuilder();
 			sb.append("{");
 			for (String attribute : attributes) {
