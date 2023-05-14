@@ -567,7 +567,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		return bestMatch;
 	}
 
-	private OctreeDescription getFullMatch(String[] columns) {
+	public OctreeDescription getFullMatch(String[] columns) {
 		OctreeDescription bestMatch = null;
 		int maxCount = 0;
 		int count = 0;
@@ -665,8 +665,30 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		return Result;
 	}
 
-	public Vector<Hashtable<String, Object>> selectWith(SQLTerm[] sqlTerms, OctreeDescription od)
+	//testLaterOn
+	public Vector<Hashtable<String, Object>> selectWithIndex(SQLTerm[] sqlTerms, OctreeDescription od)
 			throws DBAppException {
+		Vector<Hashtable<String, Object>> Result = new Vector<Hashtable<String, Object>>();
+		Octree oct = this.LoadOctree(od.getFilePath());
+		String[]OctAtt=od.getAttributes();
+		ArrayList<String> pagePaths=oct.searchRange(sqlTerms);
+		for(String pagePath:pagePaths) {
+			Page currPg = LoadPage(pagePath);
+			Vector<Hashtable<String, Object>> rows = currPg.getVecPage();
+			for (Hashtable<String, Object> currRow : rows) {
+				for(SQLTerm term:sqlTerms) {
+					Object colValue=term.get_objValue();
+					String colName=term.get_strColumnName();
+					Object currColValue = currRow.get(colName);
+					String operator=term.get_strOperator();
+					if (C.compareWithOperator(currColValue, colValue, operator) == true)
+						Result.add(currRow);
+				}
+			}
+			currPg.UnLoadPage();
+			currPg = null;
+		}
+		
 		return null;
 	}
 
