@@ -250,8 +250,8 @@ public class DBApp implements ValidatorI, ComparatorI {
 			if (table.getColumnNameType().get(currColName) == null)
 				throw new DBAppException("Column name doesn't exist for table " + currTblName);
 			V.ValidateObjectType(term.get_objValue(), table.getColumnNameType().get(currColName));
-			V.ValidateBounds(currColName, term.get_objValue(), table.getColumnNameType(), table.getColumnNameMin(),
-					table.getColumnNameMax());
+//			V.ValidateBounds(currColName, term.get_objValue(), table.getColumnNameType(), table.getColumnNameMin(),
+//					table.getColumnNameMax());
 		}
 		UnLoadTable(table, filePath);
 		table = null;
@@ -262,34 +262,32 @@ public class DBApp implements ValidatorI, ComparatorI {
 	public Iterator selectFromTable(SQLTerm[] arrSQLTerms, String[] strarrOperators) throws DBAppException {
 		validateSelect(arrSQLTerms, strarrOperators);
 		boolean allAnd = true;
-		Table table = LoadTable(CreatedTables.get(arrSQLTerms[0].get_strTableName()));
+		String tableFilePath = CreatedTables.get(arrSQLTerms[0].get_strTableName());
+		Table table = LoadTable(tableFilePath);
 		table.ReadMetaData();
 		String[] colNames = new String[arrSQLTerms.length];
-
 		for (int i = 0; i < strarrOperators.length; i++) {
 			strarrOperators[i] = strarrOperators[i].toLowerCase();
 			if (!strarrOperators[i].equals("and"))
 				allAnd = false;
 		}
-
 		for (int i = 0; i < arrSQLTerms.length; i++)
 			colNames[i] = arrSQLTerms[i].get_strColumnName();
-
 		OctreeDescription od = table.getFullMatch(colNames);
-
-		if (allAnd && od != null) {
-			return table.selectWithIndex(arrSQLTerms, od).iterator();
-		}
-		return selectFromTableLinear(arrSQLTerms, strarrOperators);
+		Vector<Hashtable<String, Object>> resultSet = new Vector<>();
+		if (allAnd && od != null)
+			resultSet = table.selectWithIndex(arrSQLTerms, od);
+		else
+			resultSet = selectFromTableLinear(arrSQLTerms, strarrOperators, table);
+		UnLoadTable(table, tableFilePath);
+		table = null;
+		return resultSet.iterator();
 	}
 
-	private Iterator selectFromTableLinear(SQLTerm[] arrSQLTerms, String[] strarrOperators) throws DBAppException {
+	private Vector<Hashtable<String, Object>> selectFromTableLinear(SQLTerm[] arrSQLTerms, String[] strarrOperators,
+			Table table) throws DBAppException {
 		int termCount = 0;
 		int operCount = 0;
-		String tableName = arrSQLTerms[termCount].get_strTableName();
-		String tableFilePath = CreatedTables.get(tableName);
-		Table table = LoadTable(tableFilePath);
-		table.ReadMetaData();
 		Vector<Hashtable<String, Object>> resultSet = table.selectLinear(arrSQLTerms[termCount].get_strColumnName(),
 				arrSQLTerms[termCount].get_objValue(), arrSQLTerms[termCount].get_strOperator());
 		termCount++;
@@ -306,9 +304,7 @@ public class DBApp implements ValidatorI, ComparatorI {
 				break;
 			}
 		}
-		UnLoadTable(table, tableFilePath);
-		table = null;
-		return resultSet.iterator();
+		return resultSet;
 	}
 
 	private Vector<Hashtable<String, Object>> andOperator(Vector<Hashtable<String, Object>> middleResult, SQLTerm term)
@@ -332,7 +328,6 @@ public class DBApp implements ValidatorI, ComparatorI {
 				result.add(row);
 		}
 		return result;
-
 	}
 
 	private Vector<Hashtable<String, Object>> xorOperator(Vector<Hashtable<String, Object>> middleResult, SQLTerm term,

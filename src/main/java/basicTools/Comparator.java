@@ -63,47 +63,64 @@ public class Comparator {
 		case "=":
 			if (compare(one, two) == 0)
 				return true;
+			break;
 		case ">":
 			if (compare(one, two) > 0)
 				return true;
+			break;
 		case "<":
 			if (compare(one, two) < 0)
 				return true;
+			break;
 		case ">=":
 			if (compare(one, two) >= 0)
 				return true;
+			break;
 		case "<=":
 			if (compare(one, two) <= 0)
 				return true;
+			break;
 		case "!=":
 			if (compare(one, two) != 0)
 				return true;
+			break;
 		}
 		return false;
 	}
+
 //test this later
 	public boolean compareWithOperator(Object min, Object max, String operator, Object value, boolean isMaxIncluded)
 			throws DBAppException {
 		switch (operator) {
 		case "=":
-			if ((compare(min, value) <= 0 && compare(min, value) >= 0 && isMaxIncluded)
-					|| (compare(min, value) <= 0 && compare(min, value) > 0))
+			if ((compare(min, value) <= 0 && compare(max, value) >= 0 && isMaxIncluded)
+					|| (compare(min, value) <= 0 && compare(max, value) > 0))
 				return true;
+			break;
 		case ">":
 			if (compare(max, value) > 0)
 				return true;
+			break;
 		case "<":
 			if (compare(min, value) < 0)
 				return true;
+			break;
 		case ">=":
-			if ((compare(max, value) > 0)||(compare(max, value) >=0 && isMaxIncluded))
+			if ((compare(max, value) > 0) || (compare(max, value) >= 0 && isMaxIncluded))
 				return true;
+			break;
 		case "<=":
 			if (compare(min, value) <= 0)
 				return true;
+			break;
 		case "!=":
-				return true;
+			return true;
 		}
 		return false;
+	}
+
+	public static void main(String[] args) throws DBAppException {
+
+		System.out.println(new Comparator().compareWithOperator(1, 10, "!=", 1, false));
 	}
 }

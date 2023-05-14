@@ -261,10 +261,12 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 	// search with support for range queries
 	public ArrayList<String> searchRange(SQLTerm[] sqlterms) throws DBAppException {
 		ArrayList<String> pagePaths = new ArrayList<>();
-		searchRangeHelper(root, sqlterms, pagePaths);
+		if (isRightNode(root, sqlterms))
+			searchRangeHelper(root, sqlterms, pagePaths);
 		return pagePaths;
 	}
 
+//test later
 	private void searchRangeHelper(Node node, SQLTerm[] sqlterms, ArrayList<String> pagePaths) throws DBAppException {
 		if (node.children == null) {
 			for (Vector<Element> vec : node.elements)
@@ -277,19 +279,21 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 					searchRangeHelper(child, sqlterms, pagePaths);
 	}
 
+	// test later
 	private boolean isRightNode(Node node, SQLTerm[] sqlterms) throws DBAppException {
 		boolean result = true;
 		for (SQLTerm term : sqlterms) {
-			Object min = node.min.get(term.get_strColumnName());
-			Object max = node.max.get(term.get_strColumnName());
-			boolean isMAxIncluded = max.equals(root.max.get(term.get_strColumnName()));
-			boolean comparison = C.compareWithOperator(min, max, term.get_strOperator(), term.get_objValue(),
+			Object minVal = node.min.get(term.get_strColumnName());
+			Object maxVal = node.max.get(term.get_strColumnName());
+			boolean isMAxIncluded = maxVal.equals(root.max.get(term.get_strColumnName()));
+			boolean comparison = C.compareWithOperator(minVal, maxVal, term.get_strOperator(), term.get_objValue(),
 					isMAxIncluded);
 			result &= comparison;
 		}
 		return result;
 	}
 
+	// test later
 	public boolean isRightElement(Element element, SQLTerm[] sqlterms) throws DBAppException {
 		boolean result = true;
 		for (SQLTerm term : sqlterms) {
@@ -298,7 +302,6 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 			result &= comparison;
 		}
 		return result;
-
 	}
 
 	public String toString() {
