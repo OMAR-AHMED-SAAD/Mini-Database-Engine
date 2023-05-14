@@ -257,7 +257,7 @@ public class DBApp implements ValidatorI, ComparatorI {
 		table = null;
 	}
 
-	//test later on
+	// test later on
 	@SuppressWarnings("rawtypes")
 	public Iterator selectFromTable(SQLTerm[] arrSQLTerms, String[] strarrOperators) throws DBAppException {
 		validateSelect(arrSQLTerms, strarrOperators);
@@ -277,14 +277,10 @@ public class DBApp implements ValidatorI, ComparatorI {
 
 		OctreeDescription od = table.getFullMatch(colNames);
 
-		// check either to use linear or with index here
-
 		if (allAnd && od != null) {
-//			resultSet.iterator()
-			return selectFromTableIndex(arrSQLTerms, strarrOperators);
+			return table.selectWithIndex(arrSQLTerms, od).iterator();
 		}
 		return selectFromTableLinear(arrSQLTerms, strarrOperators);
-
 	}
 
 	private Iterator selectFromTableLinear(SQLTerm[] arrSQLTerms, String[] strarrOperators) throws DBAppException {
