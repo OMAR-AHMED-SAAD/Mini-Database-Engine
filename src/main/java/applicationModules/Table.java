@@ -511,7 +511,6 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		String col0 = columns[0];
 		String col1 = columns[1];
 		String col2 = columns[2];
-
 		OctreeDescription od = new OctreeDescription(TblName, col0, col1, col2);
 		this.octrees.add(od);
 		Hashtable<String, Object> min = new Hashtable<String, Object>();

@@ -180,7 +180,7 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 		if (node.children == null) {
 			for (Vector<Element> vec : node.elements)
 				for (Element element : vec) {
-					if (isRightElement(element, tuple))
+					if (isRightElement(element, tuple) && !pagePaths.contains(element.pointer))
 						pagePaths.add(element.pointer);
 				}
 		} else {
@@ -246,7 +246,7 @@ public class Octree implements Serializable, ComparatorI, GetMidI {
 		if (node.children == null) {
 			for (Vector<Element> vec : node.elements)
 				for (Element element : vec)
-					if (isRightElement(element, sqlterms))
+					if (isRightElement(element, sqlterms) && !pagePaths.contains(element.pointer))
 						pagePaths.add(element.pointer);
 		} else
 			for (Node child : node.children)
