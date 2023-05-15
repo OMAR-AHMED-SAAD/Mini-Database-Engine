@@ -118,9 +118,4 @@ public class Comparator {
 		}
 		return false;
 	}
-
-	public static void main(String[] args) throws DBAppException {
-
-		System.out.println(new Comparator().compareWithOperator(1, 10, "!=", 1, false));
-	}
 }

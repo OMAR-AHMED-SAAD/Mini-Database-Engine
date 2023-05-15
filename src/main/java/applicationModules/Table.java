@@ -780,4 +780,8 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		return sb.toString();
 	}
 
+	public Vector<OctreeDescription> getOctrees() {
+		return octrees;
+	}
+
 }
