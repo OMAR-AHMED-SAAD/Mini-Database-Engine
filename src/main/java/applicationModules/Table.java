@@ -94,7 +94,6 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 			}
 			bufferedreader.close();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			throw new DBAppException(e.getMessage());
 		}
 	}
@@ -156,7 +155,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 					InstPg = LoadPage(this.PageFilePath.get(Pid));
 					PgInstRes = InstPg.InsertToPage(this.CKName, ColNameValue);
 					UpTblData(InstPg);
-					if (!ColNameValue.equals(PgInstRes))
+					if (ColNameValue.equals(PgInstRes))
 						isInserted = false;
 					resultFilePath = InstPg.getFilePath();
 					OverflowSolver(PgInstRes, resultFilePath);
@@ -171,7 +170,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 					InstPg = LoadPage(this.PageFilePath.get(Pid));
 					PgInstRes = InstPg.InsertToPage(this.CKName, ColNameValue);
 					UpTblData(InstPg);
-					if (!ColNameValue.equals(PgInstRes))
+					if (ColNameValue.equals(PgInstRes))
 						isInserted = false;
 					resultFilePath = InstPg.getFilePath();
 					OverflowSolver(PgInstRes, resultFilePath);
@@ -184,7 +183,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 						InstPg = LoadPage(this.PageFilePath.get(Pid));
 						PgInstRes = InstPg.InsertToPage(this.CKName, ColNameValue);
 						UpTblData(InstPg);
-						if (!ColNameValue.equals(PgInstRes))
+						if (ColNameValue.equals(PgInstRes))
 							isInserted = false;
 						resultFilePath = InstPg.getFilePath();
 						OverflowSolver(PgInstRes, resultFilePath);
@@ -201,8 +200,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		return resultFilePath;
 	}
 
-	private void insertInOctree(Hashtable<String, Object> tuple, String FilePath) throws DBAppException { // needs
-																											// testing
+	private void insertInOctree(Hashtable<String, Object> tuple, String FilePath) throws DBAppException {
 		for (OctreeDescription od : octrees) {
 			Hashtable<String, Object> insertTuple = new Hashtable<String, Object>();
 			for (String attribute : od.getAttributes()) {
@@ -247,7 +245,6 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		}
 	}
 
-	// needs testing
 	private void OverFlowSolverOctree(Hashtable<String, Object> tuple, String oldFilePath, String newFilePath)
 			throws DBAppException {
 		if (tuple == null)
@@ -260,7 +257,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 					searchTuple.put(attribute, value);
 			}
 			Octree oct = this.LoadOctree(od.getFilePath());
-			oct.updatePageRef(searchTuple, oldFilePath, newFilePath);
+			oct.delete(searchTuple, oldFilePath);
 			oct.UnLoadTree();
 			oct = null;
 		}

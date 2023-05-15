@@ -405,3 +405,31 @@ public class looojiiiii {
 ////db.parseSQL(new StringBuffer("CREATE INDEX idx_employees ON employees2 (id,salary,dob) USING OCTREE;"));
 //
 //}
+
+
+
+
+// updates one element & matches null
+//public void updatePageRef(Hashtable<String, Object> tuple, String oldFilePath, String newFilePath)
+//		throws DBAppException {
+//	updtPgRef(root, tuple, oldFilePath, newFilePath);
+//}
+
+//private void updtPgRef(Node node, Hashtable<String, Object> tuple, String oldFilePath, String newFilePath)
+//		throws DBAppException {
+//	if (node.children == null) {
+//		for (Vector<Element> vec : node.elements)
+//			for (Element element : vec)
+//				if (isRightElement(element, tuple) && element.pointer.equals(oldFilePath)) {
+//					element.pointer = newFilePath;
+//					return;
+//				}
+//	} else {
+//		for (Node child : node.children)
+//			if (isRightNode(child, tuple)) {
+//				updtPgRef(child, tuple, oldFilePath, newFilePath);
+//				if (tuple.size() == 3)//// check risk!!!
+//					break;
+//			}
+//	}
+//}

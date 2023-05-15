@@ -37,7 +37,7 @@ public class loojiPleaseLoadTable {
 
 		db.createTable(tableName, "id", htblColNameType, minValues, maxValues);
 		
-		BufferedReader studentsTable = new BufferedReader(new FileReader("src/main/resources/students_table 3.csv"));
+		BufferedReader studentsTable = new BufferedReader(new FileReader("src/main/resources/students_table 4.csv"));
 		String record;
 
 		Hashtable<String, Object> row = new Hashtable<>();
@@ -69,11 +69,11 @@ public class loojiPleaseLoadTable {
 
 		studentsTable.close();
 		//insert with null values
-		row.put("id", 21);
-		row.put("first_name","NONAME");
-		row.put("last_name", "NONAME2");
-		row.put("gpa", 2.0);
-		db.insertIntoTable("students", row);
+//		row.put("id", 21);
+//		row.put("first_name","NONAME");
+//		row.put("last_name", "NONAME2");
+//		row.put("gpa", 2.0);
+//		db.insertIntoTable("students", row);
 		
 	}
 	
