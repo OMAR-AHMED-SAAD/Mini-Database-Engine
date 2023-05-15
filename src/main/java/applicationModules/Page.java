@@ -198,7 +198,7 @@ public class Page implements Serializable, ComparatorI {
 		return FilePath;
 	}
 
-	public String toString() {
+	public String toString(Vector<String> columnNames) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Page ID: ").append(PageId).append("\n");
 		sb.append("Table Name: ").append(TblName).append("\n");
@@ -211,9 +211,6 @@ public class Page implements Serializable, ComparatorI {
 		// Append the table as a string
 		sb.append("Table Contents:\n");
 		// Get the column names from the first hashtable in the vector
-		Hashtable<String, Object> firstHashtable = VecPage.firstElement();
-		Set<String> columnNames = firstHashtable.keySet();
-
 		// Determine the maximum width of each column
 		Map<String, Integer> columnWidths = new TreeMap<String, Integer>();
 		for (String columnName : columnNames) {

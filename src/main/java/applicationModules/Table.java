@@ -521,7 +521,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		Hashtable<String, Object> max = new Hashtable<String, Object>();
 		for (String s : columns) {
 			min.put(s, V.tryParse(ColumnNameMin.get(s), ColumnNameType.get(s)));
-			max.put(s, V.tryParse(ColumnNameMin.get(s), ColumnNameType.get(s)));
+			max.put(s, V.tryParse(ColumnNameMax.get(s), ColumnNameType.get(s)));
 		}
 		Octree o = new Octree(TblName, col0, col1, col2, min, max);
 		o.populate(this);
@@ -770,7 +770,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		for (int i = 0; i < this.TablePages.size(); i++) {
 			String FilePath = this.PageFilePath.get(this.TablePages.get(i));
 			Page page = LoadPage(FilePath);
-			sb.append("\n").append(page.toString());
+			sb.append("\n").append(page.toString(creationOrder));
 			try {
 				page.UnLoadPage();
 			} catch (DBAppException e) {
