@@ -575,7 +575,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 			}
 			count = 0;
 		}
-		if (count == 3)
+		if (maxCount == 3)
 			return bestMatch;
 		return null;
 	}
@@ -672,14 +672,16 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 			Page currPg = LoadPage(pagePath);
 			Vector<Hashtable<String, Object>> rows = currPg.getVecPage();
 			for (Hashtable<String, Object> currRow : rows) {
+				boolean matchResult = true;
 				for (SQLTerm term : sqlTerms) {
 					Object colValue = term.get_objValue();
 					String colName = term.get_strColumnName();
 					Object currColValue = currRow.get(colName);
 					String operator = term.get_strOperator();
-					if (C.compareWithOperator(currColValue, colValue, operator) == true)
-						result.add(currRow);
+					matchResult &= C.compareWithOperator(currColValue, colValue, operator);
 				}
+				if (matchResult)
+					result.add(currRow);
 			}
 			currPg.UnLoadPage();
 			currPg = null;
