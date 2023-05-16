@@ -132,7 +132,7 @@ public class SQLParserAPI implements ValidatorI {
 	}
 
 	private Void sqlDelete(ExtractStatement visitor) throws DBAppException {
-		String tableName = visitor.getTableName();
+		String tableName = visitor.getTableName().toLowerCase();
 		List<String> columnNames = visitor.getDeleteColumnNames();
 		List<String> columnValues = visitor.getDeleteValues();
 		Hashtable<String, Object> NameValue = new Hashtable<String, Object>();
@@ -155,7 +155,7 @@ public class SQLParserAPI implements ValidatorI {
 	}
 
 	private Void sqlInsert(ExtractStatement visitor) throws DBAppException {
-		String tableName = visitor.getTableName();
+		String tableName = visitor.getTableName().toLowerCase();
 		List<String> columnNames = visitor.getInsertionColumnNames();
 		List<String> columnValues = visitor.getInsertionValues();
 		if (db.getCreatedTables().get(tableName) == null)
@@ -191,7 +191,7 @@ public class SQLParserAPI implements ValidatorI {
 	}
 
 	private Void sqlUpdate(ExtractStatement visitor) throws DBAppException {
-		String tableName = visitor.getTableName();
+		String tableName = visitor.getTableName().toLowerCase();
 		String pkName = visitor.getUpdateConditionName();
 		String pkValue = visitor.getUpdateConditionValue();
 		List<String> columnNames = visitor.getUpdateColumnNames();
@@ -215,7 +215,7 @@ public class SQLParserAPI implements ValidatorI {
 	}
 
 	private Void sqlCreateIndex(ExtractStatement visitor) throws DBAppException {
-		String tableName = visitor.getTableName();
+		String tableName = visitor.getTableName().toLowerCase();
 		List<String> columnNames = visitor.getIndexColumnNames();
 		if (db.getCreatedTables().get(tableName) == null)
 			throw new DBAppException(tableName + " does not exists");
@@ -225,7 +225,7 @@ public class SQLParserAPI implements ValidatorI {
 	}
 
 	private Iterator sqlSelect(ExtractStatement visitor) throws DBAppException {
-		String tableName = visitor.getTableName();
+		String tableName = visitor.getTableName().toLowerCase();
 //		System.out.println(visitor.getSelectSqlTerms());
 //		System.out.println(visitor.getSelectOperators());
 //		return null;

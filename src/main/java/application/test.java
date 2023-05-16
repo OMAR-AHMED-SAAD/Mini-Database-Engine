@@ -69,6 +69,7 @@ public class test {
 		two.put("lol", 2);
 		two.put("lol", "22");
 		
+		System.out.println(two.remove("jkhk"));
 		//System.out.println(lol.contains(two));
 		String [] ex= {"1","2"};
 		ArrayList<String> a=new ArrayList<>(Arrays.asList(ex));
@@ -80,7 +81,6 @@ public class test {
 //		Object o="kdjkl";
 //		String x=o.toString();
 //		System.out.println(o.getClass());
-		System.out.println(a);
-		
+		//System.out.println(a);
 	}
 }

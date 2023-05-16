@@ -262,15 +262,15 @@ public class DBApp implements ValidatorI, ComparatorI {
 	public Iterator selectFromTable(SQLTerm[] arrSQLTerms, String[] strarrOperators) throws DBAppException {
 		validateSelect(arrSQLTerms, strarrOperators);
 		boolean allAnd = true;
-		String tableFilePath = CreatedTables.get(arrSQLTerms[0].get_strTableName());
-		Table table = LoadTable(tableFilePath);
-		table.ReadMetaData();
-		String[] colNames = new String[arrSQLTerms.length];
 		for (int i = 0; i < strarrOperators.length; i++) {
 			strarrOperators[i] = strarrOperators[i].toLowerCase();
 			if (!strarrOperators[i].equals("and"))
 				allAnd = false;
 		}
+		String tableFilePath = CreatedTables.get(arrSQLTerms[0].get_strTableName());
+		Table table = LoadTable(tableFilePath);
+		table.ReadMetaData();
+		String[] colNames = new String[arrSQLTerms.length];
 		for (int i = 0; i < arrSQLTerms.length; i++)
 			colNames[i] = arrSQLTerms[i].get_strColumnName();
 		OctreeDescription od = table.getFullMatch(colNames);

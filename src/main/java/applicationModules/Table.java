@@ -295,7 +295,6 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		}
 	}
 
-	// need to test later on
 	private RowAddress SearchByCkWithIndex(Object CkValObj) throws DBAppException {
 		Boolean IsPgFound = false;
 		Octree oct = this.LoadOctree(getBestMatch(new String[] { CKName }).getFilePath());
@@ -321,7 +320,6 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		}
 	}
 
-	// need to test later on
 	public void UpdateTbl(String CKVal, Hashtable<String, Object> ColNameVal) throws DBAppException {
 		Vector<OctreeDescription> existingOctrees = this.getMatchingIndex(new String[] { CKName });
 		if (existingOctrees.size() == 0)
@@ -342,7 +340,6 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		updatePg = null;
 	}
 
-	// need to test later on
 	private void updateWithIndex(String CKVal, Hashtable<String, Object> ColNameVal) throws DBAppException {
 		RowAddress RowAdrs = SearchByCkWithIndex(V.tryParse(CKVal, ColumnNameType.get(CKName)));
 		if (RowAdrs == null)
@@ -355,7 +352,6 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		updatePg = null;
 	}
 
-	// need to test later on
 	private void updateOctrees(Hashtable<String, Object> oldTuple, Hashtable<String, Object> newTuple,
 			Hashtable<String, Object> updateValues, String pageFilePath) throws DBAppException {
 		Vector<OctreeDescription> updatedOctrees = this
@@ -381,7 +377,6 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 
 	}
 
-	// need to test later on
 	public void DelFromTbl(Hashtable<String, Object> ColNameVal) throws DBAppException {
 		Vector<OctreeDescription> existingOctrees = this
 				.getMatchingIndex(ColNameVal.keySet().toArray(new String[ColNameVal.keySet().size()]));
@@ -434,9 +429,8 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		}
 	}
 
-	// need to test later on
 	private void deleteWithIndex(Hashtable<String, Object> ColNameVal) throws DBAppException {
-		if (ColNameVal.containsKey(CKName) && getMatchingIndex(new String[] { CKName }) != null) {
+		if (ColNameVal.containsKey(CKName) && getMatchingIndex(new String[] { CKName }).size() != 0) {
 			RowAddress RowAdrs = SearchByCkWithIndex(ColNameVal.get(CKName));
 			if (RowAdrs == null)
 				return;
@@ -658,7 +652,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 			currPg.UnLoadPage();
 			currPg = null;
 		}
-
+		System.out.println("Select Linear");
 		return Result;
 	}
 
@@ -690,6 +684,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 			currPg.UnLoadPage();
 			currPg = null;
 		}
+		System.out.println("Select With Index");
 		return result;
 	}
 

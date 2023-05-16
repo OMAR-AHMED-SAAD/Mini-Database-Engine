@@ -33,7 +33,7 @@ public class SQLTerm {
 	}
 
 	public void set_strTableName(String _strTableName) {
-		this._strTableName = _strTableName;
+		this._strTableName = _strTableName.toLowerCase();;
 	}
 
 	public String get_strColumnName() {
@@ -41,7 +41,7 @@ public class SQLTerm {
 	}
 
 	public void set_strColumnName(String _strColumnName) {
-		this._strColumnName = _strColumnName;
+		this._strColumnName = _strColumnName.toLowerCase();
 	}
 
 	public String get_strOperator() {

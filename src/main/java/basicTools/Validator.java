@@ -66,7 +66,7 @@ public class Validator implements ComparatorI {
 	public Object tryParse(String Value, String Type) throws DBAppException {
 		try {
 			return Parsing(Value, Type);
-		} catch (ParseException e) {
+		} catch (Exception e) {
 			throw new DBAppException(Value + " is Invalid for type " + Type);
 		}
 	}
