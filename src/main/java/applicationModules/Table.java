@@ -652,7 +652,6 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 			currPg.UnLoadPage();
 			currPg = null;
 		}
-		System.out.println("Select Linear");
 		return Result;
 	}
 
@@ -670,8 +669,7 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 		ArrayList<String> pagePaths = oct.searchRange(searchTerms);
 		for (String pagePath : pagePaths) {
 			Page currPg = LoadPage(pagePath);
-			Vector<Hashtable<String, Object>> rows = currPg.getVecPage();
-			for (Hashtable<String, Object> currRow : rows) {
+			for (Hashtable<String, Object> currRow : currPg.getVecPage()) {
 				boolean matchResult = true;
 				for (SQLTerm term : sqlTerms) {
 					Object colValue = term.get_objValue();
@@ -679,6 +677,8 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 					Object currColValue = currRow.get(colName);
 					String operator = term.get_strOperator();
 					matchResult &= C.compareWithOperator(currColValue, colValue, operator);
+					if (!matchResult)
+						break;
 				}
 				if (matchResult)
 					result.add(currRow);
@@ -686,7 +686,6 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 			currPg.UnLoadPage();
 			currPg = null;
 		}
-		System.out.println("Select With Index");
 		return result;
 	}
 

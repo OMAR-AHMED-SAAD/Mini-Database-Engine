@@ -224,11 +224,9 @@ public class SQLParserAPI implements ValidatorI {
 		return null;
 	}
 
+	@SuppressWarnings("rawtypes")
 	private Iterator sqlSelect(ExtractStatement visitor) throws DBAppException {
 		String tableName = visitor.getTableName().toLowerCase();
-//		System.out.println(visitor.getSelectSqlTerms());
-//		System.out.println(visitor.getSelectOperators());
-//		return null;
 		SQLTerm[] arrSQLTerms = visitor.getSelectSqlTerms().toArray(new SQLTerm[visitor.getSelectSqlTerms().size()]);
 		String[] strarrOperators = visitor.getSelectOperators()
 				.toArray(new String[visitor.getSelectOperators().size()]);
@@ -249,7 +247,4 @@ public class SQLParserAPI implements ValidatorI {
 
 	}
 
-//	public static void main(String[] args) throws DBAppException {
-//		new SQLParserAPI(new DBApp()).sqlExecuteParse("SElect * from student where name = 'john' and age>=20 or id=50 xor a>20");
-//	}
 }

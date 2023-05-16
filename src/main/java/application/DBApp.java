@@ -9,7 +9,6 @@ import java.io.FileWriter;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.io.ObjectInputStream;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -294,7 +293,7 @@ public class DBApp implements ValidatorI, ComparatorI {
 		while (operCount < strarrOperators.length) {
 			switch (strarrOperators[operCount++]) {
 			case "and":
-				resultSet = andOperator(resultSet, arrSQLTerms[termCount++]);
+				resultSet = andOperator(resultSet, arrSQLTerms[termCount++], table);
 				break;
 			case "or":
 				resultSet = orOperator(resultSet, arrSQLTerms[termCount++], table);
@@ -307,12 +306,13 @@ public class DBApp implements ValidatorI, ComparatorI {
 		return resultSet;
 	}
 
-	private Vector<Hashtable<String, Object>> andOperator(Vector<Hashtable<String, Object>> middleResult, SQLTerm term)
-			throws DBAppException {
-		Vector<Hashtable<String, Object>> result = new Vector<>();
-		for (Hashtable<String, Object> row : middleResult) {
-			Object colValue = row.get(term.get_strColumnName());
-			if (C.compareWithOperator(colValue, term.get_objValue(), term.get_strOperator()) == true)
+	private Vector<Hashtable<String, Object>> andOperator(Vector<Hashtable<String, Object>> middleResult, SQLTerm term,
+			Table table) throws DBAppException {
+		Vector<Hashtable<String, Object>> result = new Vector<Hashtable<String, Object>>();
+		Vector<Hashtable<String, Object>> middleResult2 = table.selectLinear(term.get_strColumnName(),
+				term.get_objValue(), term.get_strOperator());
+		for (Hashtable<String, Object> row : middleResult2) {
+			if (middleResult.contains(row))
 				result.add(row);
 		}
 		return result;

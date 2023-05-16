@@ -98,6 +98,7 @@ public class Controller {
 		changed = true;
 		StringBuffer sb = new StringBuffer(s);
 		try {
+			@SuppressWarnings("unchecked")
 			Iterator<Hashtable<String, Object>> iter = db.parseSQL(sb);
 			if (iter == null) {
 				view.consoleJPanel.setForeground(Color.GREEN);
@@ -117,6 +118,7 @@ public class Controller {
 				Table table = db.LoadTable(FilePath);
 				table.ReadMetaData();
 				Vector<String> headers = table.getCreationOrder();
+				sb.append(headers);
 				db.UnLoadTable(table, FilePath);
 				while (iter.hasNext()) {
 					
