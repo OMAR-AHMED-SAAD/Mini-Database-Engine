@@ -9,7 +9,7 @@ public class LojiPleaseSelect {
 	public static void main(String[] args) throws DBAppException {
 		DBApp db=new DBApp();
 		db.init();
-		Iterator Iter=db.parseSQL(new StringBuffer("Select * from Students Where gpa=1 AND gpa=2;"));
+		Iterator Iter=db.parseSQL(new StringBuffer("Select * from Students Where id=7 AND first_name='Liam' AND dob='1996-01-10';"));
 while (Iter.hasNext()) {
 	System.out.println(Iter.next());
 	

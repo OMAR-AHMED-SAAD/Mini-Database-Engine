@@ -1,6 +1,6 @@
 TableName,Column Name,Column Type,ClusteringKey,IndexName,IndexType,min,max
-students,id,java.lang.integer,true,null,null,0,50
-students,dob,java.util.Date,false,null,null,1990-01-01,2000-12-31
-students,first_name,java.lang.String,false,null,null,AAAAAA,zzzzzz
+students,id,java.lang.integer,true,idfirst_namedobindex,Octree,0,50
+students,dob,java.util.Date,false,idfirst_namedobindex,Octree,1990-01-01,2000-12-31
+students,first_name,java.lang.String,false,idfirst_namedobindex,Octree,AAAAAA,zzzzzz
 students,last_name,java.lang.String,false,null,null,AAAAAA,zzzzzz
 students,gpa,java.lang.Double,false,null,null,0.7,5.0
