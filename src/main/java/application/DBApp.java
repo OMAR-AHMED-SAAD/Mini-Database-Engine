@@ -237,7 +237,7 @@ public class DBApp implements ValidatorI, ComparatorI {
 		if ((arrSQLTerms.length) - (strarrOperators.length) != 1)
 			throw new DBAppException("Length of the terms and operators are incompatible");
 		for (String operator : strarrOperators)
-			if ((!operator.equals("and")) || (!operator.equals("or")) || (!operator.equals("xor")))
+			if ((!operator.equals("and")) && (!operator.equals("or")) && (!operator.equals("xor")))
 				throw new DBAppException(operator + " is not supported only supported opearators are AND,OR and XOR");
 		String filePath = CreatedTables.get(frstTblName);
 		Table table = LoadTable(filePath);
