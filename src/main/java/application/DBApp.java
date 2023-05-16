@@ -260,13 +260,13 @@ public class DBApp implements ValidatorI, ComparatorI {
 	// test later on
 	@SuppressWarnings("rawtypes")
 	public Iterator selectFromTable(SQLTerm[] arrSQLTerms, String[] strarrOperators) throws DBAppException {
-		validateSelect(arrSQLTerms, strarrOperators);
 		boolean allAnd = true;
 		for (int i = 0; i < strarrOperators.length; i++) {
 			strarrOperators[i] = strarrOperators[i].toLowerCase();
 			if (!strarrOperators[i].equals("and"))
 				allAnd = false;
 		}
+		validateSelect(arrSQLTerms, strarrOperators);
 		String tableFilePath = CreatedTables.get(arrSQLTerms[0].get_strTableName());
 		Table table = LoadTable(tableFilePath);
 		table.ReadMetaData();
