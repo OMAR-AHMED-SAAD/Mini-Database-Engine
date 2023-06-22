@@ -103,12 +103,12 @@ public class SQLParserAPI implements ValidatorI {
 				throw new DBAppException("Inavlid type input");
 		}
 		db.createTable(tableName, primaryKey, NameType, min, max);
-		String FilePath = db.getCreatedTables().get(tableName);
-		Table table = db.LoadTable(FilePath);
-		table.ReadMetaData();
-		for (String col : columnNames)
-			table.getCreationOrder().add(col);
-		db.UnLoadTable(table, FilePath);
+//		String FilePath = db.getCreatedTables().get(tableName);
+//		Table table = db.LoadTable(FilePath);
+//		table.ReadMetaData();
+//		for (String col : columnNames)
+//			table.getCreationOrder().add(col);
+//		db.UnLoadTable(table, FilePath);
 		System.out.println("executed successfully");
 		return null;
 	}
