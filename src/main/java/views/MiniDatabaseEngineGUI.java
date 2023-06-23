@@ -2,7 +2,7 @@ package views;
 
 import javax.swing.JOptionPane;
 
-public class Main {
+public class MiniDatabaseEngineGUI {
 	public static void main(String args[]) {
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {

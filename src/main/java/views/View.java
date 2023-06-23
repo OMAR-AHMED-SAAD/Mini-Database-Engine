@@ -547,7 +547,7 @@ public class View extends JFrame implements ActionListener {
 				+ "      <strong>Delete:</strong><br>\n"
 				+ "      DELETE FROM employees WHERE id = 1 AND age = 30;<br><br>\n"
 				+ "      <strong>Select:</strong><br>\n"
-				+ "      SELECT name, age, dob FROM employees WHERE salary > 4000;<br><br>\n"
+				+ "      SELECT * FROM employees WHERE salary > 4000;<br><br>\n"
 				+ "      <strong>Create index (octree only):</strong><br>\n"
 				+ "      CREATE INDEX idx_employees ON employees (salary,name,age) USING OCTREE;<br>\n" + "    </p>\n"
 				+ "  </body>\n" + "</html>";
