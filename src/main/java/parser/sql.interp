@@ -35,7 +35,7 @@ null
 '.'
 ';'
 null
-'"'
+null
 '='
 '<'
 '>'
@@ -85,7 +85,7 @@ DASH
 POINT
 SEMICOL
 STRING
-DOUBLE_QUOTE
+IDENTIFIER
 EQUAL
 SMALLER
 GREATER

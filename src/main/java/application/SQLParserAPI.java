@@ -1,8 +1,8 @@
 package application;
 
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.antlr.v4.runtime.CharStream;
@@ -103,12 +103,13 @@ public class SQLParserAPI implements ValidatorI {
 				throw new DBAppException("Inavlid type input");
 		}
 		db.createTable(tableName, primaryKey, NameType, min, max);
-//		String FilePath = db.getCreatedTables().get(tableName);
-//		Table table = db.LoadTable(FilePath);
-//		table.ReadMetaData();
-//		for (String col : columnNames)
-//			table.getCreationOrder().add(col);
-//		db.UnLoadTable(table, FilePath);
+		String FilePath = db.getCreatedTables().get(tableName);
+		Table table = db.LoadTable(FilePath);
+		table.ReadMetaData();
+		table.setCreationOrder(new Vector<String>());
+		for (String col : columnNames)
+			table.getCreationOrder().add(col);
+		db.UnLoadTable(table, FilePath);
 		System.out.println("executed successfully");
 		return null;
 	}
@@ -224,8 +225,7 @@ public class SQLParserAPI implements ValidatorI {
 		return null;
 	}
 
-	@SuppressWarnings("rawtypes")
-	private Iterator sqlSelect(ExtractStatement visitor) throws DBAppException {
+	private Vector<Hashtable<String, Object>> sqlSelect(ExtractStatement visitor) throws DBAppException {
 		String tableName = visitor.getTableName().toLowerCase();
 		SQLTerm[] arrSQLTerms = visitor.getSelectSqlTerms().toArray(new SQLTerm[visitor.getSelectSqlTerms().size()]);
 		String[] strarrOperators = visitor.getSelectOperators()

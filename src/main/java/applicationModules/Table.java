@@ -36,6 +36,8 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 	private transient Hashtable<String, String> ColumnNameMin;
 	private transient Hashtable<String, String> ColumnNameMax;
 	private Vector<String> creationOrder = new Vector<String>();
+	
+
 	private Vector<OctreeDescription> octrees = new Vector<OctreeDescription>();
 
 	public Table(String name) {
@@ -699,6 +701,9 @@ public class Table implements Serializable, ComparatorI, ValidatorI {
 
 	public Vector<String> getCreationOrder() {
 		return creationOrder;
+	}
+	public void setCreationOrder(Vector<String> creationOrder) {
+		this.creationOrder = creationOrder;
 	}
 
 	public Vector<Integer> getTablePages() {

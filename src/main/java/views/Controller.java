@@ -1,10 +1,11 @@
 package views;
 
 import java.awt.Color;
-
+import java.awt.Font;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Vector;
 
 import javax.swing.text.BadLocationException;
@@ -98,14 +99,17 @@ public class Controller {
 		changed = true;
 		StringBuffer sb = new StringBuffer(s);
 		try {
-			@SuppressWarnings("unchecked")
-			Iterator<Hashtable<String, Object>> iter = db.parseSQL(sb);
-			if (iter == null) {
+			double executionTime = System.currentTimeMillis();
+			Vector<Hashtable<String, Object>> dbResult = db.parseSQL(sb);
+			executionTime = System.currentTimeMillis() - executionTime;
+			if (dbResult == null) {
+				view.consoleJPanel.setFont(view.fontd);
 				view.consoleJPanel.setForeground(Color.GREEN);
-				view.consoleJPanel.setText(" " + s + "\nexecuted succesfully");
+				view.consoleJPanel.setText("executed succesfully in " + executionTime + " ms");
 			} else {
 				// print iterator result of select statement
 				view.consoleJPanel.setForeground(Color.white);
+				view.consoleJPanel.setFont(new Font("Courier New", Font.PLAIN, 14));
 				sb = new StringBuffer();
 				CharStream cs = CharStreams.fromString(s);
 				sqlLexer lexer = new sqlLexer(cs);
@@ -117,26 +121,68 @@ public class Controller {
 				String FilePath = db.getCreatedTables().get(tableName);
 				Table table = db.LoadTable(FilePath);
 				table.ReadMetaData();
-				Vector<String> headers = table.getCreationOrder();
-				sb.append(headers);
+				Vector<String> header = table.getCreationOrder();
 				db.UnLoadTable(table, FilePath);
-				while (iter.hasNext()) {
-					
-				Hashtable<String, Object> hash=iter.next();;
-				sb.append(hash);
-				}
-					
-				//	Hashtable<String, Object>hash=iter.next();
-						//sb.append(iter.next()).append("/n");
-
+				sb.append(printSelect(dbResult, header));
+				sb.append("\nexecuted succesfully in " + executionTime + " ms");
 				view.consoleJPanel.setText(sb.toString());
-
 			}
 		} catch (DBAppException e) {
 			// TODO Auto-generated catch block
+			view.consoleJPanel.setFont(view.fontd);
 			view.consoleJPanel.setForeground(Color.RED);
-			view.consoleJPanel.setText(e.getMessage());
+			view.consoleJPanel.setText("Error: " + e.getMessage());
 		}
 	}
 
+	public String printSelect(Vector<Hashtable<String, Object>> data, Vector<String> header) {
+		StringBuilder sb = new StringBuilder();
+
+		// Determine the maximum width of each column
+		int[] columnWidths = new int[header.size()];
+		for (int i = 0; i < header.size(); i++) {
+			columnWidths[i] = header.get(i).length();
+			for (Hashtable<String, Object> row : data) {
+				Object value = row.get(header.get(i));
+				String stringValue = value + "";
+				if (value instanceof Date)
+					stringValue = new SimpleDateFormat("yyyy-MM-dd").format(value);
+				if (stringValue.length() > columnWidths[i])
+					columnWidths[i] = stringValue.length();
+			}
+		}
+
+		// Append the header row
+		for (int i = 0; i < header.size(); i++) {
+			sb.append(String.format("%-" + columnWidths[i] + "s", header.get(i)));
+			if (i < header.size() - 1)
+				sb.append(" | ");
+		}
+		sb.append("\n");
+
+		// Append a separator row
+		for (int i = 0; i < header.size(); i++) {
+			for (int j = 0; j < columnWidths[i]; j++)
+				sb.append("-");
+			if (i < header.size() - 1)
+				sb.append("-+-");
+
+		}
+		sb.append("\n");
+
+		// Append the data rows
+		for (Hashtable<String, Object> row : data) {
+			for (int i = 0; i < header.size(); i++) {
+				Object value = row.get(header.get(i));
+				String stringValue = value + "";
+				if (value instanceof Date)
+					stringValue = new SimpleDateFormat("yyyy-MM-dd").format(value);
+				sb.append(String.format("%-" + columnWidths[i] + "s", stringValue));
+				if (i < header.size() - 1)
+					sb.append(" | ");
+			}
+			sb.append("\n");
+		}
+		return sb.toString();
+	}
 }

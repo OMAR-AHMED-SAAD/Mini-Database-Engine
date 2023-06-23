@@ -11,7 +11,6 @@ import java.io.PrintWriter;
 import java.io.ObjectInputStream;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.Vector;
 
@@ -249,16 +248,13 @@ public class DBApp implements ValidatorI, ComparatorI {
 			if (table.getColumnNameType().get(currColName) == null)
 				throw new DBAppException("Column name doesn't exist for table " + currTblName);
 			V.ValidateObjectType(term.get_objValue(), table.getColumnNameType().get(currColName));
-//			V.ValidateBounds(currColName, term.get_objValue(), table.getColumnNameType(), table.getColumnNameMin(),
-//					table.getColumnNameMax());
 		}
 		UnLoadTable(table, filePath);
 		table = null;
 	}
 
-	// test later on
-	@SuppressWarnings("rawtypes")
-	public Iterator selectFromTable(SQLTerm[] arrSQLTerms, String[] strarrOperators) throws DBAppException {
+	public Vector<Hashtable<String, Object>> selectFromTable(SQLTerm[] arrSQLTerms, String[] strarrOperators)
+			throws DBAppException {
 		boolean allAnd = true;
 		for (int i = 0; i < strarrOperators.length; i++) {
 			strarrOperators[i] = strarrOperators[i].toLowerCase();
@@ -280,7 +276,7 @@ public class DBApp implements ValidatorI, ComparatorI {
 			resultSet = selectFromTableLinear(arrSQLTerms, strarrOperators, table);
 		UnLoadTable(table, tableFilePath);
 		table = null;
-		return resultSet.iterator();
+		return resultSet;
 	}
 
 	private Vector<Hashtable<String, Object>> selectFromTableLinear(SQLTerm[] arrSQLTerms, String[] strarrOperators,
@@ -344,10 +340,10 @@ public class DBApp implements ValidatorI, ComparatorI {
 		return result;
 	}
 
-	@SuppressWarnings("rawtypes")
-	public Iterator parseSQL(StringBuffer strbufSQL) throws DBAppException {
+	@SuppressWarnings("unchecked")
+	public Vector<Hashtable<String, Object>> parseSQL(StringBuffer strbufSQL) throws DBAppException {
 		SQLParserAPI sql = new SQLParserAPI(this);
-		return (Iterator) sql.sqlExecuteParse(strbufSQL.toString());
+		return (Vector<Hashtable<String, Object>>) sql.sqlExecuteParse(strbufSQL.toString());
 	}
 
 	public Hashtable<String, String> getCreatedTables() {

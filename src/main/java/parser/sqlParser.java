@@ -23,7 +23,7 @@ public class sqlParser extends Parser {
 		DOUBLE=9, UPDATE=10, SET=11, WHERE=12, INSERT=13, INTO=14, VALUES=15, 
 		DELETE=16, FROM=17, AND=18, OR=19, XOR=20, INDEX=21, ON=22, USING=23, 
 		OCTREE=24, SELECT=25, ID=26, INTEG=27, DOUB=28, DAT=29, MONTH=30, DAY=31, 
-		DASH=32, POINT=33, SEMICOL=34, STRING=35, DOUBLE_QUOTE=36, EQUAL=37, SMALLER=38, 
+		DASH=32, POINT=33, SEMICOL=34, STRING=35, IDENTIFIER=36, EQUAL=37, SMALLER=38, 
 		GREATER=39, SMALLERE=40, GREATERE=41, NOTEQUAL=42, LPRAN=43, RPRAN=44, 
 		COMMA=45, STAR=46, WS=47;
 	public static final int
@@ -57,7 +57,7 @@ public class sqlParser extends Parser {
 			null, null, null, null, null, null, null, null, null, null, null, null, 
 			null, null, null, null, null, null, null, null, null, null, null, null, 
 			null, null, null, null, null, null, null, null, "'-'", "'.'", "';'", 
-			null, "'\"'", "'='", "'<'", "'>'", "'<='", "'>='", "'!='", "'('", "')'", 
+			null, null, "'='", "'<'", "'>'", "'<='", "'>='", "'!='", "'('", "')'", 
 			"','", "'*'"
 		};
 	}
@@ -68,7 +68,7 @@ public class sqlParser extends Parser {
 			"DATE", "DOUBLE", "UPDATE", "SET", "WHERE", "INSERT", "INTO", "VALUES", 
 			"DELETE", "FROM", "AND", "OR", "XOR", "INDEX", "ON", "USING", "OCTREE", 
 			"SELECT", "ID", "INTEG", "DOUB", "DAT", "MONTH", "DAY", "DASH", "POINT", 
-			"SEMICOL", "STRING", "DOUBLE_QUOTE", "EQUAL", "SMALLER", "GREATER", "SMALLERE", 
+			"SEMICOL", "STRING", "IDENTIFIER", "EQUAL", "SMALLER", "GREATER", "SMALLERE", 
 			"GREATERE", "NOTEQUAL", "LPRAN", "RPRAN", "COMMA", "STAR", "WS"
 		};
 	}

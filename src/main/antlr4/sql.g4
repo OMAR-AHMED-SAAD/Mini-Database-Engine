@@ -152,9 +152,12 @@ POINT: '.';
 
 SEMICOL:';';
 
-STRING:	( 'n' )? '\'' ( '\'\'' | ~('\'') )* '\'' | ( 'n' )? DOUBLE_QUOTE ( '\'\'' | ~('\'') )* DOUBLE_QUOTE | ( 'n' )? DOUBLE_QUOTE STRING DOUBLE_QUOTE ;
+STRING: ( 'n' )? '\'' ( '\'\'' | ~('\''|'\r'|'\n') )* '\'' 
+      | ( 'n' )? '"' ( '\'\'' | ~('"'|'\r'|'\n') )* '"' 
+      | ( 'n' )? '"' ( '\'\'' | ~('"'|'\r'|'\n') )* '"' IDENTIFIER?
+      ;
 
-DOUBLE_QUOTE:'"';
+IDENTIFIER: [a-zA-Z]+;
 
 EQUAL: '=';
 
